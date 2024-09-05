@@ -31,13 +31,3 @@ Krusader pro správu souborů
 sudo apt install krusader
 ```
 
-# Klávesové zkratky
-
-- `Ctrl+Shift+T` - spustí WezTerm
-
-**Virtual desktops**
-
-- `Ctrl+F1` - desktop 1
-- `Ctrl+F1` - stávající okno na desktop 1
-
-
