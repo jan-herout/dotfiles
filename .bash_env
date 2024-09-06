@@ -1,1 +1,13 @@
-export PATH=$PATH:~/bin
+# ~/bin - skripty. Součást složky dotfiles.
+# ~/sbin - binárky. Není pod version controllem.
+export PATH=$PATH:~/bin:~/sbin:~/.local/bin
+
+# golang
+export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:~/go/bin
+
+# oracle
+export LD_LIBRARY_PATH=~/sbin/instantclient
+export ORACLE_HOME=~/sbin/instantclient
+export TNS_ADMIN=$ORACLE_HOME/network/admin
+export PATH=$PATH:$ORACLE_HOME
