@@ -9,33 +9,34 @@ Version=2.8.1
 Supported Packers=tar,gzip,bzip2,lzma,xz,unzip,zip,cbz,cpio,unrar,dpkg,7z
 
 [Colors]
-Alternate Background=43,49,51
-Alternate Marked Background=
-Background=49,55,57
-Current Background=128,0,0
-Current Foreground=
+Alternate Background=
+Alternate Marked Background=Alternate Background
+Background=
+Current Background=0,0,255
+Current Foreground=255,255,255
 Dim Target Color=
-Directory Foreground=248,241,155
+Directory Foreground=
+Enable Alternate Background=true
 Executable Foreground=
-Foreground=228,227,229
-Inactive Alternate Background=40,45,47
-Inactive Alternate Marked Background=Inactive Marked Background
-Inactive Background=45,51,53
-Inactive Current Background=
+Foreground=
+Inactive Alternate Background=
+Inactive Alternate Marked Background=
+Inactive Background=
+Inactive Current Background=160,160,160
 Inactive Current Foreground=
-Inactive Directory Foreground=243,236,150
-Inactive Executable Foreground=Inactive Foreground
-Inactive Foreground=221,220,222
-Inactive Invalid Symlink Foreground=Inactive Foreground
-Inactive Marked Background=120,117,114
+Inactive Directory Foreground=
+Inactive Executable Foreground=
+Inactive Foreground=
+Inactive Invalid Symlink Foreground=
+Inactive Marked Background=
 Inactive Marked Current Foreground=
-Inactive Marked Foreground=transparent
-Inactive Symlink Foreground=Inactive Foreground
+Inactive Marked Foreground=
+Inactive Symlink Foreground=
 Invalid Symlink Foreground=
 KDE Default=false
-Marked Background=0,0,255
-Marked Current Foreground=
-Marked Foreground=transparent
+Marked Background=Background
+Marked Current Foreground=255,0,0
+Marked Foreground=255,0,0
 Quicksearch Match Background=
 Quicksearch Match Foreground=
 Quicksearch Non-match Background=
@@ -94,17 +95,22 @@ xz=/usr/bin/xz
 zip=/usr/bin/zip
 
 [General]
-Editor=notepadqq
+Editor=kate
+Move To Trash=false
+Terminal=/usr/bin/konsole --separate
 
 [Konfigurator]
-Window Height=-1
-Window Maximized=true
-Window Width=-1
+Window Height=855
+Window Maximized=false
+Window Width=1464
 
 [KrViewerWindow]
-Window Height=700
+Window Height=682
 Window Maximized=false
-Window Width=900
+Window Width=2552
+
+[ListPanelButtons]
+Icons=true
 
 [Locate]
 Case Sensitive=false
@@ -117,14 +123,18 @@ Equal Button Visible=false
 Filelist Font=Sans Serif,11,-1,5,50,0,0,0,0,0
 Media Button Visible=false
 Mouse Selection=2
-Show Hidden=false
+Show Hidden=true
 Single Instance Mode=true
 
+[PanelLayout]
+FrameShape=Box
+
 [Private]
-NewFolder Completion list=vaults:1,o2:1,.ssh:1,git:1,logseq:1,install:1,ttus:1
-NewFolder History list=ttus,install,logseq,git,.ssh,o2,vaults
-PopularUrls=file:///home/jan/go/,file:///home/jan/go/bin/,file:///home/jan/.local/share/,file:///home/jan/.local/bin/,file:///home/jan/,file:///home/jan/logseq/,file:///home/jan/git/,file:///media/jan/Nový svazek/backup/ssh/,file:///home/jan/.local/,file:///home/jan/Dokumenty/,file:///home/jan/.ssh/,file:///home/jan/dotfiles/,file:///home/jan/Vaults/,file:///home/jan/Vaults/o2/,file:///home/jan/o2/,file:///home/jan/vaults/,file:///media/jan/Nový svazek/backup/OneDrive/OneDrive - Jan Herout/Firma/identity/o2cert-2024/,file:///media/jan/Nový svazek/backup/OneDrive/OneDrive - Jan Herout/Firma/identity/,file:///media/jan/Nový svazek/backup/,file:///media/jan/Nový svazek/,file:///media/jan/,file:///media/jan/Nový svazek/backup/OneDrive/OneDrive - Jan Herout/Firma/identity/o2cert/,file:///media/jan/Nový svazek/backup/OneDrive/OneDrive - Jan Herout/Firma/,file:///media/jan/Nový svazek/backup/OneDrive/OneDrive - Jan Herout/,file:///media/jan/Nový svazek/backup/OneDrive/,file:///media/jan/Nový svazek/backup/prenos/,file:///media/jan/Nový svazek/backup/Users/janhe/,file:///media/jan/Nový svazek/backup/Users/janhe/Documents/,file:///media/jan/Nový svazek/backup/Users/,file:///media/jan/Nový svazek/backup/hudba/
-PopularUrlsRank=17,14,8,6,4,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Command Execution Mode=4
+NewFolder Completion list=vaults:1,vaňková - od trůnu dál:1,o2:1,.ssh:1,git:1,logseq:1,install:1,instantclient:1,ttus:1,teams-bot:1,ntinfot404:1,BIDEV-6231-cleanuú:1,buddy:1,front:1,audio:1,adept:1,ebooks:1,comedy:1,calibre:1,cert:1,historie:1,supplicant:1
+NewFolder History list=supplicant,cert,calibre,adept,vaňková - od trůnu dál,historie,comedy,ebooks,audio,front,buddy,teams-bot,BIDEV-6231-cleanuú,ntinfot404,instantclient,ttus,install,logseq,git,.ssh,o2,vaults
+PopularUrls=file:///home/jan/,file:///home/jan/Vaults/o2/,file:///home/jan/Vaults/,file:///home/jan/Dokumenty/portable.apps/Documents/,file:///home/jan/Dokumenty/portable.apps/Documents/Music/,file:///home/jan/Dokumenty/portable.apps/PortableApps/sqlite_browser/,file:///home/jan/Dokumenty/portable.apps/PortableApps/sqlinform5/,file:///home/jan/Dokumenty/portable.apps/PortableApps/sqlinform_corporate_TD/,file:///home/jan/Dokumenty/portable.apps/PortableApps/SQLINFORM/,file:///home/jan/Dokumenty/portable.apps/PortableApps/KeePasssPortable/,file:///home/jan/Dokumenty/portable.apps/PortableApps/KeePassPortable/,file:///home/jan/Dokumenty/portable.apps/,file:///home/jan/Dokumenty/,file:///home/jan/Dokumenty/portable.apps/PortableApps/7-ZipPortable/,file:///home/jan/Dokumenty/ebooks/,file:///home/jan/Dokumenty/portable.apps/PortableApps/,file:///home/jan/Dokumenty/portable.apps/PortableApps/_IN_PATH_/,file:///home/jan/Dokumenty/portable.apps/PortableApps/HxEd/,file:///home/jan/Dokumenty/portable.apps/PortableApps/CS/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/_import/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/_import/Kosmas/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/_import/Amazon/,file:///home/jan/Dokumenty/ebooks/calibre/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Settings/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/3 Dreamland/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/12/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/1 Dreamland/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/1 Dreamland/V siti snu (15390)/
+PopularUrlsRank=21,18,17,14,13,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 Start Position=2560,80
 Start Size=2560,1440
 cmdline history=
@@ -147,7 +157,7 @@ Descending Sort Order=0
 Filter=3
 FilterApplysToDirs=false
 IconSize=22
-Saved State=\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\xff\xff\xff\xff\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0b\xa8\x07\x00\x00\x00\x06\x00\x00\x00\x05\x00\x00\x00d\x00\x00\x00\x03\x00\x00\x00d\x00\x00\x00\n\x00\x00\x00d\x00\x00\x00\x08\x00\x00\x00d\x00\x00\x00\t\x00\x00\x00d\x00\x00\x00\x07\x00\x00\x00d\x00\x00\x02\xaf\x00\x00\x00\x0b\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00d\xff\xff\xff\xff\x00\x00\x00\x81\x00\x00\x00\x00\x00\x00\x00\x0b\x00\x00\x01m\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00=\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00d\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00|\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00%\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x03\xe8\x00\x00\x00\x00d
+Saved State=\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\xff\xff\xff\xff\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0b\xa8\x07\x00\x00\x00\x06\x00\x00\x00\t\x00\x00\x00d\x00\x00\x00\x08\x00\x00\x00d\x00\x00\x00\x03\x00\x00\x00d\x00\x00\x00\x07\x00\x00\x00d\x00\x00\x00\x05\x00\x00\x00d\x00\x00\x00\n\x00\x00\x00d\x00\x00\x02\xaf\x00\x00\x00\x0b\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00d\xff\xff\xff\xff\x00\x00\x00\x81\x00\x00\x00\x00\x00\x00\x00\x0b\x00\x00\x01m\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00=\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00d\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00|\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00%\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x03\xe8\x00\x00\x00\x00d
 ShowPreviews=false
 Sort Column=-1
 
@@ -159,7 +169,7 @@ Show FN Keys=true
 Show Terminal Emulator=false
 Show status bar=true
 Splitter Sizes=1279,1278
-State=\x00\x00\x00\xff\x00\x00\x00\x00\xfd\x00\x00\x00\x00\x00\x00\n\x00\x00\x00\x05N\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x08\xfc\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x16\x00m\x00a\x00i\x00n\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x14\x00j\x00o\x00b\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x02\xbe\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1c\x00a\x00c\x00t\x00i\x00o\x00n\x00s\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x03y\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00
+State=\x00\x00\x00\xff\x00\x00\x00\x00\xfd\x00\x00\x00\x00\x00\x00\t\xf8\x00\x00\x05N\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x08\xfc\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x16\x00m\x00a\x00i\x00n\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x14\x00j\x00o\x00b\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x02\xbe\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1c\x00a\x00c\x00t\x00i\x00o\x00n\x00s\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x03y\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00
 Terminal Emulator Splitter Sizes=100,100
 Vertical Mode=false
 
@@ -210,6 +220,9 @@ IconSize=22
 Saved State=\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0b\xa8\x07\x00\x00\x00\x06\x00\x00\x00\t\x00\x00\x00d\x00\x00\x00\x08\x00\x00\x00d\x00\x00\x00\n\x00\x00\x00d\x00\x00\x00\x05\x00\x00\x00d\x00\x00\x00\x07\x00\x00\x00d\x00\x00\x00\x03\x00\x00\x00d\x00\x00\x04\xfa\x00\x00\x00\x0b\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00d\xff\xff\xff\xff\x00\x00\x00\x81\x00\x00\x00\x00\x00\x00\x00\x0b\x00\x00\x03\xf4\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x001\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00P\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00c\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00"\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x03\xe8\x00\x00\x00\x00d
 ShowPreviews=false
 Sort Column=0
+
+[UserActions]
+Terminal=/usr/bin/konsole --noclose --workdir %d --title %t -e
 
 [ViewerModule]
 FirstRun=false

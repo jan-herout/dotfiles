@@ -1,0 +1,6 @@
+_MNT_=/mnt/dev-virt-node
+
+sudo umount $_MNT_
+
+
+

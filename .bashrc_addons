@@ -1,0 +1,35 @@
+# ~/bin - skripty. Součást složky dotfiles.
+# ~/sbin - binárky. Není pod version controllem.
+export PATH=$PATH:~/bin:~/sbin:~/.local/bin
+
+# golang
+export PATH=$PATH:/usr/local/go/bin
+export PATH=$PATH:~/go/bin
+
+export LD_LIBRARY_PATH=$HOME/sbin/$PWD/usr/lib/oracle/21/client64/lib:$LD_LIBRARY_PATH
+export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
+
+# aliases
+alias vim="nvim"
+
+#################################š
+# pyenv
+# Load pyenv automatically by appending
+# the following to
+# ~/.bash_profile if it exists, otherwise ~/.profile (for login shells)
+# and ~/.bashrc (for interactive shells) :
+
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+eval "$(pyenv virtualenv-init -)"
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
+# ph completions
+source '/home/jan/.bash_completions/ph.sh'
+
+# zoxide
+eval "$(zoxide init bash)"

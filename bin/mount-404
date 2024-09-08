@@ -1,0 +1,11 @@
+_ME_=`whoami`
+_UID_=`id -u $_ME_`
+_GID_=`id -g $_ME_`
+_PASS_=`cat ~/Vaults/o2/domain-password.txt`
+_MNT_=/mnt/dev-virt-node
+_SRC_=//ntinfot404.to2.to2cz.cz/VIRT_NODE
+
+sudo mount -t cifs -o rw,domain=TO2,username=X0548834,password=$_PASS_,uid=$_UID_,gid=$_GID_,dir_mode=0755,file_mode=0755 $_SRC_ $_MNT_
+
+
+

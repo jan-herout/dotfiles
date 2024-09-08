@@ -35,4 +35,10 @@ wezterm.on('gui-startup', function()
  window:gui_window():maximize()
 end)
 
+
+config.keys = {
+    {key="+", mods="SHIFT|ALT", action=wezterm.action.SplitHorizontal({ domain="CurrentPaneDomain" })},
+    {key="-", mods="SHIFT|ALT", action=wezterm.action.SplitVertical({ domain="CurrentPaneDomain" })},
+  }
+
 return config
