@@ -11,6 +11,9 @@ export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
 
 # aliases
 alias vim="nvim"
+alias cls="clear"
+alias config="nvim ~/.bashrc_addons"
+alias ga="git add --all && git commit"
 export EDITOR=nvim
 
 export PRESS_MODEL_DIR=/home/jan/o2/bimeta/press/models.lin
