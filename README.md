@@ -19,6 +19,7 @@ sudo apt install stow
 sudo apt install distrobox
 sudo apt install openconnect network-manager-openconnect
 sudo apt install ripgrep fzf
+sudo apt install git-flow
 ```
 
 Flatpak - instaluji:

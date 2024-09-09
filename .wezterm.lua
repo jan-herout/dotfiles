@@ -20,7 +20,6 @@ config.window_frame = {
 }
 
 -- config.disable_default_key_bindings = true
-
 -- The shell configured for the current user in the password database will be used. 
 -- The value of the $SHELL environment variable is deliberately ignored in order for wezterm 
 -- to continue to be functional without restarting after the user changes their shell.
@@ -35,10 +34,20 @@ wezterm.on('gui-startup', function()
  window:gui_window():maximize()
 end)
 
+config.leader = { key = 'b', mods = 'CTRL' }
 
 config.keys = {
-    {key="+", mods="SHIFT|ALT", action=wezterm.action.SplitHorizontal({ domain="CurrentPaneDomain" })},
-    {key="-", mods="SHIFT|ALT", action=wezterm.action.SplitVertical({ domain="CurrentPaneDomain" })},
-  }
+    {key="+",   	mods="LEADER",     action=wezterm.action.SplitHorizontal({ domain="CurrentPaneDomain" })},
+    {key="-",   	mods="LEADER",     action=wezterm.action.SplitVertical({ domain="CurrentPaneDomain" })},
+    {key="LeftArrow",   mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Left', 5 } },
+    {key="RightArrow",  mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Right', 5 } },
+    {key="UpArrow",     mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Up', 5 } },
+    {key="DownArrow",   mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Down', 5 } },
+ 
+    {key="h",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Left'},
+    {key="l",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Right'},
+    {key="k",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Up'},
+    {key="j",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Down'},
 
+}
 return config
