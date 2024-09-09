@@ -12,7 +12,7 @@ export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
 # aliases
 alias vim="nvim"
 alias cls="clear"
-alias config="nvim ~/.bashrc_addons"
+alias config="nvim ~/.bashrc_addons && source ~/.bashrc"
 alias ga="git add --all && git commit"
 export EDITOR=nvim
 
@@ -52,4 +52,9 @@ proxon () {
 
 proxoff () {
 	source ~/bin/set-proxy-off
+}
+
+teams () {
+	source ~/bin/set-proxy-on
+	flatpak run com.google.Chrome > /dev/null 2>&1  &
 }

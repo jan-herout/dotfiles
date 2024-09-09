@@ -16,9 +16,9 @@ Z repozitářů:
 ```bash
 sudo apt install timeshift
 sudo apt install stow
-sudo apt install zsh
 sudo apt install distrobox
 sudo apt install openconnect network-manager-openconnect
+sudo apt install ripgrep fzf
 ```
 
 Flatpak - instaluji:
@@ -58,6 +58,12 @@ SVN
 
 ```bash
 sudo apt intall kdesvn
+```
+
+oh-my-bash - pozor, likviduje `~/.bashrc`.
+
+```
+bash -c "$(wget https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh -O -)"
 ```
 
 
