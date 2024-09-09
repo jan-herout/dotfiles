@@ -12,7 +12,7 @@ export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
 # aliases
 alias vim="nvim"
 alias cls="clear"
-alias config="nvim ~/.bashrc_addons && source ~/.bashrc"
+alias config="cd ~/dotfiles && nvim ."
 alias ga="git add --all && git commit"
 export EDITOR=nvim
 
