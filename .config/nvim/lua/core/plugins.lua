@@ -14,14 +14,17 @@ end
 
 local packer_bootstrap = ensure_packer()
 
+-- after plugins are added,, run command :PackerSync
 local packr_config = require('packer').startup(function(use)
-  use 'wbthomason/packer.nvim'
-  use {
+  	use 'wbthomason/packer.nvim'
+  	use {
 	  'nvim-telescope/telescope.nvim', 
 	  tag = '0.1.8',
 	  requires = { {'nvim-lua/plenary.nvim'} },
 
 	}
+	use { "catppuccin/nvim", as = "catppuccin" }
+	use('nvim-treesitter/nvim-treesitter', { run = ':TSUpdate'})
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then
@@ -29,6 +32,7 @@ local packr_config = require('packer').startup(function(use)
   end
 end)
 
+-- telescope: always search only under current working directory
 require('telescope').setup {
   defaults = {  },
   pickers = {
@@ -39,6 +43,8 @@ require('telescope').setup {
   },
 }
 
+
+-- see also .config/nvim/after.config/nvim/after - config which runs after plugins are loaded
 
 return packr_config
 -----------------------------------------------------------------------------------------------
