@@ -123,7 +123,7 @@ Equal Button Visible=false
 Filelist Font=Sans Serif,11,-1,5,50,0,0,0,0,0
 Media Button Visible=false
 Mouse Selection=2
-Show Hidden=true
+Show Hidden=false
 Single Instance Mode=true
 
 [PanelLayout]
@@ -133,8 +133,8 @@ FrameShape=Box
 Command Execution Mode=4
 NewFolder Completion list=vaults:1,vaňková - od trůnu dál:1,o2:1,.ssh:1,git:1,logseq:1,install:1,instantclient:1,ttus:1,teams-bot:1,ntinfot404:1,BIDEV-6231-cleanuú:1,buddy:1,front:1,audio:1,adept:1,ebooks:1,comedy:1,calibre:1,cert:1,historie:1,supplicant:1
 NewFolder History list=supplicant,cert,calibre,adept,vaňková - od trůnu dál,historie,comedy,ebooks,audio,front,buddy,teams-bot,BIDEV-6231-cleanuú,ntinfot404,instantclient,ttus,install,logseq,git,.ssh,o2,vaults
-PopularUrls=file:///home/jan/,file:///home/jan/Vaults/o2/,file:///home/jan/Vaults/,file:///home/jan/Dokumenty/portable.apps/Documents/,file:///home/jan/Dokumenty/portable.apps/Documents/Music/,file:///home/jan/Dokumenty/portable.apps/PortableApps/sqlite_browser/,file:///home/jan/Dokumenty/portable.apps/PortableApps/sqlinform5/,file:///home/jan/Dokumenty/portable.apps/PortableApps/sqlinform_corporate_TD/,file:///home/jan/Dokumenty/portable.apps/PortableApps/SQLINFORM/,file:///home/jan/Dokumenty/portable.apps/PortableApps/KeePasssPortable/,file:///home/jan/Dokumenty/portable.apps/PortableApps/KeePassPortable/,file:///home/jan/Dokumenty/portable.apps/,file:///home/jan/Dokumenty/,file:///home/jan/Dokumenty/portable.apps/PortableApps/7-ZipPortable/,file:///home/jan/Dokumenty/ebooks/,file:///home/jan/Dokumenty/portable.apps/PortableApps/,file:///home/jan/Dokumenty/portable.apps/PortableApps/_IN_PATH_/,file:///home/jan/Dokumenty/portable.apps/PortableApps/HxEd/,file:///home/jan/Dokumenty/portable.apps/PortableApps/CS/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/_import/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/_import/Kosmas/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/_import/Amazon/,file:///home/jan/Dokumenty/ebooks/calibre/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Settings/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/3 Dreamland/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/12/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/1 Dreamland/,file:///home/jan/Dokumenty/portable.apps/PortableApps/Calibre Portable/Calibre Library/1 Dreamland/V siti snu (15390)/
-PopularUrlsRank=21,18,17,14,13,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+PopularUrls=file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/DB/,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/DB/_deployment/,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/log/,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/,file:///home/jan/o2/feature/,file:///home/jan/git/,file:///home/jan/git/pypress/,file:///home/jan/Vaults/o2/,file:///home/jan/o2/svn-production/db/Teradata/,file:///home/jan/o2/svn-production/db/,file:///home/jan/o2/svn-production/,file:///home/jan/o2/,file:///home/jan/o2/bimeta/,file:///home/jan/,file:///home/jan/o2/bimeta/press/,file:///home/jan/o2/go-press/,file:///home/jan/o2/py-edw-monitor/,file:///home/jan/Vaults/,file:///mnt/,file:///mnt/prod-virt-node/,file:///home/jan/Stažené/,file:///mnt/dev-virt-node/,file:///home/jan/.oh-my-bash/themes/herout/,file:///media/jan/,file:///home/jan/.oh-my-bash/themes/agnoster/,file:///home/jan/.oh-my-bash/themes/,file:///media/jan/prov-virt-node/,file:///home/jan/.oh-my-bash/,file:///media/jan/prod-dev-fix/
+PopularUrlsRank=16,13,11,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 Start Position=2560,80
 Start Size=2560,1440
 cmdline history=
@@ -169,7 +169,7 @@ Show FN Keys=true
 Show Terminal Emulator=false
 Show status bar=true
 Splitter Sizes=1279,1278
-State=\x00\x00\x00\xff\x00\x00\x00\x00\xfd\x00\x00\x00\x00\x00\x00\t\xf8\x00\x00\x05N\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x08\xfc\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x16\x00m\x00a\x00i\x00n\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x14\x00j\x00o\x00b\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x02\xbe\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1c\x00a\x00c\x00t\x00i\x00o\x00n\x00s\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x03y\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00
+State=\x00\x00\x00\xff\x00\x00\x00\x00\xfd\x00\x00\x00\x00\x00\x00\n\x00\x00\x00\x05\x04\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x08\xfc\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x16\x00m\x00a\x00i\x00n\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x14\x00j\x00o\x00b\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x02\xbe\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1c\x00a\x00c\x00t\x00i\x00o\x00n\x00s\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x03y\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00
 Terminal Emulator Splitter Sizes=100,100
 Vertical Mode=false
 

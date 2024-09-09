@@ -11,6 +11,14 @@ export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
 
 # aliases
 alias vim="nvim"
+export EDITOR=nvim
+
+export PRESS_MODEL_DIR=/home/jan/o2/bimeta/press/models.lin
+export PRESS_VIEW_DIR=/home/jan/o2/bimeta/press
+export PRESS_PROFILE_DIR=/home/jan/o2/bimeta/press/profiles
+export PRESS_PDC_METADATA_FILE=/home/jan/o2/bimeta/ModelMetadata/PDCMetadata.json
+export PRESS_PRODUCTION_DDL_DIR=/home/jan/o2/svn-production/db/Teradata/DDL
+
 
 #################################š
 # pyenv
@@ -33,3 +41,12 @@ source '/home/jan/.bash_completions/ph.sh'
 
 # zoxide
 eval "$(zoxide init bash)"
+
+# proxy functions
+proxon () {
+	source ~/bin/set-proxy-on
+}
+
+proxoff () {
+	source ~/bin/set-proxy-off
+}
