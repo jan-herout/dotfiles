@@ -55,6 +55,7 @@ proxoff () {
 }
 
 teams () {
-	source ~/bin/set-proxy-on
-	flatpak run com.google.Chrome > /dev/null 2>&1  &
+	# source ~/bin/set-proxy-on
+	# firefox --private-window  "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
+	google-chrome "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
 }

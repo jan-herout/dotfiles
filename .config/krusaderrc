@@ -1,7 +1,7 @@
 2 screens: Window-Maximized=true
 Config Version=1
 First Time=false
-State=AAAA/wAAAAD9AAAAAAAACgAAAAT+AAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAMAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgEAAAAA/////wAAAAAAAAAAAAAAFABqAG8AYgBUAG8AbwBsAEIAYQByAQAAAr7/////AAAAAAAAAAAAAAAcAGEAYwB0AGkAbwBuAHMAVABvAG8AbABCAGEAcgEAAAN5/////wAAAAAAAAAA
+State=AAAA/wAAAAD9AAAAAAAACgAAAAUEAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAMAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgEAAAAA/////wAAAAAAAAAAAAAAFABqAG8AYgBUAG8AbwBsAEIAYQByAQAAAr7/////AAAAAAAAAAAAAAAcAGEAYwB0AGkAbwBuAHMAVABvAG8AbABCAGEAcgEAAAN5/////wAAAAAAAAAA
 ToolBarsMovable=Disabled
 Version=2.8.1
 
@@ -59,9 +59,10 @@ Synchronizer RightCopy Background=46,52,54
 Synchronizer RightCopy Foreground=85,255,127
 
 [Custom Selection Mode]
-Immediate Context Menu=false
+Immediate Context Menu=true
 Left Selects=false
-Right Preserves=true
+Right Preserves=false
+Right Selects=false
 ShiftCtrl Left Selects=true
 Space Moves Down=false
 
@@ -109,9 +110,9 @@ Window Maximized=false
 Window Width=1464
 
 [KrViewerWindow]
-Window Height=682
-Window Maximized=false
-Window Width=2552
+Window Height=-1
+Window Maximized=true
+Window Width=-1
 
 [ListPanelButtons]
 Icons=true
@@ -123,10 +124,12 @@ Existing Files=false
 Search For=dotfiles
 
 [Look&Feel]
-Equal Button Visible=false
+Default Search Mode=2
+Equal Button Visible=true
 Filelist Font=Sans Serif,11,-1,5,50,0,0,0,0,0
 Media Button Visible=false
-Mouse Selection=2
+Mouse Selection=3
+Quicksearch Position=top
 Show Hidden=false
 Single Instance Mode=true
 
@@ -135,25 +138,26 @@ FrameShape=Box
 
 [Private]
 Command Execution Mode=4
-NewFolder Completion list=vaults:1,vaňková - od trůnu dál:1,o2:1,.ssh:1,git:1,logseq:1,install:1,instantclient:1,ttus:1,teams-bot:1,ntinfot404:1,BIDEV-6231-cleanuú:1,buddy:1,bidev-6231-cdc-cleanup:1,front:1,audio:1,adept:1,ebooks:1,comedy:1,calibre:1,cert:1,historie:1,supplicant:1,sprint_24-09-03:1,pika:1,dbeaver-scripts:1,Scripts:1
-NewFolder History list=bidev-6231-cdc-cleanup,sprint_24-09-03,Scripts,dbeaver-scripts,pika,supplicant,cert,calibre,adept,vaňková - od trůnu dál,historie,comedy,ebooks,audio,front,buddy,teams-bot,BIDEV-6231-cleanuú,ntinfot404,instantclient,ttus,install,logseq,git,.ssh,o2,vaults
-PopularUrls=file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/DB/,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/DB/_deployment/,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/log/,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/,file:///home/jan/o2/feature/,file:///home/jan/git/,file:///home/jan/git/pypress/,file:///home/jan/Vaults/o2/,file:///home/jan/o2/svn-production/db/Teradata/,file:///home/jan/o2/svn-production/db/,file:///home/jan/o2/svn-production/,file:///home/jan/o2/,file:///home/jan/o2/bimeta/,file:///home/jan/,file:///home/jan/o2/bimeta/press/,file:///home/jan/o2/go-press/,file:///home/jan/o2/py-edw-monitor/,file:///home/jan/Vaults/,file:///mnt/,file:///mnt/prod-virt-node/,file:///home/jan/Stažené/,file:///mnt/dev-virt-node/,file:///home/jan/.oh-my-bash/themes/herout/,file:///media/jan/,file:///home/jan/.oh-my-bash/themes/agnoster/,file:///home/jan/.oh-my-bash/themes/,file:///media/jan/prov-virt-node/,file:///home/jan/.oh-my-bash/,file:///media/jan/prod-dev-fix/
-PopularUrlsRank=16,13,11,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+NewFolder Completion list=vaults:1,vaňková - od trůnu dál:1,o2:1,.ssh:1,git:1,logseq:1,install:1,instantclient:1,ttus:1,teams-bot:1,ntinfot404:1,net-mount-points:1,BIDEV-6231-cleanuú:1,buddy:2,bidev-6231-cdc-cleanup:1,backend:2,front:1,audio:1,adept:1,azure:1,ebooks:1,comedy:1,calibre:1,cert:1,historie:1,supplicant:1,sprint_24-09-03:1,sandbox:1,pika:1,pdc:1,prepdocs:1,dbeaver-scripts:1,dist:1,Scripts:1,2012:1,06-faktury-old:1,megadeploy:1
+NewFolder History list=net-mount-points,prepdocs,backend,buddy,megadeploy,sandbox,azure,pdc,06-faktury-old,2012,dist,bidev-6231-cdc-cleanup,sprint_24-09-03,Scripts,dbeaver-scripts,pika,supplicant,cert,calibre,adept,vaňková - od trůnu dál,historie,comedy,ebooks,audio,front,teams-bot,BIDEV-6231-cleanuú,ntinfot404,instantclient,ttus,install,logseq,git,.ssh,o2,vaults
+PopularUrls=file:///home/jan/o2/virtual-buddy/notebooks/,file:///home/jan/Dokumenty/azure/MS-203-messaging/,file:///home/jan/o2/virtual-buddy/,file:///home/jan/Dokumenty/azure/AZ-900-fundamentals/,file:///home/jan/o2/,file:///home/jan/Dokumenty/azure/MS-700/,file:///home/jan/,file:///home/jan/Dokumenty/azure/MS-203/,file:///home/jan/o2/virtual-buddy/backend/,file:///home/jan/Dokumenty/azure/,file:///home/jan/Dokumenty/azure/AZ-900/,file:///home/jan/Dokumenty/azure/AZ-305/,file:///home/jan/Stažené/,krarc:/home/jan/Stažené/MS-203.zip/,krarc:/home/jan/Stažené/MS-700.zip/,krarc:/home/jan/Stažené/AZ-900.zip/,krarc:/home/jan/Stažené/AZ-305.zip/,krarc:/home/jan/Stažené/AZ-305.zip/AZ-305/,file:///home/jan/o2/virtual-buddy-bi/backend/,file:///home/jan/Dokumenty/,file:///home/jan/o2/bidoc/src/o2edw/,file:///home/jan/o2/bidoc/src/o2edw/ispec/,file:///home/jan/o2/bidoc/src/,file:///home/jan/o2/virtual-buddy/backend/scripts/,file:///home/jan/o2/virtual-buddy-bi/,file:///home/jan/o2/virtual-buddy/backend/app/api/,file:///home/jan/o2/virtual-buddy/backend/app/,file:///home/jan/o2/bidoc/,file:///home/jan/o2/virtual-buddy-bi/prepdocs/,file:///home/jan/o2/log-monitor/
+PopularUrlsRank=19,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 Start Position=2560,80
 Start Size=2560,1440
 cmdline history=
 
 [Search]
-ContainsText Completion=
-ContainsText History=
+ContainsText Completion=alter
+ContainsText History=alter
 ExcludeFolderNames=
 ExcludeFolderNamesHistory=
 ExcludeFolderNamesUse=0
-SearchFor Completion=obrázky,goimports
-SearchFor History=goimports,obrázky
-Window Height=702
+Feed To Listbox Counter=2
+SearchFor Completion=obrázky,goimports,geo_ofr_adr,*,*geo_ofr_addr*,*.xls*,*org_str_zp_dn1*,*org_struct_sc*,sfa_account
+SearchFor History=*,*org_struct_sc*,*org_str_zp_dn1*,*.xls*,geo_ofr_adr,sfa_account,*geo_ofr_addr*,goimports,obrázky
+Window Height=701
 Window Maximized=false
-Window Width=733
+Window Width=1316
 
 [Search][ResultView]
 AutoResizeColumns=true
@@ -161,7 +165,7 @@ Descending Sort Order=0
 Filter=3
 FilterApplysToDirs=false
 IconSize=22
-Saved State=\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\xff\xff\xff\xff\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0b\xa8\x07\x00\x00\x00\x06\x00\x00\x00\x07\x00\x00\x00d\x00\x00\x00\t\x00\x00\x00d\x00\x00\x00\x08\x00\x00\x00d\x00\x00\x00\n\x00\x00\x00d\x00\x00\x00\x03\x00\x00\x00d\x00\x00\x00\x05\x00\x00\x00d\x00\x00\x02\xaf\x00\x00\x00\x0b\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00d\xff\xff\xff\xff\x00\x00\x00\x81\x00\x00\x00\x00\x00\x00\x00\x0b\x00\x00\x01m\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00=\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00d\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00|\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00%\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x03\xe8\x00\x00\x00\x00d
+Saved State=\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\xff\xff\xff\xff\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0b\xa8\x07\x00\x00\x00\x06\x00\x00\x00\x03\x00\x00\x00d\x00\x00\x00\n\x00\x00\x00d\x00\x00\x00\t\x00\x00\x00d\x00\x00\x00\x08\x00\x00\x00d\x00\x00\x00\x07\x00\x00\x00d\x00\x00\x00\x05\x00\x00\x00d\x00\x00\x04\xf6\x00\x00\x00\x0b\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00d\xff\xff\xff\xff\x00\x00\x00\x81\x00\x00\x00\x00\x00\x00\x00\x0b\x00\x00\x03\xb4\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00=\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00d\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00|\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00%\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x03\xe8\x00\x00\x00\x00d
 ShowPreviews=false
 Sort Column=-1
 
@@ -173,7 +177,7 @@ Show FN Keys=true
 Show Terminal Emulator=false
 Show status bar=true
 Splitter Sizes=1279,1278
-State=\x00\x00\x00\xff\x00\x00\x00\x00\xfd\x00\x00\x00\x00\x00\x00\n\x00\x00\x00\x05\x04\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x08\xfc\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x16\x00m\x00a\x00i\x00n\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x14\x00j\x00o\x00b\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x02\xbe\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1c\x00a\x00c\x00t\x00i\x00o\x00n\x00s\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x03y\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00
+State=\x00\x00\x00\xff\x00\x00\x00\x00\xfd\x00\x00\x00\x00\x00\x00\x07\x80\x00\x00\x03\x9c\x00\x00\x00\x04\x00\x00\x00\x04\x00\x00\x00\x08\x00\x00\x00\x08\xfc\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03\x00\x00\x00\x16\x00m\x00a\x00i\x00n\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x14\x00j\x00o\x00b\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x02\xbe\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1c\x00a\x00c\x00t\x00i\x00o\x00n\x00s\x00T\x00o\x00o\x00l\x00B\x00a\x00r\x01\x00\x00\x03y\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00
 Terminal Emulator Splitter Sizes=100,100
 Vertical Mode=false
 
@@ -230,3 +234,24 @@ Terminal=/usr/bin/konsole --noclose --workdir %d --title %t -e
 
 [ViewerModule]
 FirstRun=false
+
+[closedTab_129467628464448]
+PinnedUrl=
+Properties=0
+Type=0
+Url=file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/podklady
+
+[closedTab_129467628464448][History]
+CurrentIndex=0
+CurrentItems=sample2,..,sample2,podklady,BIDEV-6138-EBOX-STG,feature,o2,..,ebox_addons.py,EBOX_ADDONS,LND,py_scripts,PMRootDir_ASG
+Entrys=file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/podklady,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/podklady/sample2,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/podklady,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG,file:///home/jan/o2/feature,file:///home/jan/o2,file:///home/jan,file:///mnt/dev-virt-node,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/SRC/PMRootDir_ASG/py_scripts/LND/EBOX_ADDONS,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/SRC/PMRootDir_ASG/py_scripts/LND,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/SRC/PMRootDir_ASG/py_scripts,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/SRC/PMRootDir_ASG,file:///home/jan/o2/feature/BIDEV-6138-EBOX-STG/output/SRC
+
+[closedTab_129467628464448][View]
+AutoResizeColumns=true
+Descending Sort Order=0
+Filter=3
+FilterApplysToDirs=false
+IconSize=22
+Saved State=\x00\x00\x00\xff\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x0b\xa8\x07\x00\x00\x00\x06\x00\x00\x00\x03\x00\x00\x00d\x00\x00\x00\n\x00\x00\x00d\x00\x00\x00\t\x00\x00\x00d\x00\x00\x00\x08\x00\x00\x00d\x00\x00\x00\x07\x00\x00\x00d\x00\x00\x00\x05\x00\x00\x00d\x00\x00\x04\xfa\x00\x00\x00\x0b\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00d\xff\xff\xff\xff\x00\x00\x00\x81\x00\x00\x00\x00\x00\x00\x00\x0b\x00\x00\x03\xf4\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x001\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00P\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00c\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00"\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x03\xe8\x00\x00\x00\x00d
+ShowPreviews=false
+Sort Column=0

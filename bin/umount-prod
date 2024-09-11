@@ -1,6 +1,0 @@
-_MNT_=/mnt/prod-virt-node
-
-sudo umount $_MNT_
-
-
-
