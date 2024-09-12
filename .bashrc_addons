@@ -1,5 +1,4 @@
-# ~/bin - skripty. Součást složky dotfiles.
-# ~/sbin - binárky. Není pod version controllem.
+#!/bin/bash
 export PATH=$PATH:~/bin:~/sbin:~/.local/bin
 
 # golang
@@ -42,8 +41,72 @@ eval "$(pyenv init -)"
 # ph completions
 source '/home/jan/.bash_completions/ph.sh'
 
-# zoxide
+# zoxide a fzf
 eval "$(zoxide init bash)"
+
+if command -v fzf &>/dev/null
+then
+	[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
+	[ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
+	
+	# use fd instead of find
+	if command -v fd &>/dev/null
+	then
+		export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+		export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+		export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+		
+		# use fd to list path candidates
+		_fzf_compgen_path() {
+			fd --hidden --exclude .git . "$1"
+		}
+
+		# use fd to generate list for dir completion
+		_fzf_compgen_dir() {
+			fd --type=d --hidden --exclude -git . "$1"
+		}
+	fi
+
+	# use batcat and eza for preview in fzf
+	if command -v batcat &>/dev/null; then
+		export MANPAGER="bash -c 'col -bx | batcat -l man -p'" # colorized man
+		export FZF_CTRL_T_OPTS="--preview 'batcat -n --color=always --line-range :500 {}'"
+
+		help() {
+			"$@" --help 2>&1 | batcat --plain 
+		}
+		_fzf_comprun() {
+			local command=$1
+			shift
+			case "$command" in
+				cd)		fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
+				export|unset)	fzf --preview "eval 'echo \$' {}"	"$@" ;;
+				ssh)		fzf --preview 'dig {}'			"$@" ;;
+				*)		fzf --preview "'batcat -n --color=always --line-range :500 {}'" "$@" ;;
+			esac
+		}
+	fi
+
+	if command -v eza &>/dev/null; then
+		export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
+	fi
+fi
+
+
+
+# batcat
+if command -v batcat &>/dev/null
+then
+	alias bat="batcat"
+fi
+
+# eza
+if command -v eza &>/dev/null
+then
+	alias ll="/usr/bin/ls -lA"
+	alias la="/usr/bin/ls -A"
+	alias ls="eza --color=always --long --git -b --icons --no-time --no-user --no-permissions -h"
+fi
 
 # proxy functions
 proxon () {

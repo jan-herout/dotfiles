@@ -18,8 +18,26 @@ sudo apt install timeshift
 sudo apt install stow
 sudo apt install distrobox
 sudo apt install openconnect network-manager-openconnect
-sudo apt install ripgrep fzf
+sudo apt install ripgrep fzf fd-find
 sudo apt install git-flow
+```
+
+Proč instaluji fzf, fd-find, eza, a batcat
+
+- Po instalaci fzf je v terminálu možné po stistku `Ctrl+T` použít fuzzy find na úrovni jednotlivých souborů.
+- Pro adresáře existuje zkratka `Alt+C`.
+
+
+Eza, replacement za ls.
+
+```bash
+sudo apt install gpg
+sudo mkdir -p /etc/apt/keyrings
+wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+sudo apt update
+sudo apt install -y eza
 ```
 
 Flatpak - instaluji:
@@ -33,7 +51,6 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 sudo flatpak install com.logseq.Logseq io.dbeaver.DBeaverCommunity
 sudo flatpak install flathub org.wezfurlong.wezterm
 ```
-
 
 Krusader pro správu souborů
 
