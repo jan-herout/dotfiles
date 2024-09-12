@@ -17,7 +17,7 @@ export EDITOR=nvim
 
 export PRESS_MODEL_DIR=/home/jan/o2/bimeta/press/models.lin
 export PRESS_VIEW_DIR=/home/jan/o2/bimeta/press
-export PRESS_PROFILE_DIR=/home/jan/o2/bimeta/press/profiles
+export PRESS_PROFILE_DIR=/home/jan/o2/bimeta/press/profiles.lin
 export PRESS_PDC_METADATA_FILE=/home/jan/o2/bimeta/ModelMetadata/PDCMetadata.json
 export PRESS_PRODUCTION_DDL_DIR=/home/jan/o2/svn-production/db/Teradata/DDL
 
