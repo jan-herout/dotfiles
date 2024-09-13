@@ -79,11 +79,20 @@ _G.packer_plugins = {
     path = "/home/jan/.local/share/nvim/site/pack/packer/start/catppuccin",
     url = "https://github.com/catppuccin/nvim"
   },
-  ["markdown.nvim"] = {
-    config = { "\27LJ\2\n:\0\0\3\0\3\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0004\2\0\0B\0\2\1K\0\1\0\nsetup\rmarkdown\frequire\0" },
+  ["mason-lspconfig.nvim"] = {
     loaded = true,
-    path = "/home/jan/.local/share/nvim/site/pack/packer/start/markdown.nvim",
-    url = "https://github.com/tadmccorkle/markdown.nvim"
+    path = "/home/jan/.local/share/nvim/site/pack/packer/start/mason-lspconfig.nvim",
+    url = "https://github.com/williamboman/mason-lspconfig.nvim"
+  },
+  ["mason.nvim"] = {
+    loaded = true,
+    path = "/home/jan/.local/share/nvim/site/pack/packer/start/mason.nvim",
+    url = "https://github.com/williamboman/mason.nvim"
+  },
+  ["nvim-lspconfig"] = {
+    loaded = true,
+    path = "/home/jan/.local/share/nvim/site/pack/packer/start/nvim-lspconfig",
+    url = "https://github.com/neovim/nvim-lspconfig"
   },
   ["nvim-treesitter"] = {
     loaded = true,
@@ -108,10 +117,6 @@ _G.packer_plugins = {
 }
 
 time([[Defining packer_plugins]], false)
--- Config for: markdown.nvim
-time([[Config for markdown.nvim]], true)
-try_loadstring("\27LJ\2\n:\0\0\3\0\3\0\a6\0\0\0'\2\1\0B\0\2\0029\0\2\0004\2\0\0B\0\2\1K\0\1\0\nsetup\rmarkdown\frequire\0", "config", "markdown.nvim")
-time([[Config for markdown.nvim]], false)
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then

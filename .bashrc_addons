@@ -38,6 +38,9 @@ export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
+# python settings
+alias flake8="flake8 --max-line-length=88"
+
 # ph completions
 source '/home/jan/.bash_completions/ph.sh'
 
@@ -122,3 +125,8 @@ teams () {
 	# firefox --private-window  "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
 	google-chrome "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
 }
+
+# nvm a node.js
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

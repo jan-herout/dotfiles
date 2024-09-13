@@ -84,6 +84,41 @@ oh-my-bash - pozor, likviduje `~/.bashrc`.
 bash -c "$(wget https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh -O -)"
 ```
 
+Podpora nvim - yanking do systémového clipboardu.
+
+```bash
+sudo apt install wl-clipboard xclip
+```
+
+Nvim - pro LSP je potřeba mít k dispozici nvm a node.js. 
+
+https://github.com/nvm-sh/nvm?tab=readme-ov-file
+
+- nvm se nainstaluje do složky ~/.nvm, viz níže
+- po instalaci je ještě nutné upravit `.bashrc`, což je fakt, na který instalátor upozorňuje
+
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+```
+
+Po instalaci nvm je možné ho použít k instalaci node.js (`source ~/.bashrc`)
+Viz https://nodejs.org/en/download/package-manager
+
+```bash
+# installs nvm (Node Version Manager)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.0/install.sh | bash
+
+# download and install Node.js (you may need to restart the terminal)
+nvm install 20
+
+# verifies the right Node.js version is in the environment
+node -v # should print `v20.17.0`
+
+# verifies the right npm version is in the environment
+npm -v # should print `10.8.2`
+```
+Následně je možné v `nvim` s pomocí `:Mason` instalovat LSP pro jednotlivé jazyky.
+
 Instalace upgraded gitu, nutná pro azure devops
 
 ```

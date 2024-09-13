@@ -25,14 +25,11 @@ local packr_config = require('packer').startup(function(use)
 	}
 	use { "catppuccin/nvim", as = "catppuccin" }
 	use('nvim-treesitter/nvim-treesitter', { run = ':TSUpdate'})
-	use({
-  		"tadmccorkle/markdown.nvim",
-  		config = function()
-    		require("markdown").setup({
-      			-- configuration here or empty for defaults
-    	})
-  end,
-})
+	use {
+	    "williamboman/mason.nvim",
+	    "williamboman/mason-lspconfig.nvim",
+	    "neovim/nvim-lspconfig",
+	}
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then
