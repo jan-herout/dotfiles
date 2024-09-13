@@ -15,7 +15,7 @@ if [ ! -d "$MM_DEFDIR" ]; then
     echo -e "$MM_ERR: Directory does not exist: $MM_DEFDIR <directory>"
     exit 1
 fi
-echo "$MM_OK"
+echo -e "$MM_OK"
 
 # kontrola existence secrets souboru
 echo -e "$MM_TRY: test secrets file: $MM_PASSWORD_FILE"

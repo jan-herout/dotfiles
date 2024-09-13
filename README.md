@@ -52,10 +52,10 @@ sudo flatpak install com.logseq.Logseq io.dbeaver.DBeaverCommunity
 sudo flatpak install flathub org.wezfurlong.wezterm
 ```
 
-Krusader pro správu souborů
+Krusader pro správu souborů, nebo doublecommander, který je podobnější TotalCommanderu, lepší ergonomie.
 
 ```bash
-sudo apt install krusader
+sudo apt install krusader doublecmd-qt
 ```
 
 Podman
