@@ -30,6 +30,7 @@ local packr_config = require('packer').startup(function(use)
 	    "williamboman/mason-lspconfig.nvim",
 	    "neovim/nvim-lspconfig",
 	}
+	use {'akinsho/bufferline.nvim', requires = 'nvim-tree/nvim-web-devicons'}
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then

@@ -136,7 +136,7 @@ Filelist Font=Sans Serif,11,-1,5,50,0,0,0,0,0
 Media Button Visible=false
 Mouse Selection=3
 Quicksearch Position=top
-Show Hidden=true
+Show Hidden=false
 Single Instance Mode=true
 
 [PanelLayout]
