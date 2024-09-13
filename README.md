@@ -119,6 +119,20 @@ npm -v # should print `10.8.2`
 ```
 Následně je možné v `nvim` s pomocí `:Mason` instalovat LSP pro jednotlivé jazyky.
 
+Důležité zkratky pro Python development:
+
+Normal mode
+
+- `K` - hover - help
+- `<leader>rn` - rename
+- `<leader>gd` - go to definition
+- `<leader>gr` - go to references
+
+Visual mode
+
+- `<leader> <` zmenšení indentace
+- `<leader> >` zvětšení indentace
+
 Instalace upgraded gitu, nutná pro azure devops
 
 ```
