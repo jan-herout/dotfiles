@@ -56,21 +56,21 @@ then
 	[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
 	[ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
 	
-	# use fd instead of find
-	if command -v fd &>/dev/null
+	# use fdfind instead of find
+	if command -v fdfind &>/dev/null
 	then
-		export FZF_DEFAULT_COMMAND="fd --hidden --strip-cwd-prefix --exclude .git"
+		export FZF_DEFAULT_COMMAND="fdfind --hidden --strip-cwd-prefix --exclude .git --no-ignore-vcs"
 		export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-		export FZF_ALT_C_COMMAND="fd --type=d --hidden --strip-cwd-prefix --exclude .git"
+		export FZF_ALT_C_COMMAND="fdfind --type=d --hidden --strip-cwd-prefix --exclude .git --no-ignore-vcs"
 		
-		# use fd to list path candidates
+		# use fdfind to list path candidates
 		_fzf_compgen_path() {
-			fd --hidden --exclude .git . "$1"
+			fdfind --hidden --exclude .git . "$1"
 		}
 
-		# use fd to generate list for dir completion
+		# use fdfind to generate list for dir completion
 		_fzf_compgen_dir() {
-			fd --type=d --hidden --exclude -git . "$1"
+			fdfind --type=d --hidden --exclude -git . "$1"
 		}
 	fi
 
