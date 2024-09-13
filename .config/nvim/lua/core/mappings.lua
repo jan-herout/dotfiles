@@ -19,3 +19,28 @@ vim.keymap.set("n", "<leader>rn", ":cn<enter>", { noremap = true, silent = true 
 -- next error a prev error
 vim.keymap.set("n", "<leader>ep", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>en", "<cmd>lua vim.diagnostic.goto_next()<CR>", { noremap = true, silent = true })  
+
+
+-- Function to reload the current file
+function ReloadCurrentFile()
+    vim.cmd("edit")  -- This command reloads the current buffer
+end
+
+
+
+vim.api.nvim_set_keymap("n", "<leader>r", ":lua ReloadCurrentFile()<CR>", { noremap = true, silent = true })
+
+-- black on code
+-- Create an autocommand group for formatting with Black
+vim.api.nvim_create_augroup("BlackAutoFormat", { clear = true })
+
+-- Set up the autocommand to run Black on save for Python files
+vim.api.nvim_create_autocmd("BufWritePost", {
+    group = "BlackAutoFormat",
+    pattern = "*.py",
+    callback = function()
+	vim.cmd("silent !black %")
+	vim.cmd("silent !isort %")
+	vim.cmd("silent !edit")
+    end
+})
