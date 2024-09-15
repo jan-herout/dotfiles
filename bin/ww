@@ -1,0 +1,5 @@
+_CWD_=`pwd`
+cd $HOME/logseq
+vim 
+cd $_CWD_
+

@@ -31,12 +31,27 @@ local packr_config = require('packer').startup(function(use)
 	    "neovim/nvim-lspconfig",
 	}
 	use {'akinsho/bufferline.nvim', requires = 'nvim-tree/nvim-web-devicons'}
-	use {'neovim/nvim-lspconfig' }
+	-- lsp
+	-- used already in Mason -- use {'neovim/nvim-lspconfig' }
 	use {'hrsh7th/cmp-nvim-lsp' }
 	use {'hrsh7th/cmp-buffer' }
 	use {'hrsh7th/cmp-path' }
 	use {'hrsh7th/cmp-cmdline' }
 	use {'hrsh7th/nvim-cmp' }
+	-- wiki.vim
+	use {'lervag/wiki.vim', config = function()
+		vim.g.wiki_root='~/logseg/'
+		vim.g.wiki_journal={
+			root = '~/logseg/journals',
+			frequency = 'daily',
+			date_format = {
+				daily = '%Y_%m_%d',				
+			}
+		}
+		vim.g.wiki_cache_root='~/logseg/.cache'
+		vim.g.wiki_completion_case_sensitive=0
+		vim.keymap.set('n', '<leder>ww', ':WikiIndex', { noremap = true, silent = true })
+	end, }
   -- Automatically set up your configuration after cloning packer.nvim
   -- Put this at the end after all plugins
   if packer_bootstrap then

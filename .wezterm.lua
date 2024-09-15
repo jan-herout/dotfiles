@@ -3,7 +3,20 @@ local wezterm = require 'wezterm'
 local mux = wezterm.mux
 local act = wezterm.action
 local config = wezterm.config_builder()
+local dimmer = { brightness = 0.012 }
 
+
+-- config.window_background_opacity = 0.97
+config.background = {
+    {
+        source = { File = '/home/jan/.config/jahero/background/cerna-hora.jpg'},
+        repeat_x = 'Mirror',
+	hsb=dimmer,
+        -- attachment = { Parallax = 0.05 },
+    },
+}
+
+-- config.text_background_opacity=0.9
 
 config.color_scheme = 'Catppuccin Mocha'
 config.window_decorations = "RESIZE"

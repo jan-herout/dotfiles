@@ -37,6 +37,16 @@ if [ -z "$_PASS_" ]; then
 fi
 echo -e "$MM_OK: secrets read"
 
+# test napojení na VPN
+IS_O2_CONUP=`nmcli connection show --active | grep extvpn.o2.cz`
+if [ -z "$IS_O2_CONUP" ]; then
+	echo -e "$ERR: connecting to VPN"
+	nmcli connection up extvpn.o2.cz
+else
+	echo -e "IS_O2_CONUP=>$IS_O2_CONUP<"
+fi
+
+
 
 # proveď mount
 for MM_DEFFILE in "$MM_DEFDIR"/*; do
