@@ -34,8 +34,8 @@ lspconfig.pyright.setup{
 
 -- bufferline
 -- https://github.com/akinsho/bufferline.nvim
-vim.opt.termguicolors = true
-require("bufferline").setup{}
+--vim.opt.termguicolors = true
+--require("bufferline").setup{}
 
 
 -- autocomplete via nvim-cmp

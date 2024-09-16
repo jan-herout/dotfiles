@@ -1,5 +1,4 @@
-
-
+-------------------------------------------
 -- https://lazy.folke.io/installation
 -- Bootstrap lazy.nvim
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -36,8 +35,3 @@ require("lazy").setup({
   -- automatically check for plugin updates
   checker = { enabled = true },
 })
-
---  keymaps
-require("config.colors")
-require("config.mappings")
-require("config.after")
