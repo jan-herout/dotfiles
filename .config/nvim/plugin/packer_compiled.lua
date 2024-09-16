@@ -149,7 +149,23 @@ _G.packer_plugins = {
     path = "/home/jan/.local/share/nvim/site/pack/packer/start/telescope.nvim",
     url = "https://github.com/nvim-telescope/telescope.nvim"
   },
+  ["vim-airline"] = {
+    loaded = true,
+    path = "/home/jan/.local/share/nvim/site/pack/packer/start/vim-airline",
+    url = "https://github.com/vim-airline/vim-airline"
+  },
+  ["vim-airline-themes"] = {
+    loaded = true,
+    path = "/home/jan/.local/share/nvim/site/pack/packer/start/vim-airline-themes",
+    url = "https://github.com/vim-airline/vim-airline-themes"
+  },
+  ["vim-outline"] = {
+    loaded = true,
+    path = "/home/jan/.local/share/nvim/site/pack/packer/start/vim-outline",
+    url = "https://github.com/ubaldot/vim-outline"
+  },
   ["wiki.vim"] = {
+    config = { "\27LJ\2\nä\2\0\0\6\0\17\0\0276\0\0\0009\0\1\0'\1\3\0=\1\2\0006\0\0\0009\0\1\0005\1\5\0005\2\6\0=\2\a\1=\1\4\0006\0\0\0009\0\1\0'\1\t\0=\1\b\0006\0\0\0009\0\1\0)\1\0\0=\1\n\0006\0\0\0009\0\v\0009\0\f\0'\2\r\0'\3\14\0'\4\15\0005\5\16\0B\0\5\1K\0\1\0\1\0\2\vsilent\2\fnoremap\2\15:WikiIndex\14<leder>ww\6n\bset\vkeymap#wiki_completion_case_sensitive\20~/logseg/.cache\20wiki_cache_root\16date_format\1\0\1\ndaily\r%Y_%m_%d\1\0\3\14frequency\ndaily\16date_format\0\troot\22~/logseg/journals\17wiki_journal\14~/logseg/\14wiki_root\6g\bvim\0" },
     loaded = true,
     path = "/home/jan/.local/share/nvim/site/pack/packer/start/wiki.vim",
     url = "https://github.com/lervag/wiki.vim"
@@ -157,6 +173,10 @@ _G.packer_plugins = {
 }
 
 time([[Defining packer_plugins]], false)
+-- Config for: wiki.vim
+time([[Config for wiki.vim]], true)
+try_loadstring("\27LJ\2\nä\2\0\0\6\0\17\0\0276\0\0\0009\0\1\0'\1\3\0=\1\2\0006\0\0\0009\0\1\0005\1\5\0005\2\6\0=\2\a\1=\1\4\0006\0\0\0009\0\1\0'\1\t\0=\1\b\0006\0\0\0009\0\1\0)\1\0\0=\1\n\0006\0\0\0009\0\v\0009\0\f\0'\2\r\0'\3\14\0'\4\15\0005\5\16\0B\0\5\1K\0\1\0\1\0\2\vsilent\2\fnoremap\2\15:WikiIndex\14<leder>ww\6n\bset\vkeymap#wiki_completion_case_sensitive\20~/logseg/.cache\20wiki_cache_root\16date_format\1\0\1\ndaily\r%Y_%m_%d\1\0\3\14frequency\ndaily\16date_format\0\troot\22~/logseg/journals\17wiki_journal\14~/logseg/\14wiki_root\6g\bvim\0", "config", "wiki.vim")
+time([[Config for wiki.vim]], false)
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then

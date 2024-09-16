@@ -38,6 +38,9 @@ local packr_config = require('packer').startup(function(use)
 	use {'hrsh7th/cmp-path' }
 	use {'hrsh7th/cmp-cmdline' }
 	use {'hrsh7th/nvim-cmp' }
+	use { 'vim-airline/vim-airline'}
+	use { 'vim-airline/vim-airline-themes' }
+	use { 'ubaldot/vim-outline' }
 	-- wiki.vim
 	use {'lervag/wiki.vim', config = function()
 		vim.g.wiki_root='~/logseg/'
