@@ -32,15 +32,10 @@ lspconfig.pyright.setup{
     }
 }
 
--- bufferline
--- https://github.com/akinsho/bufferline.nvim
---vim.opt.termguicolors = true
---require("bufferline").setup{}
-
 
 -- autocomplete via nvim-cmp
 -- https://github.com/hrsh7th/nvim-cmp
-local cmp = require'cmp'
+local cmp = require 'cmp'
 
 cmp.setup({
 snippet = {
@@ -112,5 +107,4 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 --capabilities = capabilities
 --}
 --
-
 

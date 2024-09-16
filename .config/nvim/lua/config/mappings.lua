@@ -36,13 +36,13 @@ vim.keymap.set('n', '<C-Left>', ':vertical resize -2<CR>', opts)  -- Decrease wi
 vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>', opts) -- Increase width
 
 -- Function to reload the current file
-function ReloadCurrentFile()
-    vim.cmd("edit")  -- This command reloads the current buffer
-end
+--function ReloadCurrentFile()
+--    vim.cmd("edit")  -- This command reloads the current buffer
+--end
 
 
 
-vim.api.nvim_set_keymap("n", "<leader>r", ":lua ReloadCurrentFile()<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("n", "<leader>R", ":lua ReloadCurrentFile()<CR>", { noremap = true, silent = true })
 
 -- black on code
 -- Create an autocommand group for formatting with Black

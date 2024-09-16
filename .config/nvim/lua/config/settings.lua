@@ -1,0 +1,6 @@
+-- Set tab behavior to use spaces instead of tabs
+vim.opt.expandtab = true  -- Converts tabs to spaces
+vim.opt.tabstop = 4       -- Number of spaces a tab counts for
+vim.opt.shiftwidth = 4     -- Number of spaces to use for each step of (auto)indent
+vim.opt.softtabstop = 4    -- Number of spaces a tab counts for while editing
+

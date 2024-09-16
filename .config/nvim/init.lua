@@ -41,3 +41,4 @@ require("lazy").setup({
 require("config.colors")
 require("config.mappings")
 require("config.after")
+require("config.settings")
