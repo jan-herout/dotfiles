@@ -19,7 +19,7 @@ alias ..="cd .."
 alias v="vim ."
 alias ...="cd .. && cd .."
 alias src="source ~/.bashrc"
-alias confvim="export __CWD__=`pwd` && cd ~/dotfiles/.config/nvim && nvim . &&  cd $__CWD__  && unset __CWD__"
+alias vc="export __CWD__=`pwd` && cd ~/dotfiles/.config/nvim && nvim . &&  cd $__CWD__  && unset __CWD__"
 export EDITOR=nvim
 
 
