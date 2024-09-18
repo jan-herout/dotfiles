@@ -1,4 +1,4 @@
--- mapping
+
 vim.g.mapleader = " "
 vim.keymap.set("n", "-", vim.cmd.Ex)
 vim.keymap.set("n", "<leader>w", ":w")
@@ -20,6 +20,10 @@ vim.keymap.set("n", "<leader>rn", ":cn<enter>", { noremap = true, silent = true 
 vim.keymap.set("n", "<leader>ep", "<cmd>lua vim.diagnostic.goto_prev()<CR>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>en", "<cmd>lua vim.diagnostic.goto_next()<CR>", { noremap = true, silent = true })
 
+-- page up, page down, center screen (zz -> center screen, noremap - stop recursion
+vim.keymap.set("n", "<C-u>", "<C-u>zz", { noremap = true })
+vim.keymap.set("n", "<C-d>", "<C-d>zz", { noremap = true })
+
 
 -- move between splits
 vim.keymap.set('n', '<C-j>', '<C-w>j', opts)  -- Move down
@@ -28,12 +32,15 @@ vim.keymap.set('n', '<C-h>', '<C-w>h', opts)  -- Move left
 vim.keymap.set('n', '<C-l>', '<C-w>l', opts)  -- Move right
 
 
+-- delete, do not append to register
+vim.keymap.set("n", "D", "_dd")
+
 -- resize splits
 -- Key mappings for resizing splits
-vim.keymap.set('n', '<C-Up>', ':resize +2<CR>', opts)    -- Increase height
-vim.keymap.set('n', '<C-Down>', ':resize -2<CR>', opts)  -- Decrease height
-vim.keymap.set('n', '<C-Left>', ':vertical resize -2<CR>', opts)  -- Decrease width
-vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>', opts) -- Increase width
+vim.keymap.set('n', '<C-Up>', ':resize +4<CR>', opts)    -- Increase height
+vim.keymap.set('n', '<C-Down>', ':resize -4<CR>', opts)  -- Decrease height
+vim.keymap.set('n', '<C-Left>', ':vertical resize -4<CR>', opts)  -- Decrease width
+vim.keymap.set('n', '<C-Right>', ':vertical resize +4<CR>', opts) -- Increase width
 
 -- Function to reload the current file
 --function ReloadCurrentFile()

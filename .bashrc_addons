@@ -19,7 +19,7 @@ alias ..="cd .."
 alias v="vim ."
 alias ...="cd .. && cd .."
 alias src="source ~/.bashrc"
-
+alias confvim="export __CWD__=`pwd` && cd ~/dotfiles/.config/nvim && nvim . &&  cd $__CWD__  && unset __CWD__"
 export EDITOR=nvim
 
 
@@ -138,3 +138,7 @@ teams () {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+
+# lf icons
+export LF_ICONS=$(cat $HOME/.config/lf/icons)

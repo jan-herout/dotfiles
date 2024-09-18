@@ -1,0 +1,179 @@
+#set previewer ~/.config/lf/previewer
+
+# Basic Settings
+set hidden false 
+set drawbox
+set ignorecase true
+set icons true
+set sixel true
+#set rulerfmt "%d  |%a  |%p  |\033[7;31m %m \033[0m  |\033[7;33m %c \033[0m  |\033[7;35m %s \033[0m  |\033[7;34m %f \033[0m  |%i/%t"
+
+# Custom Functions
+cmd mkdir ${{
+  printf "Directory Name: "
+  read ans
+  mkdir $ans
+}}
+
+cmd mkfile ${{
+  printf "File Name: "
+  read ans
+  $EDITOR $ans
+}}
+
+cmd setwallpaper ${{
+    setwallpaper "$f"
+}}
+
+# Archive bindings
+cmd unarchive ${{
+  case "$f" in
+      *.zip) unzip "$f" ;;
+      *.rar) unrar x "$f" ;;
+      *.tar.gz) tar -xzvf "$f" ;;
+      *.tar.bz2) tar -xjvf "$f" ;;
+      *.tar) tar -xvf "$f" ;;
+      *.7z) 7z e "$f" ;;
+      *) echo "Unsupported format" ;;
+  esac
+}}
+
+cmd delete ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	printf "%s\n\t" "$fx"
+	printf "delete?[y/N]"
+	read ans
+	[ $ans = "y" ] && rm -rf -- $fx
+}}
+
+
+cmd open &{{
+	case $(file --mime-type -Lb $f) in
+		text/plain) lf -remote "send $id \$nvim \$fx";;
+		text/*) lf -remote "send $id \$nvim \$fx";;
+		*) xdg-open "$f"
+	esac
+}}
+
+
+cmd moveto ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	clear; echo "Move to where?"
+	dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs | fzf | sed 's|~|$HOME|')" &&
+	for x in $fx; do
+		eval mv -iv \"$x\" \"$dest\"
+	done &&
+	notify-send "🚚 File(s) moved." "File(s) moved to $dest."
+}}
+
+
+
+cmd copyto ${{
+	clear; tput cup $(($(tput lines)/3)); tput bold
+	set -f
+	clear; echo "Copy to where?"
+	dest="$(sed -e 's/\s*#.*//' -e '/^$/d' -e 's/^\S*\s*//' ${XDG_CONFIG_HOME:-$HOME/.config}/shell/bm-dirs | fzf | sed 's|~|$HOME|')" &&
+	for x in $fx; do
+		eval cp -ivr \"$x\" \"$dest\"
+	done &&
+	notify-send "📋 File(s) copied." "File(s) copies to $dest."
+}}
+
+
+cmd on-select &{{
+    lf -remote "send $id set statfmt \"$(exa -ld --color=always "$f")\""
+}}
+
+cmd fzf_jump ${{
+    res="$(find . -maxdepth 3 | fzf --reverse --header='Jump to location')"
+    if [ -n "$res" ]; then
+        if [ -d "$res" ]; then
+            cmd="cd"
+        else
+            cmd="select"
+        fi
+        res="$(printf '%s' "$res" | sed 's/\\/\\\\/g;s/"/\\"/g')"
+        lf -remote "send $id $cmd \"$res\""
+    fi
+}}
+
+cmd fzf_search ${{
+    RG_PREFIX="rg --column --line-number --no-heading --color=always --smart-case "
+    res="$(
+        FZF_DEFAULT_COMMAND="$RG_PREFIX ''" \
+            fzf --bind "change:reload:$RG_PREFIX {q} || true" \
+            --ansi --layout=reverse --header 'Search in files' \
+            | cut -d':' -f1 | sed 's/\\/\\\\/g;s/"/\\"/g'
+    )"
+    [ -n "$res" ] && lf -remote "send $id select \"$res\""
+}}
+
+
+# cmd z-jump ${{
+#   ZLUA_SCRIPT="$ZDOTDIR/plugins/z.lua/z.lua"
+#   lf -remote "send ${id} cd \"$($ZLUA_SCRIPT -e $@ | sed 's/\\/\\\\/g;s/"/\\"/g')\""
+# }}
+
+# paste over
+cmd paste-override &{{
+    set -f
+	mode=$(head -1 ~/.local/share/lf/files)
+	list=$(sed 1d ~/.local/share/lf/files)
+	set -- _ $list; shift
+	[ $# -gt 0 ] || exit
+	case $mode in
+		copy)
+			rsync -r "$@" ./
+			;;
+		move)
+			rsync -r --remove-source-files "$@" ./
+			;;
+	esac
+	lf -remote 'save\nmove\n'
+	lf -remote "send $id load"
+	lf -remote "send $id echo \"\033[0;32mpasted $# file(s)\033[0m\""
+}}
+
+
+
+map c
+map m
+map p
+
+
+map pp paste
+map po paste-override
+map C clear
+
+# map Z push :z-jump<space>-I<space>
+# map zb push :z-jump<space>-b<space>
+# map zz push :z-jump<space>
+
+# fuzzy finder
+map <c-g> :fzf_search
+map <c-f> :fzf_jump
+#map ct copyto
+#map mt moveto
+
+map au unarchive
+# map ae $wine "$f"
+
+# Basic Functions
+map . set hidden!
+# map dd trash
+# map u $trashy restore -r 0
+# map dr $trashy restore
+# map de $trashy empty --all
+# map <enter> open
+# map R reload
+
+map mf mkfile
+map md mkdir
+
+map D delete
+
+map gc cd ~/.config
+map go cd ~/o2
+map gm cd /mnt
