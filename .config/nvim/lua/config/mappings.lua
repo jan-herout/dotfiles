@@ -34,6 +34,7 @@ vim.keymap.set('n', '<C-l>', '<C-w>l', opts)  -- Move right
 
 -- delete, do not append to register
 vim.keymap.set("n", "D", "_dd")
+vim.keymap.set("v", "D", "_dd")
 
 -- resize splits
 -- Key mappings for resizing splits

@@ -3,15 +3,15 @@ local wezterm = require 'wezterm'
 local mux = wezterm.mux
 local act = wezterm.action
 local config = wezterm.config_builder()
-local dimmer = { brightness = 0.012 }
+local dimmer = { brightness = 0.032 }
 
 
 -- config.window_background_opacity = 0.97
 config.background = {
     {
-        source = { File = '/home/jan/.config/jahero/background/cerna-hora.jpg'},
+        source = { File = '/home/jan/.config/jahero/background/jupyter.jpg'},
         repeat_x = 'Mirror',
-	hsb=dimmer,
+        hsb=dimmer,
         -- attachment = { Parallax = 0.05 },
     },
 }
@@ -20,16 +20,16 @@ config.background = {
 
 config.color_scheme = 'Catppuccin Mocha'
 config.window_decorations = "RESIZE"
---config.font = wezterm.font("JetBrainsMono Nerd Font")
+config.font = wezterm.font("Cousine Nerd Font")
 config.use_dead_keys = false
 config.scrollback_lines = 5000
 config.adjust_window_size_when_changing_font_size = false
 config.hide_tab_bar_if_only_one_tab = true
 config.window_frame = {
- 	font = wezterm.font { 
-		family = 'Noto Sans', 
-		weight = 'Regular' 
-	},
+    font = wezterm.font { 
+        family = 'Noto Sans', 
+        weight = 'Regular' 
+    },
 }
 
 -- config.disable_default_key_bindings = true
@@ -43,8 +43,8 @@ config.window_frame = {
 
 -- maximalizuj při startu
 wezterm.on('gui-startup', function()
- local tab, pane, window = mux.spawn_window({})
- window:gui_window():maximize()
+    local tab, pane, window = mux.spawn_window({})
+    window:gui_window():maximize()
 end)
 
 config.leader = { key = 'b', mods = 'CTRL' }
@@ -56,7 +56,7 @@ config.keys = {
     {key="RightArrow",  mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Right', 5 } },
     {key="UpArrow",     mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Up', 5 } },
     {key="DownArrow",   mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Down', 5 } },
- 
+
     {key="h",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Left'},
     {key="l",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Right'},
     {key="k",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Up'},

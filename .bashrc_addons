@@ -10,13 +10,14 @@ export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
 
 # aliases
 alias vim="nvim"
+alias v="vim"
 alias cls="clear"
 alias config="export __CWD__=`pwd` && cd ~/dotfiles && nvim .bashrc_addons &&  cd $__CWD__  && unset __CWD__"
+alias notes="export __CWD__=`pwd` && cd ~/logseq && nvim &&  cd $__CWD__  && unset __CWD__"
 alias gac="git add --all && git commit"
 alias ga="git add --all"
 alias gp="git pull --rebase && git push"
 alias ..="cd .."
-alias v="vim ."
 alias ...="cd .. && cd .."
 alias src="source ~/.bashrc"
 alias vc="export __CWD__=`pwd` && cd ~/dotfiles/.config/nvim && nvim . &&  cd $__CWD__  && unset __CWD__"
@@ -30,7 +31,7 @@ export PRESS_PDC_METADATA_FILE=/home/jan/o2/bimeta/ModelMetadata/PDCMetadata.jso
 export PRESS_PRODUCTION_DDL_DIR=/home/jan/o2/svn-production/db/Teradata/DDL
 
 
-#################################š
+#################################
 # pyenv
 # Load pyenv automatically by appending
 # the following to
@@ -138,6 +139,9 @@ teams () {
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+
+
 
 
 # lf icons
