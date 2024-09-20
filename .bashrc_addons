@@ -21,6 +21,9 @@ alias ..="cd .."
 alias ...="cd .. && cd .."
 alias src="source ~/.bashrc"
 alias vc="export __CWD__=`pwd` && cd ~/dotfiles/.config/nvim && nvim . &&  cd $__CWD__  && unset __CWD__"
+alias nom="$HOME/bin/netmount"
+alias num="$HOME/bin/netumount"
+alias s402="ssh x0548834@ntinfot404.to2.to2cz.cz && clear"
 export EDITOR=nvim
 
 

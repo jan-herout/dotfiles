@@ -32,7 +32,7 @@ _GID_=`id -g $_ME_`
 _PASS_=`cat ~/Vaults/o2/domain-password.txt`
 
 if [ -z "$_PASS_" ]; then
-    echo "$ERR: read secrets: failed: $MM_PASSWORD_FILE"
+    echo -e "$ERR: read secrets: failed: $MM_PASSWORD_FILE"
     exit 1
 fi
 echo -e "$MM_OK: secrets read"
@@ -48,32 +48,39 @@ fi
 
 
 
+read -t 2 -p "Namapovat disky? [y/N]" __RESPONSE__
+__RESPONSE__="${__RESPONSE__:-N}"
+
 # proveď mount
-for MM_DEFFILE in "$MM_DEFDIR"/*; do
-    echo -e "$MM_TRY: read $MM_DEFFILE"
-    source $MM_DEFFILE
+if [ "${__RESPONSE__^^}" = "Y" ]; then 
+    for MM_DEFFILE in "$MM_DEFDIR"/*; do
+        echo -e "$MM_TRY: read $MM_DEFFILE"
+        source $MM_DEFFILE
 
-    if [ -d "$_MNT_" ]; then
-        findmnt $_MNT_ >/dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            echo -e "$MM_OK: directory is already mounted: $_MNT_"
-        else
-            echo -e "$MM_TRY: mounting $_SRC_"
-            MM_OPTIONS="domain=TO2,username=X0548834,"
-            MM_OPTIONS+="password=$_PASS_,"
-            MM_OPTIONS+="uid=$_UID_,"
-            MM_OPTIONS+="gid=$_GID_,"
-            MM_OPTIONS+="dir_mode=0755,file_mode=0755"
-            MM_OPTIONS+=$_SUFFIX_
-            sudo mount -t cifs -o $MM_OPTIONS $_SRC_ $_MNT_
-
+        if [ -d "$_MNT_" ]; then
+            findmnt $_MNT_ >/dev/null 2>&1
             if [ $? -eq 0 ]; then
-                echo -e "$MM_OK: mounted"
+                echo -e "$MM_OK: directory is already mounted: $_MNT_"
             else
-                echo -e "$MM_ERR: error ???"
+                echo -e "$MM_TRY: mounting $_SRC_"
+                MM_OPTIONS="domain=TO2,username=X0548834,"
+                MM_OPTIONS+="password=$_PASS_,"
+                MM_OPTIONS+="uid=$_UID_,"
+                MM_OPTIONS+="gid=$_GID_,"
+                MM_OPTIONS+="dir_mode=0755,file_mode=0755"
+                MM_OPTIONS+=$_SUFFIX_
+                sudo mount -t cifs -o $MM_OPTIONS $_SRC_ $_MNT_
+
+                if [ $? -eq 0 ]; then
+                    echo -e "$MM_OK: mounted"
+                else
+                    echo -e "$MM_ERR: error ???"
+                fi
             fi
         fi
-    fi
-done
-
+    done
+else
+    echo ""
+    echo -e "$MM_ERR: přeskakuji mapování disků!"
+fi
 

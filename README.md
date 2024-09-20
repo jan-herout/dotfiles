@@ -195,3 +195,11 @@ Instalace verze pythonu.
 pyenv install 3.12.3
 pyenv global 3.12.3
 ```
+
+
+.NET - používá SQL inform plugin pro VSCode
+
+```bash
+sudo apt-get update && sudo apt-get install -y dotnet-sdk-8.0
+sudo apt-get install -y dotnet-runtime-8.0
+```

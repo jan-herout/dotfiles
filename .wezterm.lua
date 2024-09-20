@@ -3,13 +3,13 @@ local wezterm = require 'wezterm'
 local mux = wezterm.mux
 local act = wezterm.action
 local config = wezterm.config_builder()
-local dimmer = { brightness = 0.032 }
+local dimmer = { brightness = 0.1 }
 
 
 -- config.window_background_opacity = 0.97
 config.background = {
     {
-        source = { File = '/home/jan/.config/jahero/background/jupyter.jpg'},
+        source = { File = '/home/jan/.config/jahero/background/mountain2.jpg'},
         repeat_x = 'Mirror',
         hsb=dimmer,
         -- attachment = { Parallax = 0.05 },
@@ -21,6 +21,7 @@ config.background = {
 config.color_scheme = 'Catppuccin Mocha'
 config.window_decorations = "RESIZE"
 config.font = wezterm.font("Cousine Nerd Font")
+--config.font = wezterm.font("Fira Code")
 config.use_dead_keys = false
 config.scrollback_lines = 5000
 config.adjust_window_size_when_changing_font_size = false
