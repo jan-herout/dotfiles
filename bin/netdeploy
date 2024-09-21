@@ -1,0 +1,26 @@
+#!/bin/bash
+
+DEPLOY_DIR=/mnt/dev-virt-node/EDW_JHE
+CURRENT_DIR=`pwd`
+OUTPUT_DIR="$CURRENT_DIR/output/SRC"
+
+# colors
+MM_ERR="\e[31mERR\e[0m"
+MM_TRY="\033[33mTRY\033[0m"
+MM_OK="\033[34mOK\033[0m "
+
+
+# kontrola existence adresáře s definicemi
+echo -e "$MM_TRY: test existence of out dir: $OUTPUT_DIR"
+if [ ! -d "$OUTPUT_DIR" ]; then
+    echo -e "$MM_ERR: Directory does not exist: $OUTPUT_DIR <directory>"
+    exit 1
+fi
+
+echo -e "$MM_TRY: test existence of out dir: $DEPLOY_DIR"
+if [ ! -d "$DEPLOY_DIR" ]; then
+    echo -e "$MM_ERR: Directory does not exist: $DEPLOY_DIR <directory>"
+    exit 1
+fi
+
+yes | cp -r $OUTPUT_DIR/* $DEPLOY_DIR
