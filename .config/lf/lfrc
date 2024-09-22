@@ -87,7 +87,7 @@ cmd on-select &{{
 }}
 
 cmd fzf_jump ${{
-    res="$(find . -maxdepth 3 | fzf --reverse --header='Jump to location')"
+    res="$(find . -maxdepth 5 | fzf --reverse --header='Jump to location')"
     if [ -n "$res" ]; then
         if [ -d "$res" ]; then
             cmd="cd"
@@ -125,9 +125,9 @@ cmd paste-override &{{
 	[ $# -gt 0 ] || exit
 	case $mode in
 		copy)
-			rsync -r "$@" ./
+			yes | cp -r "$@" ./
 			;;
-		move)
+            move)
 			rsync -r --remove-source-files "$@" ./
 			;;
 	esac
@@ -151,9 +151,6 @@ map C clear
 # map zb push :z-jump<space>-b<space>
 # map zz push :z-jump<space>
 
-# fuzzy finder
-map <c-g> :fzf_search
-map <c-f> :fzf_jump
 #map ct copyto
 #map mt moveto
 
@@ -173,6 +170,10 @@ map mf mkfile
 map md mkdir
 
 map D delete
+
+# fuzzy finder
+map gf :fzf_search
+map gg :fzf_jump
 
 map gc cd ~/.config
 map go cd ~/o2
