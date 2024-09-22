@@ -66,94 +66,167 @@ eval "$(zoxide init bash)"
 
 if command -v fzf &>/dev/null
 then
-	[ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
-	[ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
-	
-	# use fdfind instead of find
-	if command -v fdfind &>/dev/null
-	then
-		export FZF_DEFAULT_COMMAND="fdfind --hidden --strip-cwd-prefix --exclude .git --no-ignore-vcs"
-		export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-		export FZF_ALT_C_COMMAND="fdfind --type=d --hidden --strip-cwd-prefix --exclude .git --no-ignore-vcs"
-		
-		# use fdfind to list path candidates
-		_fzf_compgen_path() {
-			fdfind --hidden --exclude .git . "$1"
-		}
+    [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
+    [ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
 
-		# use fdfind to generate list for dir completion
-		_fzf_compgen_dir() {
-			fdfind --type=d --hidden --exclude -git . "$1"
-		}
-	fi
+    # use fdfind instead of find
+    if command -v fdfind &>/dev/null
+    then
+        export FZF_DEFAULT_COMMAND="fdfind --hidden --strip-cwd-prefix --exclude .git --no-ignore-vcs"
+        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+        export FZF_ALT_C_COMMAND="fdfind --type=d --hidden --strip-cwd-prefix --exclude .git --no-ignore-vcs"
 
-	# use batcat and eza for preview in fzf
-	if command -v batcat &>/dev/null; then
-		export MANPAGER="bash -c 'col -bx | batcat -l man -p'" # colorized man
-		export FZF_CTRL_T_OPTS="--preview 'batcat -n --color=always --line-range :500 {}'"
+        # use fdfind to list path candidates
+        _fzf_compgen_path() {
+            fdfind --hidden --exclude .git . "$1"
+        }
 
-		help() {
-			"$@" --help 2>&1 | batcat --plain 
-		}
-		_fzf_comprun() {
-			local command=$1
-			shift
-			case "$command" in
-				cd)		fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
-				export|unset)	fzf --preview "eval 'echo \$' {}"	"$@" ;;
-				ssh)		fzf --preview 'dig {}'			"$@" ;;
-				*)		fzf --preview "'batcat -n --color=always --line-range :500 {}'" "$@" ;;
-			esac
-		}
-	fi
+        # use fdfind to generate list for dir completion
+        _fzf_compgen_dir() {
+            fdfind --type=d --hidden --exclude -git . "$1"
+        }
+    fi
 
-	if command -v eza &>/dev/null; then
-		export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
-	fi
-fi
+    # use batcat and eza for preview in fzf
+    if command -v batcat &>/dev/null; then
+        export MANPAGER="bash -c 'col -bx | batcat -l man -p'" # colorized man
+        export FZF_CTRL_T_OPTS="--preview 'batcat -n --color=always --line-range :500 {}'"
 
-# lf který po skončení jde do aktivního adresáře
-lfcd() {
-    tmp="$(mktemp)"
-    lf -last-dir-path="$tmp" "$@"
-    if [ -f "$tmp" ]; then
-        dir="$(cat "$tmp")"
-        rm -f "$tmp"
-        if [ -d "$dir" ]; then
-            if [ "$dir" != "$(pwd)" ]; then
-                cd "$dir"
+        help() {
+            "$@" --help 2>&1 | batcat --plain 
+        }
+        _fzf_comprun() {
+            local command=$1
+            shift
+            case "$command" in
+                cd)		fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
+                export|unset)	fzf --preview "eval 'echo \$' {}"	"$@" ;;
+                ssh)		fzf --preview 'dig {}'			"$@" ;;
+                *)		fzf --preview "'batcat -n --color=always --line-range :500 {}'" "$@" ;;
+            esac
+        }
+    fi
+
+    if command -v eza &>/dev/null; then
+        export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
+    fi
+
+    fzf_find_edit() {
+        local file=$(
+        fzf --query="$1" --no-multi --select-1 --exit-0 \
+            --preview 'batcat --color=always --line-range :500 {}'
+        )
+        if [[ -n "$file" ]]; then
+            $EDITOR "$file"
+        fi
+    }
+    alias fe="fzf_find_edit"
+
+    fzf_kill() {
+        if [[ $(uname) == Linux ]]; then
+            local pids=$(ps -f -u $USER | sed 1d | fzf | awk '{print $2}')
+        elif [[ $(uname) == Darwin ]]; then
+            local pids=$(ps -f -u $USER | sed 1d | fzf | awk '{print $3}')
+        else
+            echo 'Error: unknown platform'
+            return
+        fi
+        if [[ -n "$pids" ]]; then
+            echo "$pids" | xargs kill -9 "$@"
+        fi
+    }
+
+    alias fkill='fzf_kill'
+
+    # lf který po skončení jde do aktivního adresáře
+    lfcd() {
+        tmp="$(mktemp)"
+        lf -last-dir-path="$tmp" "$@"
+        if [ -f "$tmp" ]; then
+            dir="$(cat "$tmp")"
+            rm -f "$tmp"
+            if [ -d "$dir" ]; then
+                if [ "$dir" != "$(pwd)" ]; then
+                    cd "$dir"
+                fi
             fi
         fi
-    fi
-}
-alias lf="lfcd"
+    }
+    alias lf="lfcd"
+
+    fzf_git_add() {
+        local selections=$(
+        git ls-files -m -o --exclude-standard | \
+            fzf --ansi \
+            --preview 'if (git ls-files --error-unmatch {1} &>/dev/null); then
+                    git diff --color=always {1}
+                else
+                    batcat --color=always --line-range :500 {1}
+                    fi'
+                )
+                if [[ -n $selections ]]; then
+                    git add --verbose $selections
+                fi
+            }
+            alias gadd='fzf_git_add'
+
+            fzf_git_log() {
+                local selection=$(
+                git ll --color=always "$@" | \
+                    fzf --no-multi --ansi --no-sort --no-height \
+                    --preview "echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
+                    xargs -I@ sh -c 'git show --color=always @'"
+                )
+                if [[ -n $selection ]]; then
+                    local commit=$(echo "$selection" | sed 's/^[* |]*//' | awk '{print $1}' | tr -d '\n')
+                    git show $commit
+                fi
+            }
+
+            alias gll='fzf_git_log'
+
+            fzf_git_reflog() {
+                local selection=$(
+                git reflog --color=always "$@" |
+                    fzf --no-multi --ansi --no-sort --no-height \
+                    --preview "git show --color=always {1}"
+                )
+                if [[ -n $selection ]]; then
+                    git show $(echo $selection | awk '{print $1}')
+                fi
+            }
+
+            alias grl='fzf_git_reflog'
+fi
+
+
 # batcat
 if command -v batcat &>/dev/null
 then
-	alias bat="batcat"
+    alias bat="batcat"
 fi
 
 # eza
 if command -v eza &>/dev/null
 then
-	alias ll="/usr/bin/ls -lA"
-	alias la="/usr/bin/ls -A"
-	alias ls="eza --color=always --long --git -b --icons --no-time --no-user --no-permissions -h"
+    alias ll="/usr/bin/ls -lA"
+    alias la="/usr/bin/ls -A"
+    alias ls="eza --color=always --long --git -b --icons --no-time --no-user --no-permissions -h"
 fi
 
 # proxy functions
 proxon () {
-	source ~/bin/set-proxy-on
+    source ~/bin/set-proxy-on
 }
 
 proxoff () {
-	source ~/bin/set-proxy-off
+    source ~/bin/set-proxy-off
 }
 
 teams () {
-	# source ~/bin/set-proxy-on
-	# firefox --private-window  "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
-	google-chrome "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
+    # source ~/bin/set-proxy-on
+    # firefox --private-window  "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
+    google-chrome "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
 }
 
 # nvm a node.js
