@@ -1,0 +1,13 @@
+#!/bin/bash
+
+BOOKMARKS_FILE=~/bookmarks
+SELECTED_DIR=$(cat "$BOOKMARKS_FILE" | fzf)
+
+# Check if a directory was selected
+if [[ -n "$SELECTED_DIR" ]]; then
+  echo "go to $SELECTED_DIR"
+  # Change to the selected directory
+  cd "$SELECTED_DIR" || exit
+else
+  echo "No directory selected."
+fi

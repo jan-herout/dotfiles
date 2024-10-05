@@ -23,6 +23,9 @@ vim.keymap.set("n", "<leader>en", "<cmd>lua vim.diagnostic.goto_next()<CR>", { n
 -- page up, page down, center screen (zz -> center screen, noremap - stop recursion
 vim.keymap.set("n", "<C-u>", "<C-u>zz", { noremap = true })
 vim.keymap.set("n", "<C-d>", "<C-d>zz", { noremap = true })
+-- search for next centers screen
+vim.keymap.set("n", "n", "nzz", { noremap = true })
+vim.keymap.set("n", "N", "Nzz", { noremap = true })
 
 
 -- move between splits
@@ -49,7 +52,7 @@ vim.keymap.set('n', '<C-Right>', ':vertical resize +4<CR>', opts) -- Increase wi
 --end
 
 
-
+vim.keymap.set('n', '<leader>q', ':q<enter>')
 vim.api.nvim_set_keymap("n", "<leader>R", ":lua ReloadCurrentFile()<CR>", { noremap = true, silent = true })
 
 -- black on code

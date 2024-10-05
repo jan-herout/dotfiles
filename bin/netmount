@@ -24,6 +24,10 @@ if [ ! -f "$MM_PASSWORD_FILE" ]; then
     exit 1
 fi
 
+# chceme namapovat disky?
+read -t 2 -p "Namapovat disky? [y/N]" __MOUNT_DRIVES__
+__MOUNT_DRIVES__="${__MOUNT_DRIVES__:-N}"
+
 # načti secrets a další
 echo -e "$MM_TRY: read secrets: $MM_PASSWORD_FILE"
 _ME_=`whoami`
@@ -48,11 +52,9 @@ fi
 
 
 
-read -t 2 -p "Namapovat disky? [y/N]" __RESPONSE__
-__RESPONSE__="${__RESPONSE__:-N}"
 
 # proveď mount
-if [ "${__RESPONSE__^^}" = "Y" ]; then 
+if [ "${__MOUNT_DRIVES__^^}" = "Y" ]; then 
     for MM_DEFFILE in "$MM_DEFDIR"/*; do
         echo -e "$MM_TRY: read $MM_DEFFILE"
         source $MM_DEFFILE

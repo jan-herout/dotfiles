@@ -53,15 +53,15 @@ config.leader = { key = 'b', mods = 'CTRL' }
 config.keys = {
     {key="+",   	mods="LEADER",     action=wezterm.action.SplitHorizontal({ domain="CurrentPaneDomain" })},
     {key="-",   	mods="LEADER",     action=wezterm.action.SplitVertical({ domain="CurrentPaneDomain" })},
-    {key="LeftArrow",   mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Left', 5 } },
-    {key="RightArrow",  mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Right', 5 } },
-    {key="UpArrow",     mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Up', 5 } },
-    {key="DownArrow",   mods="LEADER",     action=wezterm.action.AdjustPaneSize { 'Down', 5 } },
+    {key="LeftArrow",   mods="CTRL|SHIFT",     action=wezterm.action.AdjustPaneSize { 'Left', 5 } },
+    {key="RightArrow",  mods="CTRL|SHIFT",     action=wezterm.action.AdjustPaneSize { 'Right', 5 } },
+    {key="UpArrow",     mods="CTRL|SHIFT",     action=wezterm.action.AdjustPaneSize { 'Up', 5 } },
+    {key="DownArrow",   mods="CTRL|SHIFT",     action=wezterm.action.AdjustPaneSize { 'Down', 5 } },
 
-    {key="h",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Left'},
-    {key="l",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Right'},
-    {key="k",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Up'},
-    {key="j",     mods="LEADER",     action=wezterm.action.ActivatePaneDirection 'Down'},
+    {key="h",     mods="CTRL|SHIFT",     action=wezterm.action.ActivatePaneDirection 'Left'},
+    {key="l",     mods="CTRL|SHIFT",     action=wezterm.action.ActivatePaneDirection 'Right'},
+    {key="k",     mods="CTRL|SHIFT",     action=wezterm.action.ActivatePaneDirection 'Up'},
+    {key="j",     mods="CTRL|SHIFT",     action=wezterm.action.ActivatePaneDirection 'Down'},
 
 }
 return config

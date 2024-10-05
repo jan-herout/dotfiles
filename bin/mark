@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Define the bookmark file
+BOOKMARK_FILE="$HOME/bookmarks"
+
+# Create the bookmark file if it doesn't exist
+if [ ! -f "$BOOKMARK_FILE" ]; then
+    touch "$BOOKMARK_FILE"
+fi
+
+# Get the current working directory
+CURRENT_DIR="$(pwd)"
+
+# Check if the current directory is already in the bookmark file
+if ! grep -Fxq "$CURRENT_DIR" "$BOOKMARK_FILE"; then
+    # If not present, add it to the bookmark file
+    echo "$CURRENT_DIR" >> "$BOOKMARK_FILE"
+    echo "Added $CURRENT_DIR to bookmarks."
+else
+    echo "$CURRENT_DIR is already bookmarked."
+fi

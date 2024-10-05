@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# colors
+MM_ERR="\e[31mERR\e[0m"
+MM_TRY="\033[33mTRY\033[0m"
+MM_OK="\033[34mOK\033[0m "
+
+DEPLOY_DIR=/mnt/dev-virt-node/EDW_Ebox
+CURRENT_DIR=`pwd`
+BACKUP_OF_CWD="$CURRENT_DIR"
+
+PROJECT_FILE="project.json"
+
+# Function to find a file in the current or parent directories
+find_file_in_parents() {
+    local target_file="$PROJECT_FILE"  # Get the filename from the first argument
+
+    while [ "$CURRENT_DIR" != "/" ]; do
+        echo -e "$MM_TRY: look for $CURRENT_DIR/$target_file"
+        if [ -e "$CURRENT_DIR/$target_file" ]; then
+            echo -e "$MM_OK: Found $target_file in $CURRENT_DIR"
+            return 0  # Success
+        fi
+        CURRENT_DIR=$(dirname "$CURRENT_DIR")  # Move to the parent directory
+    done
+
+    echo -e "$MM_ERR: $target_file not found"
+    return 1  # Not found
+}
+
+
+# najdi si projekt v aktuální nebo v nadřazené složce
+find_file_in_parents
+echo -e "$MM_OK: cd to $CURRENT_DIR"
+cd $CURRENT_DIR
+
+
+# kontrola existence adresáře s definicemi
+OUTPUT_DIR="$CURRENT_DIR/output/SRC"
+echo -e "$MM_TRY: test existence of out dir: $OUTPUT_DIR"
+if [ ! -d "$OUTPUT_DIR" ]; then
+    echo -e "$MM_ERR: Directory does not exist: $OUTPUT_DIR <directory>"
+    cd $BACKUP_OF_CWD
+    exit 1
+fi
+
+echo -e "$MM_TRY: test existence of out dir: $DEPLOY_DIR"
+if [ ! -d "$DEPLOY_DIR" ]; then
+    echo -e "$MM_ERR: Directory does not exist: $DEPLOY_DIR <directory>"
+    cd $BACKUP_OF_CWD
+    exit 1
+fi
+
+echo -e "$MM_OK: yes | cp -r $OUTPUT_DIR/* $DEPLOY_DIR"
+yes | cp -r $OUTPUT_DIR/* $DEPLOY_DIR
+cd $BACKUP_OF_CWD

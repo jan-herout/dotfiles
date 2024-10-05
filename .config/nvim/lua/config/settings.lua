@@ -6,6 +6,8 @@ vim.opt.softtabstop = 4    -- Number of spaces a tab counts for while editing
 
 vim.opt.number = true
 vim.opt.relativenumber = true
+--vim.opt.showmatch = true
+--vim.opt.matchtime = 3
 
 -- Set the clipboard to use the system clipboard
 vim.opt.clipboard = 'unnamedplus'

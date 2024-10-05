@@ -52,6 +52,8 @@ sudo flatpak install com.logseq.Logseq io.dbeaver.DBeaverCommunity
 sudo flatpak install flathub org.wezfurlong.wezterm
 ```
 
+AppImages - am - viz https://github.com/ivan-hc/AM?tab=readme-ov-file#how-to-install-am
+
 Krusader pro správu souborů, nebo doublecommander, který je podobnější TotalCommanderu, lepší ergonomie.
 
 ```bash

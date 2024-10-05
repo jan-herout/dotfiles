@@ -13,22 +13,6 @@ export PATH=$PATH:~/go/bin
 export LD_LIBRARY_PATH=$HOME/sbin/$PWD/usr/lib/oracle/21/client64/lib:$LD_LIBRARY_PATH
 export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
 
-# aliases
-alias vim="nvim"
-alias v="vim"
-alias cls="clear"
-alias config="export __CWD__=`pwd` && cd ~/dotfiles && nvim .bashrc_addons &&  cd $__CWD__  && unset __CWD__"
-alias notes="export __CWD__=`pwd` && cd ~/logseq && nvim &&  cd $__CWD__  && unset __CWD__"
-alias gac="git add --all && git commit"
-alias ga="git add --all"
-alias gp="git pull --rebase && git push"
-alias ..="cd .."
-alias ...="cd .. && cd .."
-alias src="source ~/.bashrc"
-alias vc="export __CWD__=`pwd` && cd ~/dotfiles/.config/nvim && nvim . &&  cd $__CWD__  && unset __CWD__"
-alias nom="$HOME/bin/netmount"
-alias num="$HOME/bin/netumount"
-alias s402="ssh x0548834@ntinfot404.to2.to2cz.cz && clear"
 export EDITOR=nvim
 
 
@@ -57,6 +41,7 @@ eval "$(pyenv init -)"
 
 # python settings
 alias flake8="flake8 --max-line-length=88"
+export PYTHONPATH="/home/jan/o2/py-o2edw"
 
 # ph completions
 source '/home/jan/.bash_completions/ph.sh'
@@ -138,6 +123,7 @@ then
 
     alias fkill='fzf_kill'
 
+
     # lf který po skončení jde do aktivního adresáře
     lfcd() {
         tmp="$(mktemp)"
@@ -157,20 +143,22 @@ then
     fzf_git_add() {
         local selections=$(
         git ls-files -m -o --exclude-standard | \
-            fzf --ansi \
+            fzf \
+            --ansi \
             --preview 'if (git ls-files --error-unmatch {1} &>/dev/null); then
                     git diff --color=always {1}
                 else
                     batcat --color=always --line-range :500 {1}
                     fi'
-                )
-                if [[ -n $selections ]]; then
-                    git add --verbose $selections
-                fi
-            }
-            alias gadd='fzf_git_add'
+        )
+        if [[ -n $selections ]]; then
+            git add --verbose $selections
+        fi
+    }
 
-            fzf_git_log() {
+    alias gadd='fzf_git_add'
+
+    fzf_git_log() {
                 local selection=$(
                 git ll --color=always "$@" | \
                     fzf --no-multi --ansi --no-sort --no-height \
@@ -197,6 +185,15 @@ then
             }
 
             alias grl='fzf_git_reflog'
+
+            fzf_git_branch() {
+                local selection=$(git branch | fzf --no-multi --ansi --no-sort --no-height)
+                if [[ -n $selection ]]; then 
+                    git checkout $selection
+                fi
+            }
+
+            alias gcb='fzf_git_branch'
 fi
 
 
@@ -211,7 +208,7 @@ if command -v eza &>/dev/null
 then
     alias ll="/usr/bin/ls -lA"
     alias la="/usr/bin/ls -A"
-    alias ls="eza --color=always --long --git -b --icons --no-time --no-user --no-permissions -h"
+    alias l="eza --color=always --long -b --icons --no-time --no-user --no-permissions -h"
 fi
 
 # proxy functions
@@ -235,9 +232,36 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 
-
-
+__config__ () {
+    local CWD=$(pwd)
+    cd ~/dotfiles 
+    nvim .bashrc_addons 
+    cd $CWD  
+}
 
 # lf icons
 export LF_ICONS=$(cat $HOME/.config/lf/icons)
 
+# aliases
+alias vim="nvim"
+alias v="vim"
+alias cls="clear"
+alias notes="export __CWD__=`pwd` && cd ~/logseq && nvim &&  cd $__CWD__  && unset __CWD__"
+alias gac="git add --all && git commit"
+alias ga="git add --all"
+alias gp="git pull --rebase && git push"
+alias ..="cd .."
+alias ...="cd .. && cd .."
+alias src="source ~/.bashrc"
+alias vc="export __CWD__=`pwd` && cd ~/dotfiles/.config/nvim && nvim . &&  cd $__CWD__  && unset __CWD__"
+alias nom="$HOME/bin/netmount"
+alias num="$HOME/bin/netumount"
+alias gs="git status"
+alias config="__config__"
+#alias s402="ssh x0548834@ntinfot404.to2.to2cz.cz && clear"
+alias fcd="source $HOME/bin/fcd-script"
+alias c="source $HOME/bin/fcd-script"
+
+# perlbrew: https://perlbrew.pl/
+source $HOME/perl5/perlbrew/etc/bashrc
+export PERL5LIB=$HOME/o2/bimain/mstr/SRC/Shared_Libs/Perl.O2
