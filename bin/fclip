@@ -1,0 +1,10 @@
+#!/bin/bash
+
+SELECTED_FILE=$(find | fzf)
+
+# Check if a directory was selected
+if [[ ! -n "$SELECTED_FILE" ]]; then
+    echo "No file selected."
+else
+    cat $SELECTED_FILE | wl-copy
+fi

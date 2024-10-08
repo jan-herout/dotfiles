@@ -8,9 +8,8 @@ BROWSER=/usr/bin/google-chrome-stable
 if [[ ! -n "$SELECTED_DIR" ]]; then
   echo "No directory selected."
 else
-    # check if it starts with a slash
-    if [[ $SELECTED_DIR == /* ]]; then        
-        SELECTED_DIR="${SELECTED_DIR%%#*}" # get everything before the pound (strip comments)
+    # check if it starts wityh a slash
+    if [[ $SELECTED_DIR == /* ]]; then
         echo "go to $SELECTED_DIR"
         cd "$SELECTED_DIR" || exit
     fi

@@ -11,6 +11,16 @@ fi
 # Get the current working directory
 CURRENT_DIR="$(pwd)"
 
+
+# Check if any parameters were supplied
+if [ "$#" -eq 0 ]; then
+    echo "No parameters supplied."
+else
+    echo "Parameters supplied: $@"
+    echo "Using $1 as mark"
+    CURRENT_DIR=$1
+fi
+
 # Check if the current directory is already in the bookmark file
 if ! grep -Fxq "$CURRENT_DIR" "$BOOKMARK_FILE"; then
     # If not present, add it to the bookmark file

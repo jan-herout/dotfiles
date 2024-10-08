@@ -15,4 +15,7 @@
     "jupyter.askForKernelRestart": false,
     "editor.formatOnSave": true,
     "workbench.editor.empty.hint": "hidden",
+    "[markdown]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+SELECTION="__"
+CONTINUE="__"
+FILE_LIST=""
+GITDIR="$HOME/o2/bimain/meta"
+
+while [[ -n "$CONTINUE" ]]
+do
+    SELECTION=$(find $GITDIR| fzf)
+
+    if [[ -n "$SELECTION" ]]; then
+        if [[ -n "$FILE_LIST" ]]; then
+            FILE_LIST+=";$SELECTION"
+        else
+            FILE_LIST+="$SELECTION"
+        fi
+    else
+        CONTINUE=""
+    fi
+done
+
+
+IFS=";" read -ra FILES <<< "$FILE_LIST"
+for FILE in "${FILES[@]}"; do 
+    FILE=$(realpath $FILE)
+    echo $FILE
+done
