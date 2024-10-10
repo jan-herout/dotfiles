@@ -1,6 +1,7 @@
 
 vim.g.mapleader = " "
-vim.keymap.set("n", "-", vim.cmd.Ex)
+--vim.keymap.set("n", "-", vim.cmd.Ex)
+vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
 vim.keymap.set("n", "<leader>w", ":w")
 
 -- Indent and dedent in visual mode

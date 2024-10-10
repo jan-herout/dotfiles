@@ -171,3 +171,16 @@ vim.api.nvim_create_autocmd("VimEnter", {
 require("notify").setup({
     background_colour = "#000000",
 })
+
+-- oil
+require("oil").setup(
+{
+  view_options = {
+        show_hidden = true,  -- This enables showing hidden files
+  },
+  buf_options = {
+    buflisted = false,
+    bufhidden = "hide",
+  },
+}
+)

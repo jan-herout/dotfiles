@@ -2,6 +2,7 @@
 
 # Define the bookmark file
 BOOKMARK_FILE="$HOME/bookmarks"
+BACKUP="$BOOKMARK_FILE.old"
 
 # Create the bookmark file if it doesn't exist
 if [ ! -f "$BOOKMARK_FILE" ]; then
@@ -22,10 +23,17 @@ else
 fi
 
 # Check if the current directory is already in the bookmark file
-if ! grep -Fxq "$CURRENT_DIR" "$BOOKMARK_FILE"; then
-    # If not present, add it to the bookmark file
-    echo "$CURRENT_DIR" >> "$BOOKMARK_FILE"
-    echo "Added $CURRENT_DIR to bookmarks."
+if [[ $CURRENT_DIR == "edit" ]]; then
+    vim $BOOKMARK_FILE
 else
-    echo "$CURRENT_DIR is already bookmarked."
+    if ! grep -Fxq "$CURRENT_DIR" "$BOOKMARK_FILE"; then
+        # If not present, add it to the bookmark file
+        echo "$CURRENT_DIR" >> "$BOOKMARK_FILE"
+        mv $BOOKMARK_FILE $BACKUP
+        sort $BACKUP > $BOOKMARK_FILE
+        rm $BACKUP
+        echo "Added $CURRENT_DIR to bookmarks."
+    else
+        echo "$CURRENT_DIR is already bookmarked."
+    fi
 fi
