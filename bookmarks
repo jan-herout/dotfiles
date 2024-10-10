@@ -1,28 +1,34 @@
+/home/jan/dotfiles
 /home/jan/o2
+/home/jan/o2/bidoc
 /home/jan/o2/bimain
-/home/jan/o2/bimain/env/devel_pdc
-/home/jan/o2/bimain/mstr/SRC
-/home/jan/o2/bimain/mstr/SRC/main/PMRootDir_EDW/Script
+/home/jan/o2/bimain/env/devel_pdc			#env
+/home/jan/o2/bimain/mstr/SRC/e09/PMRootDir_ASG		#git
+/home/jan/o2/bimain/mstr/SRC/e29			#git
+/home/jan/o2/bimain/mstr/SRC				#git
+/home/jan/o2/bimain/mstr/SRC/main/PMRootDir_EDW/Script	#git
 /home/jan/o2/bimain/pkg/main
 /home/jan/o2/bimeta
 /home/jan/o2/feature
 /home/jan/o2/feature/BIDEV-6138-EBOX-STG
 /home/jan/o2/feature/bidev-6473-pcrf
+/home/jan/o2/feature/bidev-6544-ec_oc
 /home/jan/o2/go-press/doc
+/home/jan/o2/py-o2edw
 /home/jan/o2/svn-production/db/Teradata                 #svn
 /home/jan/o2/svn-production/src/NTINFO402/EDW           #svn
-/mnt/dev-virt-node/EDW_Ebox
+/mnt/dev-virt-node
+/mnt/dev-virt-node/EDW_Ebox				#ebox
+/mnt/dev-virt-node/EDW_Ebox/pmrootdir_asg		#ebox
 /mnt/dev-virt-node/EDW_Ebox/PMRootDir_ASG               #ebox
-/mnt/dev-virt-node/EDW_Ebox/PMWorkflowLogDir_ASG        #ebox
-/mnt/dev-virt-node/EDW_JHE                              #ebox
+/mnt/dev-virt-node/EDW_Ebox/PMWorkflowLogDir_ASG	#ebox #log
+/mnt/dev-virt-node/EDW_Ebox/PMWorkflowLogDir_ASG        #ebox #log
+/mnt/dev-virt-node/EDW_JHE                              #jhe
+/mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_ASG		#jhe #log
+/mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_A29		#jhe #log
+/mnt/dev-virt-node/EDW_JHE/Source/SrcSystems_LND	#jhe #src
+/mnt/dev-virt-node/EDW_MrLong				#long
+/mnt/prod-virt-node/EDW/PMWorkflowLogDir_ASG            #prod #log
 /mnt/prod-virt-node/EDW                                 #prod
-/mnt/prod-virt-node/EDW/PMWorkflowLogDir_ASG            #prod
-/mnt/dev-virt-node/EDW_Ebox/pmrootdir_asg
-/mnt/dev-virt-node/EDW_Ebox/PMWorkflowLogDir_ASG
-/home/jan/o2/py-o2edw
-/mnt/dev-virt-node/EDW_MrLong
-/home/jan/o2/bidoc
-/mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_A29
-/home/jan/o2/bimain/mstr/SRC/e29
-/home/jan/o2/feature/bidev-6544-ec_oc
-/home/jan/dotfiles
+/mnt/prod-virt-node/EDW/Source/SrcSystems_LND		#prod #src
+/home/jan/git/genpypress

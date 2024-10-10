@@ -98,7 +98,7 @@ then
 
     fzf_find_edit() {
         local file=$(
-        fzf --query="$1" --no-multi --select-1 --exit-0 \
+        find . -type f | fzf --query="$1" --no-multi --select-1 --exit-0 \
             --preview 'batcat --color=always --line-range :500 {}'
         )
         if [[ -n "$file" ]]; then
@@ -259,7 +259,7 @@ alias num="$HOME/bin/netumount"
 alias gs="git status"
 alias config="__config__"
 #alias s402="ssh x0548834@ntinfot404.to2.to2cz.cz && clear"
-alias fcd="source $HOME/bin/fcd-script"
+alias f="source $HOME/bin/fcd-script"
 alias c="source $HOME/bin/fcd-script"
 
 # perlbrew: https://perlbrew.pl/

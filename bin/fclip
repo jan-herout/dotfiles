@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SELECTED_FILE=$(find | fzf)
+SELECTED_FILE=$(find -type f| fzf)
 
 # Check if a directory was selected
 if [[ ! -n "$SELECTED_FILE" ]]; then

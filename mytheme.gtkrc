@@ -1,0 +1,6 @@
+style "Ubuntu"
+{
+font_name = "Ubuntu 11"
+}
+widget_class "*" style "Ubuntu"
+gtk-font-name = "Ubuntu 11"
