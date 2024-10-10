@@ -11,8 +11,9 @@ else
     # check if it starts with a slash
     if [[ $SELECTED_DIR == /* ]]; then        
         SELECTED_DIR="${SELECTED_DIR%%#*}" # get everything before the pound (strip comments)
+        SELECTED_DIR=$(echo "$SELECTED_DIR" | sed 's/[[:space:]]*$//') # strip spaces at the end
         echo "go to $SELECTED_DIR"
-        cd "$SELECTED_DIR" || exit
+        cd "$SELECTED_DIR"
     fi
 
     # check if it starts wityh a slash

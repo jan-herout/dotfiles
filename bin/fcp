@@ -5,6 +5,7 @@ CONTINUE="__"
 FILE_LIST=""
 GITDIR="$HOME/o2/bimain/meta"
 
+# sestavíme seznam souborů do proměnné, oddělovačem je středník
 while [[ -n "$CONTINUE" ]]
 do
     SELECTION=$(find $GITDIR| fzf)
@@ -21,8 +22,29 @@ do
 done
 
 
+# iterujeme přes jednotlivé soubory
 IFS=";" read -ra FILES <<< "$FILE_LIST"
 for FILE in "${FILES[@]}"; do 
-    FILE=$(realpath $FILE)
-    echo $FILE
+    FILE=$(realpath "$FILE")
+    FILE_NAME=$(basename "$FILE")
+    
+    PARENT=$(dirname "$FILE") # get the parent
+    PARENT2=${PARENT%/*} # remove the part after the last '/' to get parent of the parent
+
+    PARENT=$(basename "$PARENT")
+    PARENT2=$(basename "$PARENT2")
+
+    if [[ "$PARENT2" == "ddl" ]]; then
+        DEST="$PWD/metadata/tables/$PARENT"
+        TF="$DEST/$FILE_NAME"
+        mkdir -p "$DEST"
+        cp $FILE $TF
+    elif [[ "$PARENT2" == "mappings" ]]; then
+        DEST="$PWD/metadata/mappings/$PARENT"
+        TF="$DEST/$FILE_NAME"
+        mkdir -p "$DEST"
+        cp $FILE $TF
+    else
+        echo "what to do with $FILE???"
+    fi
 done
