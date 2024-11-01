@@ -1,0 +1,71 @@
+#!/bin/bash
+
+LOG="bin/daily-backup: "
+
+# notify about start
+notify-send "Cron Job Notification" "Záloha: START" --icon=dialog-information
+
+# all paths are relative to home dir
+cd /home/jan
+
+# The source path to backup. Can be local or remote.
+SOURCE=.
+
+# Where to store the incremental backups
+DESTBASE=/datadisk/rsync-backup
+
+# how long to keep backups, in days
+# WARNING: always make sure that the prefix of the number is PLUS sign!
+KEEPAGE="+31"
+
+# Where to store today's backup
+DEST="$DESTBASE/$(date +%Y-%m-%d_%H%M%S)"
+
+# Where to find last backup
+# YESTERDAY="$DESTBASE/$(date -d yesterday +%Y-%m-%d)/"
+YESTERDAY=$(find $DESTBASE -maxdepth 1 -type d -not -path $DESTBASE | sort | tail -n 1)
+
+echo "$LOG YESTERDAY=$YESTERDAY" | logger
+echo $YESTERDAY
+
+# exclusion list
+OPTS="--exclude .venv "
+OPTS+="--exclude .cache "
+OPTS+="--exclude *.pyc "
+OPTS+="--exclude .wine "
+OPTS+="--exclude .var "
+OPTS+="--exclude .eclipse "
+OPTS+="--exclude .ipython "
+OPTS+="--exclude .jupyter "
+
+# Use yesterday's backup as the incremental base if it exists
+if [ ! -z "$YESTERDAY" ]; then
+    if [ -d "$YESTERDAY" ]
+    then
+        OPTS+="--link-dest $YESTERDAY "
+        echo "linking to $YESTERDAY"
+    fi
+fi
+ 
+# Run the rsync, log to systemd-journald
+echo "bin/daily-backup: START" | logger
+echo rsync -av $OPTS "$SOURCE" "$DEST" | sed 's/^/bin\/daily-backup: rsync: /'  logger
+rsync -av $OPTS "$SOURCE" "$DEST" 2>1 | sed 's/^/bin\/daily-backup: rsync: /' | logger
+echo "bin/dailyl-backup: END" | logger
+
+# kill old dirs
+
+find $DESTBASE \
+    -maxdepth 1 \
+    -mtime $KEEPAGE \
+    -type d \
+    -not -path $DESTBASE | xargs echo | sed 's/^/bin\/daily-backup: rm -rf /' | logger
+
+find $DESTBASE \
+    -maxdepth 1 \
+    -mtime $KEEPAGE \
+    -type d \
+    -not -path $DESTBASE | xargs rm -rf 
+
+notify-send "Cron Job Notification" "Záloha: START" --icon=dialog-information 2>1 | logger
+

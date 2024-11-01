@@ -1,0 +1,10 @@
+#!/bin/bash
+ACR_REGISTRY="o2czbidevacr"
+ACR_TOKEN=$(az acr login \
+	--name $ACR_REGISTRY \
+    --expose-token \
+    --output tsv \
+    --query accessToken)
+echo $ACR_TOKEN
+ACR_USER="00000000-0000-0000-0000-000000000000"
+podman login $ACR_REGISTRY.azurecr.io -u $ACR_USER -p $ACR_TOKEN

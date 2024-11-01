@@ -49,6 +49,23 @@ source '/home/jan/.bash_completions/ph.sh'
 # zoxide a fzf
 eval "$(zoxide init bash)"
 
+
+# _fzf_comprun() {
+#     local command=$1
+#     shift
+#     case "$command" in
+#         cd)           fzf --preview 'tree -C {} | head -200'   "$@" ;;
+#         export|unset) fzf --preview "eval 'echo \$'{}"         "$@" ;;
+#         ssh)          fzf --preview 'dig {}'                   "$@" ;;
+#         *)            fzf --preview 'bat -n --color=always {}' "$@" ;;
+#         # cd)         	fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
+#         # export|unset)	fzf --preview "eval 'echo \$' {}"	"$@" ;;
+#         # ssh)		    fzf --preview 'dig {}'			"$@" ;;
+#         # cp)             find $HOME -type f | fzf --preview "'batcat -n --color=always --line-range :500 {}'" "$@" ;;
+#         # *)		        fzf --preview "'batcat -n --color=always --line-range :500 {}'" "$@" ;;
+#     esac
+# }
+
 if command -v fzf &>/dev/null
 then
     [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
@@ -79,16 +96,6 @@ then
 
         help() {
             "$@" --help 2>&1 | batcat --plain 
-        }
-        _fzf_comprun() {
-            local command=$1
-            shift
-            case "$command" in
-                cd)		fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
-                export|unset)	fzf --preview "eval 'echo \$' {}"	"$@" ;;
-                ssh)		fzf --preview 'dig {}'			"$@" ;;
-                *)		fzf --preview "'batcat -n --color=always --line-range :500 {}'" "$@" ;;
-            esac
         }
     fi
 
@@ -208,7 +215,7 @@ if command -v eza &>/dev/null
 then
     alias ll="/usr/bin/ls -lA"
     alias la="/usr/bin/ls -A"
-    alias l="eza --color=always --long -b --icons --no-time --no-user --no-permissions -h"
+    alias l="eza --color=always --long -b --icons  --no-user --no-permissions -h --time-style='+%Y-%m-%d %H:%M:%S'"
 fi
 
 # proxy functions
@@ -246,7 +253,7 @@ export LF_ICONS=$(cat $HOME/.config/lf/icons)
 alias vim="nvim"
 alias v="vim"
 alias cls="clear"
-alias notes="export __CWD__=`pwd` && cd ~/logseq && nvim &&  cd $__CWD__  && unset __CWD__"
+#alias notes="export __CWD__=`pwd` && cd ~/logseq && nvim &&  cd $__CWD__  && unset __CWD__"
 alias gac="git add --all && git commit"
 alias ga="git add --all"
 alias gp="git pull --rebase && git push"
@@ -265,3 +272,6 @@ alias c="source $HOME/bin/fcd-script"
 # perlbrew: https://perlbrew.pl/
 source $HOME/perl5/perlbrew/etc/bashrc
 export PERL5LIB=$HOME/o2/bimain/mstr/SRC/Shared_Libs/Perl.O2
+
+# azure
+export ACR_REGISTRY="o2czbidevacr"

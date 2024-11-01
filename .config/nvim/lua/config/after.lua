@@ -184,3 +184,16 @@ require("oil").setup(
   },
 }
 )
+
+-- https://github.com/nvim-telekasten/telekasten.nvim?tab=readme-ov-file
+require('telekasten').setup({
+  home = vim.fn.expand("~/notes"), -- Put the name of your notes directory here
+})
+
+vim.keymap.set('n', '<leader>tp', ":Telekasten panel<cr>", {})
+vim.keymap.set('n', '<leader>tf', ":Telekasten find_notes<cr>", {})
+vim.keymap.set('n', '<leader>tt', ":Telekasten show_tags<cr>", {})
+vim.keymap.set('n', '<leader>td', ":Telekasten follow_link<cr>", {})
+vim.keymap.set('n', '<leader>tg', ":Telekasten goto_today<cr>", {})
+vim.keymap.set('n', '<leader>tc', ":Telekasten show_calendar<cr>", {})
+

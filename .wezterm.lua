@@ -20,7 +20,12 @@ config.background = {
 
 config.color_scheme = 'Catppuccin Mocha'
 config.window_decorations = "RESIZE"
-config.font = wezterm.font("Cousine Nerd Font")
+config.font = wezterm.font_with_fallback {
+    "Cousine Nerd Font",
+    "Fira Code",
+    "JetBrains Mono",
+    "NerdFont Symbols"
+}
 --config.font = wezterm.font("Fira Code")
 config.use_dead_keys = false
 config.scrollback_lines = 5000

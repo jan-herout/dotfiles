@@ -5,7 +5,22 @@ MM_ERR="\e[31mERR\e[0m"
 MM_TRY="\033[33mTRY\033[0m"
 MM_OK="\033[34mOK\033[0m "
 
-DEPLOY_DIR=/mnt/dev-virt-node/EDW_JHE
+#DEPLOY_DIR=/mnt/dev-virt-node/EDW_JHE
+
+DEPLOY_DIR=$(echo "/mnt/dev-virt-node/EDW_JHE
+/mnt/dev-virt-node/EDW_Ebox
+/home/jan/o2/bimain/mstr/SRC/e09
+/home/jan/o2/bimain/mstr/SRC/e29
+" | fzf)
+
+if [[ -z "$DEPLOY_DIR" ]] ; then
+    echo -e "$MM_ERR: Empty selection"
+    exit 1    
+else
+    echo -e "$MM_OK: Deploy to $DEPLOY_DIR"
+fi
+
+
 CURRENT_DIR=`pwd`
 BACKUP_OF_CWD="$CURRENT_DIR"
 

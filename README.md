@@ -15,6 +15,7 @@ Z repozitářů:
 
 ```bash
 sudo apt install timeshift
+sudo apt install libnotify-bin
 sudo apt install stow
 sudo apt install distrobox
 sudo apt install openconnect network-manager-openconnect
@@ -28,13 +29,14 @@ Proč instaluji fzf, fd-find, eza, a batcat
 - Pro adresáře existuje zkratka `Alt+C`.
 
 
-Eza, replacement za ls.
+Eza, replacement za ls. Proti návodu z wehu jsem doplnil arch=amd64 v obsahu gierens.list souboru, čímž bráním problému s nefunkčním apt update,
+protože repo nepodporuje 32bit architekturu (ale já stejně potřebju 64bit).
 
 ```bash
 sudo apt install gpg
 sudo mkdir -p /etc/apt/keyrings
 wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
 sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
 sudo apt update
 sudo apt install -y eza
@@ -49,7 +51,17 @@ Flatpak - instaluji:
 sudo apt install flatpak
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 sudo flatpak install com.logseq.Logseq io.dbeaver.DBeaverCommunity
-sudo flatpak install flathub org.wezfurlong.wezterm
+# wezterm jsem nakonec přeinstaloval z devian balíčku
+# sudo flatpak install flathub org.wezfurlong.wezterm
+```
+
+Wezterm: https://wezfurlong.org/wezterm/install/linux.html
+
+```bash
+curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg
+echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list
+sudo apt update
+sudo apt install wezterm
 ```
 
 AppImages - am - viz https://github.com/ivan-hc/AM?tab=readme-ov-file#how-to-install-am

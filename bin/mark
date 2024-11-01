@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the bookmark file
-BOOKMARK_FILE="$HOME/bookmarks"
+BOOKMARK_FILE="$HOME/dotfiles/bookmarks"
 BACKUP="$BOOKMARK_FILE.old"
 
 # Create the bookmark file if it doesn't exist
