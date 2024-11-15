@@ -159,13 +159,13 @@ local capabilities = require('cmp_nvim_lsp').default_capabilities()
 	}
 
 -- run telescope when started
-vim.api.nvim_create_autocmd("VimEnter", {
-    callback = function()
-        if #vim.fn.argv() == 0 then  -- Check if no files were provided
-            require('telescope.builtin').live_grep()  -- Launch Telescope to find files
-        end
-    end,
-})
+-- vim.api.nvim_create_autocmd("VimEnter", {
+--     callback = function()
+--         if #vim.fn.argv() == 0 then  -- Check if no files were provided
+--             require('telescope.builtin').live_grep()  -- Launch Telescope to find files
+--         end
+--     end,
+-- })
 
 -- vim-notify: transparent background
 require("notify").setup({

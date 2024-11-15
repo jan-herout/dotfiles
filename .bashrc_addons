@@ -41,7 +41,7 @@ eval "$(pyenv init -)"
 
 # python settings
 alias flake8="flake8 --max-line-length=88"
-export PYTHONPATH="/home/jan/o2/py-o2edw"
+# export PYTHONPATH="/home/jan/o2/py-o2edw"
 
 # ph completions
 source '/home/jan/.bash_completions/ph.sh'
@@ -233,6 +233,10 @@ teams () {
     google-chrome "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
 }
 
+move-to-bookmark () {
+    source "$HOME/bin/fcd-script"
+}
+
 # nvm a node.js
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -275,3 +279,7 @@ export PERL5LIB=$HOME/o2/bimain/mstr/SRC/Shared_Libs/Perl.O2
 
 # azure
 export ACR_REGISTRY="o2czbidevacr"
+
+
+# perlbrew
+perlbrew use perl-5.24.4

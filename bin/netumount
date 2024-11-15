@@ -40,7 +40,7 @@ for MM_DEFFILE in "$MM_DEFDIR"/*; do
         findmnt $_MNT_ >/dev/null 2>&1
         if [ $? -eq 0 ]; then
             echo -e "$MM_TRY: unmount: $_MNT_"
-            sudo umount $_MNT_
+            sudo umount -l $_MNT_
 
             if [ $? -eq 0 ]; then
                 echo -e "$MM_OK: unmounted"
@@ -56,17 +56,17 @@ done
 
 
 # test napojení na VPN
-IS_O2_CONUP=`nmcli connection show --active | grep extvpn.o2.cz`
-if [ -z "$IS_O2_CONUP" ]; then
-	echo -e "$OK: disconnected"
-else
-	nmcli connection down extvpn.o2.cz
-fi
-
-
-IS_O2_CONUP=`nmcli connection show --active | grep extvpn.o2.cz`
-if [ ! -z "$IS_O2_CONUP" ]; then
-	echo -e "$ERR: disconnecting VPN"
-	mcli connection down extvpn.o2.cz
-fi
-
+# IS_O2_CONUP=`nmcli connection show --active | grep extvpn.o2.cz`
+# if [ -z "$IS_O2_CONUP" ]; then
+# 	echo -e "$OK: disconnected"
+# else
+# 	nmcli connection down extvpn.o2.cz
+# fi
+#
+#
+# IS_O2_CONUP=`nmcli connection show --active | grep extvpn.o2.cz`
+# if [ ! -z "$IS_O2_CONUP" ]; then
+# 	echo -e "$ERR: disconnecting VPN"
+# 	mcli connection down extvpn.o2.cz
+# fi
+#

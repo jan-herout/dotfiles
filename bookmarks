@@ -3,25 +3,32 @@
 /home/jan/o2
 /home/jan/o2/bidoc
 /home/jan/o2/bimain
-/home/jan/o2/bimain/env/devel_pdc			#env
+/home/jan/o2/bimain/env/devel_pdc			            #env
+/home/jan/o2/bimain/env/devel_teradata
+/home/jan/o2/bimain/env/env_teradata
 /home/jan/o2/bimain/meta/async_marts
 /home/jan/o2/bimain/meta/mappings
-/home/jan/o2/bimain/mstr/SRC/e09/PMRootDir_ASG		#git
-/home/jan/o2/bimain/mstr/SRC/e29			#git
-/home/jan/o2/bimain/mstr/SRC				#git
+/home/jan/o2/bimain/mstr/SRC/e09/PMRootDir_ASG		    #git
+/home/jan/o2/bimain/mstr/SRC/e29			            #git
+/home/jan/o2/bimain/mstr/SRC				            #git
 /home/jan/o2/bimain/mstr/SRC/main/PMRootDir_EDW/Script	#git
 /home/jan/o2/bimain/mstr/SRC/Shared_Libs
 /home/jan/o2/bimain/pkg/main
+/home/jan/o2/bimain/reqs
 /home/jan/o2/bimeta
 /home/jan/o2/bimeta/press
 /home/jan/o2/datahub-metadata
 /home/jan/o2/feature
+/home/jan/o2/feature/bidev-5258-ebox-subscr
 /home/jan/o2/feature/BIDEV-6138-EBOX-STG
 /home/jan/o2/feature/bidev-6473-pcrf
 /home/jan/o2/feature/bidev-6544-ec_oc
 /home/jan/o2/feature/bidev-6591-sk-async
+/home/jan/o2/feature/bidev-6607-zoek
+/home/jan/o2/feature/bidev-6654-ebox-sda
 /home/jan/o2/go-press/doc
 /home/jan/o2/go-validator/govalidator
+/home/jan/o2/py-katas
 /home/jan/o2/py-o2edw
 /home/jan/o2/svn-production/db/Teradata                 #svn
 /home/jan/o2/svn-production/src/NTINFO402/EDW           #svn
@@ -30,20 +37,24 @@
 /home/jan/o2/virtual-buddy-bi/frontend-streamlit
 /home/jan/o2/virtual-buddy-bi/hello
 /home/jan/o2/virtual-buddy-bi/prepdocs
+/home/jan/o2/vodwh-infra
+/home/jan/terra-mite/termite
 /mnt/dev-virt-node
 /mnt/dev-virt-node/EDW_Ebox/PMRootDir_ASG               #ebox
-/mnt/dev-virt-node/EDW_Ebox/PMWorkflowLogDir_ASG	#ebox #log
+/mnt/dev-virt-node/EDW_Ebox/PMWorkflowLogDir_ASG	    #ebox #log
 /mnt/dev-virt-node/EDW_JHE                              #jhe
 /mnt/dev-virt-node/EDW_JHE/PMRootDir_ASG
-/mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_ASG		#jhe #log
-/mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_A29		#jhe #log
+/mnt/dev-virt-node/EDW_JHE/PMRootDir_EDW/Security/Passwords
+/mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_ASG		    #jhe #log
+/mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_A29		    #jhe #log
 /mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_EDW
-/mnt/dev-virt-node/EDW_JHE/Source/SrcSystems_LND	#jhe #src
-/mnt/dev-virt-node/EDW_MrLong				        #long
+/mnt/dev-virt-node/EDW_JHE/Source/SrcSystems_LND	    #jhe #src
+/mnt/dev-virt-node/EDW_MrLong				            #long
 /mnt/dev-virt-node/EDW_ToSTO
 /mnt/dev-virt-node/Shared_Libs/Python
 /mnt/fix-files
 /mnt/preprod-src
+/mnt/prod-var-arch
 /mnt/prod-virt-node/EDW/PMRootDir_ASG
 /mnt/prod-virt-node/EDW/PMRootDir_A29
 /mnt/prod-virt-node/EDW/PMWorkflowLogDir_ASG            #prod #log
