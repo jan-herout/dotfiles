@@ -3,4 +3,4 @@
 "\e[6~": history-search-forward
 
 "\ez": 'cd -\015'
-"\em": 'c\015'
+"\em": 'm\015'

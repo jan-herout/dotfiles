@@ -271,7 +271,11 @@ alias gs="git status"
 alias config="__config__"
 #alias s402="ssh x0548834@ntinfot404.to2.to2cz.cz && clear"
 alias f="source $HOME/bin/fcd-script"
-alias c="source $HOME/bin/fcd-script"
+alias m="source $HOME/bin/fcd-script"
+
+# clipboard operations
+alias wcl="wl-copy"
+alias xcl="xclip -selection clipboard"
 
 # perlbrew: https://perlbrew.pl/
 source $HOME/perl5/perlbrew/etc/bashrc
