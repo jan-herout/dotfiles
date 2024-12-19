@@ -14,3 +14,10 @@ vim.opt.clipboard = 'unnamedplus'
 
 -- 64bit colors
 vim.opt.termguicolors = true
+
+
+-- Enable case insensitive search
+vim.o.ignorecase = true
+
+-- Enable smart case search - if your search term contains any uppercase letters, Vim will perform a case-sensitive search.
+vim.o.smartcase = true

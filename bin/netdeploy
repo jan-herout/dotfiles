@@ -8,7 +8,6 @@ MM_OK="\033[34mOK\033[0m "
 #DEPLOY_DIR=/mnt/dev-virt-node/EDW_JHE
 
 DEPLOY_DIR=$(echo "/mnt/dev-virt-node/EDW_JHE
-/mnt/dev-virt-node/EDW_Ebox
 /mnt/dev-virt-node/VODWH_JHE
 /home/jan/o2/bimain/mstr/SRC/e09
 /home/jan/o2/bimain/mstr/SRC/e29
@@ -68,5 +67,5 @@ if [ ! -d "$DEPLOY_DIR" ]; then
 fi
 
 echo -e "$MM_OK: yes | cp -r $OUTPUT_DIR/* $DEPLOY_DIR"
-yes | cp -r $OUTPUT_DIR/* $DEPLOY_DIR
+yes | cp -L -r $OUTPUT_DIR/* $DEPLOY_DIR
 cd $BACKUP_OF_CWD

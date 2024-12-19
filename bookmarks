@@ -1,3 +1,4 @@
+/home/jan/d-blocks/d-blocks-core
 /home/jan/dotfiles
 /home/jan/git/genpypress
 /home/jan/o2
@@ -28,6 +29,7 @@
 /home/jan/o2/feature/bidev-6626-gcti-vol1
 /home/jan/o2/feature/bidev-6654-ebox-sda
 /home/jan/o2/feature/bidev-6735-gcti
+/home/jan/o2/feature/BIDEV-6923-vodwh-imd
 /home/jan/o2/feature/moat-produkcionalizace
 /home/jan/o2/go-press
 /home/jan/o2/go-press/doc
@@ -45,14 +47,18 @@
 /home/jan/o2/vodwh-main
 /home/jan/terra-mite/termite
 https://ntbidev401.to2.to2cz.cz/PDC_X0548834/Account/Login.aspx
+https://ntedwm401.to2.to2cz.cz/PDC/Monitor.aspx         # pdc prod
 https://owa.o2.cz/owa/#path=/mail
+https://pam.cz.o2/PasswordVault/v10/                    # cyber ark
 https://teams.microsoft.com/v2/
+https://viewpoint.cz.o2/
 http://www.cervena-cibule.cz/cz/poledni-menu/
 /mnt/dev-virt-node
 /mnt/dev-virt-node/EDW_Ebox/PMRootDir_ASG               #ebox
 /mnt/dev-virt-node/EDW_Ebox/PMWorkflowLogDir_ASG	    #ebox #log
 /mnt/dev-virt-node/EDW_JHE                              #jhe
 /mnt/dev-virt-node/EDW_JHE/PMRootDir_ASG
+/mnt/dev-virt-node/EDW_JHE/PMRootDir_A29
 /mnt/dev-virt-node/EDW_JHE/PMRootDir_EDW/Security/Passwords
 /mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_ASG		    #jhe #log
 /mnt/dev-virt-node/EDW_JHE/PMWorkflowLogDir_A29		    #jhe #log
@@ -66,6 +72,7 @@ http://www.cervena-cibule.cz/cz/poledni-menu/
 /mnt/fix-files
 /mnt/preprod-src
 /mnt/prod-var-arch
+/mnt/prod-var-arch/edw/OldLogs
 /mnt/prod-virt-node/EDW/PMRootDir_ASG
 /mnt/prod-virt-node/EDW/PMRootDir_A29
 /mnt/prod-virt-node/EDW/PMWorkflowLogDir_ASG            #prod #log
