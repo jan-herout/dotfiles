@@ -92,3 +92,10 @@ else
     echo -e "$MM_ERR: přeskakuji mapování disků!"
 fi
 
+# odjeď git pull
+read -t 4 -p "Git pull? [y/N]" __PULL__
+__PULL__="${__PULL__:-Y}"
+
+if [ "${__PULL__^^}" = "Y" ]; then 
+    $HOME/bin/pull
+fi
