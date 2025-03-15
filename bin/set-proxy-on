@@ -17,6 +17,6 @@ O2_PASSWORD=`cat ~/Vaults/o2/o2_password.txt`
 O2_PROXY="internet-proxy-s1.cz.o2:8080"
 
 echo "Setting proxy for $O2_USERNAME"
-export HTTP_PROXY="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
-export HTTPS_PROXY="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
+export http_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
+export https_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
 

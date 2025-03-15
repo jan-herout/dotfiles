@@ -1,5 +1,6 @@
 #!/bin/bash
 
 eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_nice_allucard
+ssh-add ~/.ssh/id-d-blocks-coder
+export POETRY_PYPI_TOKEN_PYPI=$(cat /home/jan/Vaults/o2/d-blocks-pypi-pat.txt)
 cd ~/d-blocks/d-blocks-core

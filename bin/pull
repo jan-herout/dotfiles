@@ -53,3 +53,7 @@ for dir in "$BASE_DIR"/*/; do
     fi
 done
 
+# git pull na bimeta
+pushd $HOME/o2/bimeta
+git pull --rebase
+popd

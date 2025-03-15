@@ -12,7 +12,7 @@ export PATH=$PATH:~/go/bin
 
 export LD_LIBRARY_PATH=$HOME/sbin/$PWD/usr/lib/oracle/21/client64/lib:$LD_LIBRARY_PATH
 export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
-
+export ORACLE_HOME=/home/jan/sbin/instantclient_23_6
 export EDITOR=nvim
 
 
@@ -261,6 +261,7 @@ alias cls="clear"
 alias gac="git add --all && git commit"
 alias ga="git add --all"
 alias gp="git pull --rebase && git push"
+alias gs="git status"
 alias ..="cd .."
 alias ...="cd .. && cd .."
 alias src="source ~/.bashrc"

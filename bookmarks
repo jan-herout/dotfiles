@@ -1,5 +1,8 @@
 /home/jan/d-blocks/d-blocks-core
+/home/jan/d-blocks/d-blocks-demo
+/home/jan/d-blocks/d-blocks-o2
 /home/jan/d-blocks/d-blocks-test
+/home/jan/Dokumenty/Firma/06-faktury
 /home/jan/dotfiles
 /home/jan/git/genpypress
 /home/jan/o2
@@ -9,6 +12,7 @@
 /home/jan/o2/bimain/env/devel_teradata
 /home/jan/o2/bimain/env/env_teradata
 /home/jan/o2/bimain/meta/async_marts
+/home/jan/o2/bimain/meta/ddl
 /home/jan/o2/bimain/meta/mappings
 /home/jan/o2/bimain/mstr/SRC/e09/PMRootDir_ASG		    #git
 /home/jan/o2/bimain/mstr/SRC/e29			            #git
@@ -21,18 +25,15 @@
 /home/jan/o2/bimeta/press
 /home/jan/o2/datahub-metadata
 /home/jan/o2/feature
-/home/jan/o2/feature/bidev-5258-ebox-subscr
 /home/jan/o2/feature/BIDEV-6138-EBOX-STG
-/home/jan/o2/feature/bidev-6473-pcrf
-/home/jan/o2/feature/bidev-6544-ec_oc
-/home/jan/o2/feature/bidev-6591-sk-async
-/home/jan/o2/feature/bidev-6607-zoek
-/home/jan/o2/feature/bidev-6626-gcti-vol1
 /home/jan/o2/feature/bidev-6654-ebox-sda
-/home/jan/o2/feature/bidev-6735-gcti
+/home/jan/o2/feature/bidev-6686-kofax
 /home/jan/o2/feature/BIDEV-6923-vodwh-imd
 /home/jan/o2/feature/BIDEV-6923-vodwh-ocs
+/home/jan/o2/feature/bidev-7079-sfa
+/home/jan/o2/feature/bidev-7166-spolu
 /home/jan/o2/feature/moat-produkcionalizace
+/home/jan/o2/feature/moat-produkcionalizace/gen-ap
 /home/jan/o2/go-press
 /home/jan/o2/go-press/doc
 /home/jan/o2/go-validator/govalidator
@@ -47,7 +48,6 @@
 /home/jan/o2/virtual-buddy-bi/prepdocs
 /home/jan/o2/vodwh-infra
 /home/jan/o2/vodwh-main
-/home/jan/terra-mite/termite
 https://ntbidev401.to2.to2cz.cz/PDC_X0548834/Account/Login.aspx
 https://ntedwm401.to2.to2cz.cz/PDC/Monitor.aspx         # pdc prod
 https://owa.o2.cz/owa/#path=/mail

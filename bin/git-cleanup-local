@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# write me a bash script, that - given the REPO=~/o2/bimain does the following:
+# 
+# - lists all feature branches on my local copy (do not touch remote!); in the following text, each such branch is refered to as feature/branch
+# - for each feature/branch, gets the last commit sha and date
+# - checks two conditions, and if boh are met, the branch is renamed from feature/branch to archive/branch (on my local repo, do not touch remote)
+# - the conditions that needs to be met:
+# 1) the last commit on feature/branch is also on develop branch (feature/branch was merged to develop) and on the master branch (feature/branch was merged to master)
+# 2) the last commit is more than 1 week old
+
+REPO=~/o2/bimain
+cd "$REPO" || exit 1
+
+# List all local feature branches
+git for-each-ref --format='%(refname:short)' refs/heads/feature/ | while read -r branch; do
+    # Get the last commit SHA and date for the branch
+    last_commit=$(git rev-parse "$branch")
+    commit_date=$(git show -s --format=%ct "$last_commit")
+    current_date=$(date +%s)
+
+    # Get year and month of the last commit
+    commit_year=$(date -d @"$commit_date" +%Y)
+    commit_month=$(date -d @"$commit_date" +%m)
+
+    # Check if the last commit is on develop and master
+    on_develop=$(git branch --contains "$last_commit" | grep -q "develop" && echo "true" || echo "false")
+    on_master=$(git branch --contains "$last_commit" | grep -q "master" && echo "true" || echo "false")
+
+    # Check if the commit is more than 1 week old
+    one_week_ago=$((current_date - 7*24*60*60))
+    is_old=$([[ $commit_date -lt $one_week_ago ]] && echo "true" || echo "false")
+
+    # If both conditions are met, rename the branch
+    if [[ "$on_develop" == "true" && "$on_master" == "true" && "$is_old" == "true" ]]; then
+        branch_name=$(basename "$branch")
+        new_branch_name="archiv/$commit_year/$commit_month/$branch_name"
+        git branch -m "$branch" "$new_branch_name"
+        echo "+ $branch: rename to $new_branch_name"
+    else
+        echo "- $branch: no change"
+    fi
+done
+

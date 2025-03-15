@@ -20,5 +20,6 @@
     },
     "explorer.confirmDragAndDrop": false,
     "git.autofetch": true,
-    "git.enableSmartCommit": true
+    "git.enableSmartCommit": true,
+    "jupyter.enableExtendedPythonKernelCompletions": true
 }

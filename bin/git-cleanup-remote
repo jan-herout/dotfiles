@@ -1,0 +1,92 @@
+#!/bin/bash
+
+REPO_PATH=$(pwd)
+BRANCHES_TO_DELETE_FILE="branches_to_delete.txt"
+BRANCHES_TO_KEEP_FILE="branches_to_keep.txt"
+CURRENT_DATE=$(date +%s)
+TWO_WEEKS_AGO=$((CURRENT_DATE - 14*24*60*60))
+
+# Function to check if a commit is on a remote branch
+is_commit_on_branch() {
+    local commit=$1
+    local branch=$2
+    git branch -r --contains "$commit" | grep -q "$branch"
+}
+
+# Function to calculate age in days
+calculate_age_in_days() {
+    local commit_date=$1
+    echo $(( (CURRENT_DATE - commit_date) / 86400 ))
+}
+
+# Function to display content with less
+display_with_less() {
+    less -F -X <<EOF
+$1
+EOF
+}
+
+# FIRST PASS
+echo "FIRST PASS: Analyzing remote feature branches"
+rm -f "$BRANCHES_TO_DELETE_FILE" "$BRANCHES_TO_KEEP_FILE"
+
+git fetch --all
+
+git for-each-ref --format='%(refname:short)' refs/remotes/origin/feature/ | while read -r branch; do
+    last_commit=$(git rev-parse "$branch")
+    commit_date=$(git show -s --format=%ct "$last_commit")
+    age_in_days=$(calculate_age_in_days "$commit_date")
+
+    if is_commit_on_branch "$last_commit" "origin/develop" && is_commit_on_branch "$last_commit" "origin/master" && [ "$commit_date" -lt "$TWO_WEEKS_AGO" ]; then
+        echo "${branch#origin/}|$age_in_days" >> "$BRANCHES_TO_DELETE_FILE"
+        echo "+ $branch: DELETE (age: $age_in_days days)"
+    else
+        echo "${branch#origin/}|$age_in_days" >> "$BRANCHES_TO_KEEP_FILE"
+        echo "- $branch: keep"
+    fi
+done
+
+# SECOND PASS
+read -p "Press RETURN to view branches to be kept..."
+if [ -s "$BRANCHES_TO_KEEP_FILE" ]; then
+    display_with_less "$(cat <<EOF
+Branches to be kept:
+$(cat "$BRANCHES_TO_KEEP_FILE")
+EOF
+)"
+else
+    echo "No branches to keep."
+fi
+
+read -p "Press RETURN to view branches to be deleted..."
+if [ -s "$BRANCHES_TO_DELETE_FILE" ]; then
+    display_with_less "$(cat <<EOF
+Branches to be deleted:
+$(cat "$BRANCHES_TO_DELETE_FILE")
+EOF
+)"
+else
+    echo "No branches to delete."
+fi
+
+if [ -s "$BRANCHES_TO_DELETE_FILE" ]; then
+    read -p "Do you want to continue with deletion? (y/n): " confirm
+else
+    echo "No branches to delete. Exiting."
+    rm -f "$BRANCHES_TO_DELETE_FILE" "$BRANCHES_TO_KEEP_FILE"
+    exit 0
+fi
+
+# THIRD PASS
+if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+    echo -e "\nTHIRD PASS: Deleting branches"
+    while IFS='|' read -r branch age; do
+        git push origin --delete "$branch"
+        echo "Deleted $branch from remote"
+    done < "$BRANCHES_TO_DELETE_FILE"
+    echo "Deletion complete"
+else
+    echo "Deletion cancelled"
+fi
+
+rm -f "$BRANCHES_TO_DELETE_FILE" "$BRANCHES_TO_KEEP_FILE"

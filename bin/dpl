@@ -11,6 +11,7 @@ DEPLOY_DIR=$(echo "/mnt/dev-virt-node/EDW_JHE
 /mnt/dev-virt-node/VODWH_JHE
 /home/jan/o2/bimain/mstr/SRC/e09
 /home/jan/o2/bimain/mstr/SRC/e29
+/home/jan/o2/vodwh-main/src
 " | fzf)
 
 if [[ -z "$DEPLOY_DIR" ]] ; then
