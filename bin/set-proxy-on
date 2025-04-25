@@ -19,4 +19,5 @@ O2_PROXY="internet-proxy-s1.cz.o2:8080"
 echo "Setting proxy for $O2_USERNAME"
 export http_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
 export https_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
-
+export HTTP_PROXY=$http_proxy
+export HTTPS_PROXY=$https_proxy

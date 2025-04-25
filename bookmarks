@@ -1,4 +1,5 @@
 /home/jan/d-blocks/d-blocks-core
+/home/jan/d-blocks/d-blocks-core-plugin-jahero
 /home/jan/d-blocks/d-blocks-demo
 /home/jan/d-blocks/d-blocks-o2
 /home/jan/d-blocks/d-blocks-test
@@ -25,15 +26,11 @@
 /home/jan/o2/bimeta/press
 /home/jan/o2/datahub-metadata
 /home/jan/o2/feature
-/home/jan/o2/feature/BIDEV-6138-EBOX-STG
-/home/jan/o2/feature/bidev-6654-ebox-sda
-/home/jan/o2/feature/bidev-6686-kofax
-/home/jan/o2/feature/BIDEV-6923-vodwh-imd
-/home/jan/o2/feature/BIDEV-6923-vodwh-ocs
-/home/jan/o2/feature/bidev-7079-sfa
-/home/jan/o2/feature/bidev-7166-spolu
+/home/jan/o2/feature/bidev-7434-vodwh-na
+/home/jan/o2/feature/bidev-7434-vodwh-na/gen-imd
 /home/jan/o2/feature/moat-produkcionalizace
 /home/jan/o2/feature/moat-produkcionalizace/gen-ap
+/home/jan/o2/feature/python-eng22-eng6
 /home/jan/o2/go-press
 /home/jan/o2/go-press/doc
 /home/jan/o2/go-validator/govalidator

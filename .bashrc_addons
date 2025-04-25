@@ -91,7 +91,9 @@ then
 
     # use batcat and eza for preview in fzf
     if command -v batcat &>/dev/null; then
-        export MANPAGER="bash -c 'col -bx | batcat -l man -p'" # colorized man
+        # export MANPAGER="bash -c 'col -bx | batcat -l man -p'" # colorized man
+        # export MANPAGER=less # fallback
+        export MANPAGER="sh -c 'sed -u -e \"s/\\x1B\\[[0-9;]*m//g; s/.\\x08//g\" | batcat -p -l man'"
         export FZF_CTRL_T_OPTS="--preview 'batcat -n --color=always --line-range :500 {}'"
 
         help() {

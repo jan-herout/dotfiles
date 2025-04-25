@@ -9,6 +9,9 @@ MM_TRY="\033[33mTRY\033[0m"
 MM_OK="\033[34mOK\033[0m "
 
 
+CHOICE=$(echo "mount a git pull
+jenom mount" | fzf)
+
 # kontrola existence adresáře s definicemi
 echo -e "$MM_TRY: test mount points config: $MM_DEFDIR"
 if [ ! -d "$MM_DEFDIR" ]; then
@@ -30,9 +33,14 @@ if [ ! -f "$MM_PASSWORD_FILE" ]; then
     echo -e "$MM_ERR: File does not exist: $MM_PASSWORD_FILE"
     exit 1
 fi
+
+
+# options
+
+
 # chceme namapovat disky?
-read -t 4 -p "Namapovat disky? [y/N]" __MOUNT_DRIVES__
-__MOUNT_DRIVES__="${__MOUNT_DRIVES__:-N}"
+# read -t 4 -p "Namapovat disky? [y/N]" __MOUNT_DRIVES__
+# __MOUNT_DRIVES__="${__MOUNT_DRIVES__:-N}"
 
 # načti secrets a další
 echo -e "$MM_TRY: read secrets: $MM_PASSWORD_FILE"
@@ -60,7 +68,8 @@ fi
 
 
 # proveď mount
-if [ "${__MOUNT_DRIVES__^^}" = "Y" ]; then 
+#if [ "${__MOUNT_DRIVES__^^}" = "Y" ]; then 
+if [[ "$CHOICE" =~ "mount" ]]; then
     for MM_DEFFILE in "$MM_DEFDIR"/*; do
         echo -e "$MM_TRY: read $MM_DEFFILE"
         source $MM_DEFFILE
@@ -92,10 +101,7 @@ else
     echo -e "$MM_ERR: přeskakuji mapování disků!"
 fi
 
-# odjeď git pull
-read -t 4 -p "Git pull? [y/N]" __PULL__
-__PULL__="${__PULL__:-Y}"
-
-if [ "${__PULL__^^}" = "Y" ]; then 
-    $HOME/bin/pull
+# odjeď git fetch
+if [[ "$CHOICE" =~ "git" ]]; then
+    $HOME/bin/git-o2fetch
 fi

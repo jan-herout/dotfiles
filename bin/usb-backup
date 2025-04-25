@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOG="bin/daily-backup: "
+LOG="bin/usb-backup: "
 
 # notify about start
 notify-send "Cron Job Notification" "Záloha: START" --icon=dialog-information
@@ -12,7 +12,7 @@ cd /home/jan
 SOURCE=.
 
 # Where to store the incremental backups
-DESTBASE=/datadisk/rsync-backup
+DESTBASE=/media/jan/PENGUIN/bck
 
 # how long to keep backups, in days
 # WARNING: always make sure that the prefix of the number is PLUS sign!
@@ -37,7 +37,6 @@ OPTS+="--exclude .var "
 OPTS+="--exclude .eclipse "
 OPTS+="--exclude .ipython "
 OPTS+="--exclude .jupyter "
-OPTS+="--exclude /home/jan/Vaults "
 
 # Use yesterday's backup as the incremental base if it exists
 if [ ! -z "$YESTERDAY" ]; then

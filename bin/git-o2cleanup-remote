@@ -6,7 +6,11 @@ BRANCHES_TO_KEEP_FILE="branches_to_keep.txt"
 CURRENT_DATE=$(date +%s)
 TWO_WEEKS_AGO=$((CURRENT_DATE - 14*24*60*60))
 
-# Function to check if a commit is on a remote branch
+# colors
+MM_INCLUDE="\e[31m+++\e[0m"
+MM_EXCLUDE="\033[34m---\033[0m "
+
+#Function to check if a commit is on a remote branch
 is_commit_on_branch() {
     local commit=$1
     local branch=$2
@@ -30,6 +34,8 @@ EOF
 echo "FIRST PASS: Analyzing remote feature branches"
 rm -f "$BRANCHES_TO_DELETE_FILE" "$BRANCHES_TO_KEEP_FILE"
 
+# clenaup local repo
+git fetch --prune origin
 git fetch --all
 
 git for-each-ref --format='%(refname:short)' refs/remotes/origin/feature/ | while read -r branch; do
@@ -82,7 +88,7 @@ if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
     echo -e "\nTHIRD PASS: Deleting branches"
     while IFS='|' read -r branch age; do
         git push origin --delete "$branch"
-        echo "Deleted $branch from remote"
+        # echo "Deleted $branch from remote"
     done < "$BRANCHES_TO_DELETE_FILE"
     echo "Deletion complete"
 else

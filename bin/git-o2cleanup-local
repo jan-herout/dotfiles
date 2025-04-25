@@ -12,6 +12,11 @@
 REPO=~/o2/bimain
 cd "$REPO" || exit 1
 
+
+# colors
+MM_INCLUDE="\e[31m+++\e[0m"
+MM_EXCLUDE="\033[34m---\033[0m "
+
 # List all local feature branches
 git for-each-ref --format='%(refname:short)' refs/heads/feature/ | while read -r branch; do
     # Get the last commit SHA and date for the branch
@@ -36,9 +41,9 @@ git for-each-ref --format='%(refname:short)' refs/heads/feature/ | while read -r
         branch_name=$(basename "$branch")
         new_branch_name="archiv/$commit_year/$commit_month/$branch_name"
         git branch -m "$branch" "$new_branch_name"
-        echo "+ $branch: rename to $new_branch_name"
+        echo -e "$MM_INCLUDE $branch: rename to $new_branch_name"
     else
-        echo "- $branch: no change"
+        echo -e "$MM_EXCLUDE $branch: no change"
     fi
 done
 
