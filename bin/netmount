@@ -35,12 +35,6 @@ if [ ! -f "$MM_PASSWORD_FILE" ]; then
 fi
 
 
-# options
-
-
-# chceme namapovat disky?
-# read -t 4 -p "Namapovat disky? [y/N]" __MOUNT_DRIVES__
-# __MOUNT_DRIVES__="${__MOUNT_DRIVES__:-N}"
 
 # načti secrets a další
 echo -e "$MM_TRY: read secrets: $MM_PASSWORD_FILE"

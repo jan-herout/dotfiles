@@ -1,0 +1,7 @@
+
+git switch master \
+  && git pull \
+  && git branch --move master main \
+  && git switch main \
+  && git push -u origin main \
+  && git branch -u origin/main main

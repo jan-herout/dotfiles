@@ -1,8 +1,0 @@
-#!/bin/bash
-HOME=/home/jan
-cd $HOME/logseq
-
-# current date
-TODAY=$(date '+%Y_%m_%d')
-TODAY_JOURNAL="$HOME/logseq/journals/$TODAY.md"
-$HOME/sbin/nvim $TODAY_JOURNAL 

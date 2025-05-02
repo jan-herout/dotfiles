@@ -29,12 +29,15 @@ if [ ! -f "$PAT_FILE" ]; then
     exit 1
 fi
 
-GITHUB_TOKEN=$(cat $PAT_FILE)
-if [ -z "$PAT_FILE" ]; then
-    echo -e "$ERR: read secrets: failed: $PAT_FILE"
+# split the line into name and value, separator is space
+GITHUB_TOKEN=$(cat $PAT_FILE | fzf)
+GITHUB_TOKEN=$(echo $GITHUB_TOKEN | cut -d' ' -f2)
+
+if [[ -z "$GITHUB_TOKEN" ]]; then
+    echo -e "$ERR: No github token provided, bail out"
     exit 1
 fi
-echo -e "$OK: secrets read"
+
 
 # test if the address is in clipboard
 echo -e "$TRY: try to get address from the clipboard"

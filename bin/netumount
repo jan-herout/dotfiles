@@ -30,8 +30,12 @@ _UID_=`id -u $_ME_`
 _GID_=`id -g $_ME_`
 
 
+# co chceme dělat
+CHOICE=$(echo "jenom umount
+umount a disconnect vpn" | fzf)
 
-# proveď mount
+
+# proveď umount
 for MM_DEFFILE in "$MM_DEFDIR"/*; do
     echo -e "$MM_TRY: read $MM_DEFFILE"
     source $MM_DEFFILE
@@ -54,19 +58,11 @@ for MM_DEFFILE in "$MM_DEFDIR"/*; do
     fi
 done
 
-
-# test napojení na VPN
-# IS_O2_CONUP=`nmcli connection show --active | grep extvpn.o2.cz`
-# if [ -z "$IS_O2_CONUP" ]; then
-# 	echo -e "$OK: disconnected"
-# else
-# 	nmcli connection down extvpn.o2.cz
-# fi
-#
-#
-# IS_O2_CONUP=`nmcli connection show --active | grep extvpn.o2.cz`
-# if [ ! -z "$IS_O2_CONUP" ]; then
-# 	echo -e "$ERR: disconnecting VPN"
-# 	mcli connection down extvpn.o2.cz
-# fi
-#
+if [[ "$CHOICE" =~ "umount a disconnect vpn" ]]; then
+    IS_O2_CONUP=$(nmcli connection show --active | grep extvpn.o2.cz)
+    if [ -z "$IS_O2_CONUP" ]; then
+        echo -e "$MM_OK: disconnected"
+    else
+        nmcli connection down extvpn.o2.cz
+    fi
+fi
