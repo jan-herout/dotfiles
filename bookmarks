@@ -7,50 +7,44 @@
 /home/jan/dotfiles
 /home/jan/git/genpypress
 /home/jan/o2
-/home/jan/o2/bidoc
-/home/jan/o2/bimain
-/home/jan/o2/bimain/env/devel_pdc			            #env
-/home/jan/o2/bimain/env/devel_teradata
-/home/jan/o2/bimain/env/env_teradata
-/home/jan/o2/bimain/meta/async_marts
-/home/jan/o2/bimain/meta/ddl
-/home/jan/o2/bimain/meta/mappings
-/home/jan/o2/bimain/mstr/SRC/e09/PMRootDir_ASG		    #git
-/home/jan/o2/bimain/mstr/SRC/e29			            #git
-/home/jan/o2/bimain/mstr/SRC				            #git
-/home/jan/o2/bimain/mstr/SRC/main/PMRootDir_EDW/Script	#git
-/home/jan/o2/bimain/mstr/SRC/Shared_Libs
-/home/jan/o2/bimain/pkg/main
-/home/jan/o2/bimain/reqs
-/home/jan/o2/bimeta
-/home/jan/o2/bimeta/press
-/home/jan/o2/datahub-metadata
+/home/jan/o2/BIDEV-APP-GO_press
+/home/jan/o2/BIDEV-APP-GO_press/doc
+/home/jan/o2/BIDEV-APP-GO_press/doc
+/home/jan/o2/BIDEV-APP-GO_validator/govalidator
+/home/jan/o2/BIDEV-APP-GO_validator/govalidator
+/home/jan/o2/BIDEV-APP-PY_buddy/prepdocs
+/home/jan/o2/BIDEV-MAIN_bimeta
+/home/jan/o2/BIDEV-MAIN_bimeta/press
+/home/jan/o2/BIDEV-MAIN_edw
+/home/jan/o2/BIDEV-MAIN_edw/env/devel_pdc			            #env
+/home/jan/o2/BIDEV-MAIN_edw/env/devel_teradata
+/home/jan/o2/BIDEV-MAIN_edw/env/env_teradata
+/home/jan/o2/BIDEV-MAIN_edw/meta/async_marts
+/home/jan/o2/BIDEV-MAIN_edw/meta/ddl
+/home/jan/o2/BIDEV-MAIN_edw/meta/mappings
+/home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/e09/PMRootDir_ASG		    #git
+/home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/e29			            #git
+/home/jan/o2/BIDEV-MAIN_edw/mstr/SRC				            #git
+/home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/main/PMRootDir_EDW/Script	#git
+/home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/Shared_Libs
+/home/jan/o2/BIDEV-MAIN_edw/pkg/main
+/home/jan/o2/BIDEV-MAIN_edw/reqs
+/home/jan/o2/BIDEV-MAIN_ntr2expn
+/home/jan/o2/BIDEV-MAIN_py-o2edw
+/home/jan/o2/BIDEV-MAIN_vodwh
+/home/jan/o2/BIDEV-MAIN_vodwh/metadata
+/home/jan/o2/BIDEV-MAIN_vodwh/src/PMRootdir_A69
+/home/jan/o2/BIDEV-WORK_moat-produkcionalizace
+/home/jan/o2/BIDEV-WORK_moat-produkcionalizace/gen-ap
 /home/jan/o2/feature
 /home/jan/o2/feature/bidev-7434-vodwh-na
-/home/jan/o2/feature/bidev-7434-vodwh-na/gen-imd
-/home/jan/o2/feature/moat-produkcionalizace
-/home/jan/o2/feature/moat-produkcionalizace/gen-ap
+/home/jan/o2/feature/bidev-7434-vodwh-na/gen-imd # rated
+/home/jan/o2/feature/bidev-7434-vodwh-na/gen-jhe/prp-bal
+/home/jan/o2/feature/bidev-7976-5g-vodwh
 /home/jan/o2/feature/python-eng22-eng6
-/home/jan/o2/go-press
-/home/jan/o2/go-press/doc
-/home/jan/o2/go-validator/govalidator
-/home/jan/o2/py-katas
-/home/jan/o2/py-o2edw
 /home/jan/o2/svn-production/db/Teradata                 #svn
 /home/jan/o2/svn-production/src/NTINFO402/EDW           #svn
-/home/jan/o2/virtual-buddy/backend
-/home/jan/o2/virtual-buddy-bi-data
-/home/jan/o2/virtual-buddy-bi/frontend-streamlit
-/home/jan/o2/virtual-buddy-bi/hello
-/home/jan/o2/virtual-buddy-bi/prepdocs
-/home/jan/o2/vodwh-infra
-/home/jan/o2/vodwh-main
-https://ntbidev401.to2.to2cz.cz/PDC_X0548834/Account/Login.aspx
-https://ntedwm401.to2.to2cz.cz/PDC/Monitor.aspx         # pdc prod
-https://owa.o2.cz/owa/#path=/mail
-https://pam.cz.o2/PasswordVault/v10/                    # cyber ark
-https://teams.microsoft.com/v2/
-https://viewpoint.cz.o2/
+https://worldfoods.cz/tydenni-menu/
 http://www.cervena-cibule.cz/cz/poledni-menu/
 /mnt/dev-virt-node
 /mnt/dev-virt-node/EDW_Ebox/PMRootDir_ASG               #ebox

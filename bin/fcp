@@ -1,17 +1,40 @@
 #!/bin/bash
-
 SELECTION="__"
 CONTINUE="__"
 FILE_LIST=""
-GITDIR="$HOME/o2/bimain/meta"
 
+
+# z jakého repa? metadata jdou buď z VODWH nebo EDW
+GITDIR=$(echo "
+$HOME/o2/BIDEV-MAIN_edw/meta
+$HOME/o2/BIDEV-MAIN_vodwh/metadata" | fzf --prompt="Select source directory: " --height=10)
+if [[ -z "$GITDIR" ]]; then
+    echo "No source directory selected. Exiting."
+    exit 1
+fi
+
+
+
+PROMPT="Select files to copy (use Shift+Tab to select multiple files): ESC to finish! >"
 # sestavíme seznam souborů do proměnné, oddělovačem je středník
 while [[ -n "$CONTINUE" ]]
 do
-    SELECTION=$(find $GITDIR| fzf)
-
+    SELECTION=$(\
+        find $GITDIR -type f \                      # hledáme soubory v adresáři GITDIR
+        | sed "s|^$GITDIR/||" \                     # odstraníme prefix GITDIR z cesty
+        | fzf \
+            --prompt="$PROMPT" \                    # co ukázat na promptu
+            --multi \                               # povolit více výběrů       
+            --height=40 \                           # výška selectboxu je 40 řádek
+            --preview 'batcat --color=always {}' \  # použít batcat pro preview
+            --preview-window=right:60%:wrap \       # preview bude na pravé straně, 60% šířky
+            --delimiter '\n' \                      # oddělovač položek na vstupu
+            --print0                                # položky na výstupu oddělit nulovým znakem
+    ) 
+    
     if [[ -n "$SELECTION" ]]; then
         if [[ -n "$FILE_LIST" ]]; then
+            # 
             FILE_LIST+=";$SELECTION"
         else
             FILE_LIST+="$SELECTION"
@@ -22,9 +45,31 @@ do
 done
 
 
+echo "Selected files:"
+echo "-----------------"
+IFS=$"\0" read -ra FILES <<< "$FILE_LIST"
+for FILE in "${FILES[@]}"; do 
+    if [[ -z "$FILE" ]]; then
+        continue
+    fi
+    echo "$FILE"
+done
+
+echo "Continue? (y/n)"
+read -r CONTINUE
+if [[ "$CONTINUE" != "y" && "$CONTINUE" != "Y" && "$CONTINUE" != "" ]]; then
+    echo "Exiting without copying files."
+    exit 0
+fi
+
 # iterujeme přes jednotlivé soubory
 IFS=";" read -ra FILES <<< "$FILE_LIST"
 for FILE in "${FILES[@]}"; do 
+    if [[ -z "$FILE" ]]; then
+        continue
+    fi
+    
+    FILE="$GITDIR/$FILE" # fzd removed the prefix
     FILE=$(realpath "$FILE")    
     FILE_NAME=$(basename "$FILE")
     
@@ -36,5 +81,6 @@ for FILE in "${FILES[@]}"; do
     DEST=$(echo $DEST | sed s/ddl/tables/)
     TF="$DEST/$FILE_NAME"
     mkdir -p "$DEST"
+    echo cp $FILE $TF
     cp $FILE $TF
 done

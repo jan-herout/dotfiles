@@ -1,0 +1,3 @@
+#!/bin/bash
+cd $HOME/o2/feature
+cookiecutter $HOME/o2/bidev-template

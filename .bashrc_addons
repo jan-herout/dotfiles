@@ -1,8 +1,9 @@
 #!/bin/bash
+
 # colors
-MM_ERR="\e[31mERR\e[0m"
-MM_TRY="\033[33mTRY\033[0m"
-MM_OK="\033[34mOK\033[0m "
+# MM_ERR="\e[31mERR\e[0m"
+# MM_TRY="\033[33mTRY\033[0m"
+# MM_OK="\033[34mOK\033[0m "
 
 export PATH=$PATH:~/bin:~/sbin:~/.local/bin
 
@@ -15,11 +16,11 @@ export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
 export ORACLE_HOME=/home/jan/sbin/instantclient_23_6
 export EDITOR=nvim
 
-
-export PRESS_MODEL_DIR=/home/jan/o2/bimeta/press/models.lin
-export PRESS_VIEW_DIR=/home/jan/o2/bimeta/press
-export PRESS_PROFILE_DIR=/home/jan/o2/bimeta/press/profiles.lin
-export PRESS_PDC_METADATA_FILE=/home/jan/o2/bimeta/ModelMetadata/PDCMetadata.json
+# press generator, pro init
+export PRESS_MODEL_DIR=/home/jan/o2/BIDEV-MAIN_bimeta/press/models.lin
+export PRESS_VIEW_DIR=/home/jan/o2/BIDEV-MAIN_bimeta/press
+export PRESS_PROFILE_DIR=/home/jan/o2/BIDEV-MAIN_bimeta/press/profiles.lin
+export PRESS_PDC_METADATA_FILE=/home/jan/o2/BIDEV-MAIN_bimeta/ModelMetadata/PDCMetadata.json
 export PRESS_PRODUCTION_DDL_DIR=/home/jan/o2/svn-production/db/Teradata/DDL
 
 
@@ -76,7 +77,7 @@ then
     then
         export FZF_DEFAULT_COMMAND="fdfind --hidden --strip-cwd-prefix --exclude .git --no-ignore-vcs"
         export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-        export FZF_ALT_C_COMMAND="fdfind --type=d --hidden --strip-cwd-prefix --exclude .git --no-ignore-vcs"
+        export FZF_ALT_C_COMMAND="fdfind --type=d --hidden --strip-cwd-prefix --exclude .git --no-ignore-vcs -d 2"
 
         # use fdfind to list path candidates
         _fzf_compgen_path() {
@@ -105,17 +106,6 @@ then
         export FZF_ALT_C_OPTS="--preview 'eza --tree --color=always {} | head -200'"
     fi
 
-    fzf_find_edit() {
-        local file=$(
-        find . -type f | fzf --query="$1" --no-multi --select-1 --exit-0 \
-            --preview 'batcat --color=always --line-range :500 {}'
-        )
-        if [[ -n "$file" ]]; then
-            $EDITOR "$file"
-        fi
-    }
-    alias fe="fzf_find_edit"
-
     fzf_kill() {
         if [[ $(uname) == Linux ]]; then
             local pids=$(ps -f -u $USER | sed 1d | fzf | awk '{print $2}')
@@ -132,77 +122,63 @@ then
 
     alias fkill='fzf_kill'
 
-
-    # lf který po skončení jde do aktivního adresáře
-    lfcd() {
-        tmp="$(mktemp)"
-        lf -last-dir-path="$tmp" "$@"
-        if [ -f "$tmp" ]; then
-            dir="$(cat "$tmp")"
-            rm -f "$tmp"
-            if [ -d "$dir" ]; then
-                if [ "$dir" != "$(pwd)" ]; then
-                    cd "$dir"
-                fi
-            fi
-        fi
-    }
-    alias lf="lfcd"
-
-    fzf_git_add() {
-        local selections=$(
-        git ls-files -m -o --exclude-standard | \
-            fzf \
-            --ansi \
-            --preview 'if (git ls-files --error-unmatch {1} &>/dev/null); then
-                    git diff --color=always {1}
-                else
-                    batcat --color=always --line-range :500 {1}
-                    fi'
-        )
-        if [[ -n $selections ]]; then
-            git add --verbose $selections
-        fi
-    }
-
-    alias gadd='fzf_git_add'
-
-    fzf_git_log() {
-                local selection=$(
-                git ll --color=always "$@" | \
-                    fzf --no-multi --ansi --no-sort --no-height \
-                    --preview "echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
-                    xargs -I@ sh -c 'git show --color=always @'"
-                )
-                if [[ -n $selection ]]; then
-                    local commit=$(echo "$selection" | sed 's/^[* |]*//' | awk '{print $1}' | tr -d '\n')
-                    git show $commit
-                fi
-            }
-
-            alias gll='fzf_git_log'
-
-            fzf_git_reflog() {
-                local selection=$(
-                git reflog --color=always "$@" |
-                    fzf --no-multi --ansi --no-sort --no-height \
-                    --preview "git show --color=always {1}"
-                )
-                if [[ -n $selection ]]; then
-                    git show $(echo $selection | awk '{print $1}')
-                fi
-            }
-
-            alias grl='fzf_git_reflog'
-
-            fzf_git_branch() {
-                local selection=$(git branch | fzf --no-multi --ansi --no-sort --no-height)
-                if [[ -n $selection ]]; then 
-                    git checkout $selection
-                fi
-            }
-
-            alias gcb='fzf_git_branch'
+    # fzf_find_edit() {
+    #     local file=$(
+    #     find . -type f | fzf --query="$1" --no-multi --select-1 --exit-0 \
+    #         --preview 'batcat --color=always --line-range :500 {}'
+    #     )
+    #     if [[ -n "$file" ]]; then
+    #         $EDITOR "$file"
+    #     fi
+    # }
+    # alias fe="fzf_find_edit"
+    # fzf_git_add() {
+    #     local selections=$(
+    #     git ls-files -m -o --exclude-standard | \
+    #         fzf \
+    #         --ansi \
+    #         --preview 'if (git ls-files --error-unmatch {1} &>/dev/null); then
+    #                 git diff --color=always {1}
+    #             else
+    #                 batcat --color=always --line-range :500 {1}
+    #                 fi'
+    #     )
+    #     if [[ -n $selections ]]; then
+    #         git add --verbose $selections
+    #     fi
+    # }
+    # alias gadd='fzf_git_add'
+    # fzf_git_log() {
+    #             local selection=$(
+    #             git ll --color=always "$@" | \
+    #                 fzf --no-multi --ansi --no-sort --no-height \
+    #                 --preview "echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
+    #                 xargs -I@ sh -c 'git show --color=always @'"
+    #             )
+    #             if [[ -n $selection ]]; then
+    #                 local commit=$(echo "$selection" | sed 's/^[* |]*//' | awk '{print $1}' | tr -d '\n')
+    #                 git show $commit
+    #             fi
+    # }
+    # alias gll='fzf_git_log'
+    # fzf_git_reflog() {
+    #             local selection=$(
+    #             git reflog --color=always "$@" |
+    #                 fzf --no-multi --ansi --no-sort --no-height \
+    #                 --preview "git show --color=always {1}"
+    #             )
+    #             if [[ -n $selection ]]; then
+    #                 git show $(echo $selection | awk '{print $1}')
+    #             fi
+    # }
+    # alias grl='fzf_git_reflog'
+    # fzf_git_branch() {
+    #     local selection=$(git branch | fzf --no-multi --ansi --no-sort --no-height)
+    #     if [[ -n $selection ]]; then 
+    #         git checkout $selection
+    #     fi
+    # }
+    # alias gcb='fzf_git_branch'
 fi
 
 
@@ -229,12 +205,6 @@ proxoff () {
     source ~/bin/set-proxy-off
 }
 
-teams () {
-    # source ~/bin/set-proxy-on
-    # firefox --private-window  "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
-    google-chrome "https://teams.microsoft.com/v2/?clientexperience=t2&ring=ring3_6" >/dev/null 2>/dev/null  &
-}
-
 move-to-bookmark () {
     source "$HOME/bin/fcd-script"
 }
@@ -252,41 +222,71 @@ __config__ () {
     cd $CWD  
 }
 
-# lf icons
-export LF_ICONS=$(cat $HOME/.config/lf/icons)
+# # lf icons
+# export LF_ICONS=$(cat $HOME/.config/lf/icons)
 
 # aliases
 alias vim="nvim"
-alias v="vim"
-alias cls="clear"
-#alias notes="export __CWD__=`pwd` && cd ~/logseq && nvim &&  cd $__CWD__  && unset __CWD__"
+# alias v="vim"
+# alias cls="clear"
+#alias c="cd $(find -maxdepth 1 -type d | grep -E '^.\s*$' -v | fzf)"
 alias gac="git add --all && git commit"
-alias ga="git add --all"
-alias gp="git pull --rebase && git push"
-alias gs="git status"
+# alias ga="git add --all"
+# alias gp="git pull --rebase && git push"
+# alias gs="git status"
 alias ..="cd .."
 alias ...="cd .. && cd .."
+alias ....="cd .. && cd .. && cd .."
 alias src="source ~/.bashrc"
 alias vc="export __CWD__=`pwd` && cd ~/dotfiles/.config/nvim && nvim . &&  cd $__CWD__  && unset __CWD__"
 alias nom="$HOME/bin/netmount"
 alias num="$HOME/bin/netumount"
 alias gs="git status"
 alias config="__config__"
-#alias s402="ssh x0548834@ntinfot404.to2.to2cz.cz && clear"
 alias f="source $HOME/bin/fcd-script"
 alias m="source $HOME/bin/fcd-script"
 
 # clipboard operations
 alias wcl="wl-copy"
 alias xcl="xclip -selection clipboard"
-
+alias escape="sed -e 's/\x00/<NUL#00>/g' \
+    -e 's/\x01/<SOH#01>/g' \
+    -e 's/\x02/<STX#02>/g' \
+    -e 's/\x03/<ETX#03>/g' \
+    -e 's/\x04/<EOT#04>/g' \
+    -e 's/\x05/<ENQ#05>/g' \
+    -e 's/\x06/<ACK#06>/g' \
+    -e 's/\x07/<BEL#07>/g' \
+    -e 's/\x08/<BS#08>/g'  \
+    -e 's/\x09/<HT#09>/g'  \
+    -e 's/\x0A/<LF#0A>/g'  \
+    -e 's/\x0B/<VT#0B>/g'  \
+    -e 's/\x0C/<FF#0C>/g'  \
+    -e 's/\x0D/<CR#0D>/g'  \
+    -e 's/\x0E/<SO#0E>/g'  \
+    -e 's/\x0F/<SI#0F>/g'  \
+    -e 's/\x10/<DLE#10>/g' \
+    -e 's/\x11/<DC1#11>/g' \
+    -e 's/\x12/<DC2#12>/g' \
+    -e 's/\x13/<DC3#13>/g' \
+    -e 's/\x14/<DC4#14>/g' \
+    -e 's/\x15/<NAK#15>/g' \
+    -e 's/\x16/<SYN#16>/g' \
+    -e 's/\x17/<ETB#17>/g' \
+    -e 's/\x18/<CAN#18>/g' \
+    -e 's/\x19/<EM#19>/g'  \
+    -e 's/\x1A/<SUB#1A>/g' \
+    -e 's/\x1B/<ESC#1B>/g' \
+    -e 's/\x1C/<FS#1C>/g'  \
+    -e 's/\x1D/<GS#1D>/g'  \
+    -e 's/\x1E/<RS#1E>/g'  \
+    -e 's/\x1F/<US#1F>/g'"
 # perlbrew: https://perlbrew.pl/
 source $HOME/perl5/perlbrew/etc/bashrc
 export PERL5LIB=$HOME/o2/bimain/mstr/SRC/Shared_Libs/Perl.O2
 
 # azure
 export ACR_REGISTRY="o2czbidevacr"
-
 
 # perlbrew
 perlbrew use perl-5.24.4

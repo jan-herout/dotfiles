@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# colors
+ERR="\e[31mERR\e[0m"
+TRY="\033[33mTRY\033[0m"
+OK="\033[34mOK\033[0m "
+
+
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <filename>"
+  exit 1
+fi
+
+
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Error: 'jq' is not installed."
+  exit 2
+fi
+
+if jq empty "$1" >/dev/null 2>&1; then
+  echo -e "$OK json in $1 is valid"
+else
+  echo -e "$ERR Invalid JSON in $1"
+  exit 3
+fi

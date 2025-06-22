@@ -1,0 +1,53 @@
+#!/bin/bash
+USERNAME="a1548834"
+
+LINUX_USERNAME=`whoami`
+ME_UID=`id -u $LINUX_USERNAME`
+ME_GID=`id -g $LINUX_USERNAME`
+
+# colors
+COLOR_ERR="\e[31mERR\e[0m"
+COLOR_TRY="\033[33mTRY\033[0m"
+COLOR_OK="\033[34mOK\033[0m "
+
+PASSWORD=$(cat $HOME/Vaults/o2/o2_a1548834_password.txt)
+
+if [[ -z "$PASSWORD" ]]; then
+    echo -e "$COLOR_ERR: No pass provided, bail out: $HOME/Vaults/o2/o2_a1548834_password.txt"
+    exit 1
+fi
+
+
+# select the share to be mounted
+MOUNTFILE=$(ls $HOME/bin/a-write-mounts | fzf --prompt="Vyber mount: ")
+if [[ -z "$MOUNTFILE" ]]; then
+    echo -e "$COLOR_ERR: No mount selected, bail out"
+    exit 1
+fi
+
+# source the mount file and set vars
+source $HOME/bin/a-write-mounts/$MOUNTFILE
+
+MOUNT_POINT=$_MNT_
+SHARE_UNC=$_SRC_
+
+findmnt $MOUNT_POINT >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+    echo -e "$COLOR_OK: directory is already mounted: $MOUNT_POINT"
+else
+    echo -e "$COLOR_TRY: mounting $SHARE_UNC"
+    MM_OPTIONS="domain=TO2,username=$USERNAME,"
+    MM_OPTIONS+="password=$PASSWORD,"
+    MM_OPTIONS+="uid=$ME_UID,"
+    MM_OPTIONS+="gid=$ME_GID,"
+    MM_OPTIONS+="dir_mode=0755,file_mode=0755"
+    MM_OPTIONS+=$_SUFFIX_    
+    sudo mount -t cifs -o "$MM_OPTIONS" $SHARE_UNC $MOUNT_POINT
+
+
+    if [ $? -eq 0 ]; then
+        echo -e "$COLOR_OK: mounted as $MOUNT_POINT"        
+    else
+        echo -e "$COLOR_ERR: error ???"
+    fi
+fi

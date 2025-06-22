@@ -1,0 +1,75 @@
+#!/bin/bash
+
+
+# colors
+ERR="\e[31mERR\e[0m"
+TRY="\033[33mTRY\033[0m"
+OK="\033[34mOK\033[0m "
+
+# aktuální adresář je kořen, pod kterým provádíme aktualizaci
+REPO_PATH=$(pwd)
+
+# v následujícím souboru je seznam tokenů které jsou k dispozici
+# seznam obsahuje na každém řádku NÁZEV tokenu a HODNOTU tokenu oddělené MEZEROU, zhruba tedy:
+# o2-hlavní-token github_pat_11.....................
+# o2-infra-token github_pat_11......................
+
+PAT_FILE=$HOME/Vaults/o2/github/jan_herout_pat
+echo -e "\e[31mPlošná náhrada access tokenů ve všech podadresářích v aktuální složce\e[0m
+---------------------------------------------------------------------------
+Tento skript projde všechy podsložky (rekurzivně) a v souborech .git/config
+nahradí starý PAT za nový PAT.
+
+PATs se načítají ze souboru $PAT_FILE.
+"
+
+
+if [ ! -f "$PAT_FILE" ]; then
+    echo -e "$ERR: PAT file not found at $PAT_FILE"
+    exit 1
+fi
+
+
+
+
+# načteme si stadý PAT, který budeme aktualizovat
+nl -ba "$PAT_FILE"
+read -p "Který PAT budeme nahrazovat? " lineno
+if [[ -z "$lineno" ]]; then
+    echo -e "$ERR: No github token provided, bail out"
+    exit 1
+fi
+OLD_GITHUB_TOKEN=$(sed -n "${lineno}p" "$PAT_FILE")
+OLD_GITHUB_TOKEN=$(echo $OLD_GITHUB_TOKEN | cut -d' ' -f2)
+if [[ -z "$OLD_GITHUB_TOKEN" ]]; then
+        echo -e "$ERR: No github token provided, bail out"
+        exit 1
+fi
+
+
+# načteme si nový PAT, za který provedeme náhradu
+nl -ba "$PAT_FILE"
+read -p "Který PAT mám použít?: " lineno
+if [[ -z "$lineno" ]]; then
+    echo -e "$ERR: No github token provided, bail out"
+    exit 1
+fi
+GITHUB_TOKEN=$(sed -n "${lineno}p" "$PAT_FILE")
+GITHUB_TOKEN=$(echo $GITHUB_TOKEN | cut -d' ' -f2)
+if [[ -z "$GITHUB_TOKEN" ]]; then
+        echo -e "$ERR: No github token provided, bail out"
+        exit 1
+fi
+
+# find all files named config, that are in a subdirectory .git, recursively
+# use this list of files with sed to replace the $OLD_GITHUB_TOKEN with $GITHUB_TOKEN
+# in the file
+find "$REPO_PATH" -type f -path "*/.git/config" | while read -r config_file; do
+    if grep -q "$OLD_GITHUB_TOKEN" "$config_file"; then
+        sed -i "s/$OLD_GITHUB_TOKEN/$GITHUB_TOKEN/g" "$config_file" && \
+        echo -e "$OK: Updated token in $config_file" || \
+        echo -e "$ERR: Failed to update $config_file"
+    else
+        echo -e "$TRY: Token not found in $config_file"
+    fi
+done

@@ -1,0 +1,58 @@
+#!/bin/bash
+
+COLOR_ERR="\e[31mERR\e[0m"
+COLOR_TRY="\033[33mTRY\033[0m"
+COLOR_OK="\033[34mOK\033[0m "
+
+MOUNT_POINT=$(ls /mnt | fzf --prompt="Vyber mount: ")
+if [[ -z "$MOUNT_POINT" ]]; then
+    echo -e "$COLOR_ERR: No mount selected, bail out"
+    exit 1
+fi
+
+sudo umount "/mnt/$MOUNT_POINT"
+if [ $? -eq 0 ]; then
+    echo -e "$COLOR_OK: Unmounted $MOUNT_POINT successfully"
+    exit 0
+fi
+
+echo -e "$COLOR_OK: Error unmounting $MOUNT_POINT"
+echo -e "$COLOR_TRY: Find blocking PIDs"
+
+
+# PIDy
+KILL_THESE=$(lsof \
+    | grep '/mnt/ntbimetadata401-w-f' \
+    | awk '{print $2}' \
+    | xargs -I{} sh -c 'echo -n "PID: {} CMD: "; tr "\0" " " < /proc/{}/cmdline; echo' \
+    | fzf --prompt="Select PID to kill (Shift+Tab to select multiple) ")
+
+if [[ -z "$KILL_THESE" ]]; then
+    echo -e "$COLOR_ERR: bail out"
+    exit 1
+fi
+
+# read the selection and kill the PIDs, separator is \0 character
+IFS=$'\0' read -r -a ITEMS <<< "$KILL_THESE"
+for ITEM in "${ITEMS[@]}"; do
+    # use cut to extract the PID from the selection
+    PID=$(echo "$ITEM" | cut -d ' ' -f 2)
+    
+    if [[ -n "$PID" ]]; then
+        echo -e "$COLOR_TRY: Killing PID $PID"
+        kill -9 "$PID"
+        if [[ $? -eq 0 ]]; then
+            echo -e "$COLOR_OK: PID $PID killed successfully"
+        else 
+            echo -e "$COLOR_ERR: Error killing PID $PID"
+        fi
+    fi
+done
+
+# try again
+sudo umount "/mnt/$MOUNT_POINT"
+if [ $? -eq 0 ]; then
+    echo -e "$COLOR_OK: Unmounted $MOUNT_POINT successfully"
+    exit 0
+fi
+echo -e "$COLOR_OK: Error unmounting $MOUNT_POINT"

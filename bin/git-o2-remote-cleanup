@@ -6,6 +6,9 @@ BRANCHES_TO_KEEP_FILE="branches_to_keep.txt"
 CURRENT_DATE=$(date +%s)
 TWO_WEEKS_AGO=$((CURRENT_DATE - 14*24*60*60))
 
+# main branch
+BRANCH_MAIN="main"
+
 # colors
 MM_INCLUDE="\e[31m+++\e[0m"
 MM_EXCLUDE="\033[34m---\033[0m "
@@ -43,7 +46,7 @@ git for-each-ref --format='%(refname:short)' refs/remotes/origin/feature/ | whil
     commit_date=$(git show -s --format=%ct "$last_commit")
     age_in_days=$(calculate_age_in_days "$commit_date")
 
-    if is_commit_on_branch "$last_commit" "origin/develop" && is_commit_on_branch "$last_commit" "origin/master" && [ "$commit_date" -lt "$TWO_WEEKS_AGO" ]; then
+    if is_commit_on_branch "$last_commit" "origin/develop" && is_commit_on_branch "$last_commit" "origin/$BRANCH_MAIN" && [ "$commit_date" -lt "$TWO_WEEKS_AGO" ]; then
         echo "${branch#origin/}|$age_in_days" >> "$BRANCHES_TO_DELETE_FILE"
         echo "+ $branch: DELETE (age: $age_in_days days)"
     else

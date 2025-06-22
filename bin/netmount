@@ -9,8 +9,9 @@ MM_TRY="\033[33mTRY\033[0m"
 MM_OK="\033[34mOK\033[0m "
 
 
-CHOICE=$(echo "mount a git pull
-jenom mount" | fzf)
+CHOICE=$(echo "mount a git fetch
+mount
+jenom vpn" | fzf)
 
 # kontrola existence adresáře s definicemi
 echo -e "$MM_TRY: test mount points config: $MM_DEFDIR"
@@ -57,8 +58,6 @@ if [ -z "$IS_O2_CONUP" ]; then
 else
 	echo -e "IS_O2_CONUP=>$IS_O2_CONUP<"
 fi
-
-
 
 
 # proveď mount

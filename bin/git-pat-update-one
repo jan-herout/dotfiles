@@ -1,0 +1,79 @@
+#!/bin/bash
+
+# colors
+ERR="\e[31mERR\e[0m"
+TRY="\033[33mTRY\033[0m"
+OK="\033[34mOK\033[0m "
+
+# aktuální adresář je kořen, kde je git repo
+REPO_PATH=$(pwd)
+
+# v následujícím souboru je seznam tokenů které jsou k dispozici
+# seznam obsahuje na každém řádku NÁZEV tokenu a HODNOTU tokenu oddělené MEZEROU, zhruba tedy:
+# o2-hlavní-token github_pat_11.....................
+# o2-infra-token github_pat_11......................
+
+PAT_FILE=$HOME/Vaults/o2/github/jan_herout_pat
+GIT_CONFIG_FILE=$REPO_PATH/.git/config
+
+if [ ! -f "$PAT_FILE" ]; then
+    echo -e "$ERR: PAT file not found at $PAT_FILE"
+    exit 1
+fi
+
+if [ ! -f "$GIT_CONFIG_FILE" ]; then
+    echo -e "$ERR: Git configuration file not found at $GIT_CONFIG_FILE"
+    exit 1
+fi
+
+# read the PAT file and get the token
+if command -v fzf &>/dev/null
+then
+    # pokud mám fzf, použiju fzf
+    GITHUB_TOKEN=$(cat $PAT_FILE | fzf)    
+else
+    # fallback, nemám fzf
+    nl -ba "$PAT_FILE"
+    read -p "Který PAT mám použít?: " lineno
+    if [[ -z "$lineno" ]]; then
+        echo -e "$ERR: No github token provided, bail out"
+        exit 1
+    fi
+    GITHUB_TOKEN=$(sed -n "${lineno}p" "$PAT_FILE")
+fi
+
+# get the token from the line and check if it is empty
+
+GITHUB_TOKEN=$(echo $GITHUB_TOKEN | cut -d' ' -f2)
+if [[ -z "$GITHUB_TOKEN" ]]; then
+        echo -e "$ERR: No github token provided, bail out"
+        exit 1
+fi
+
+# read the git config file and get the remote URL
+REMOTE_URL=$(grep -oP '(?<=url = ).*' $GIT_CONFIG_FILE)
+if [[ -z "$REMOTE_URL" ]]; then
+    echo -e "$ERR: No remote URL found in the git config file"
+    exit 1
+fi
+
+# Given that the remote URL is in the format:
+# prefix: the part until the github.com/
+# suffix: the part after the github.com/
+PREFIX=$(echo $REMOTE_URL | cut -d '/' -f1-3)
+SUFFIX=$(echo $REMOTE_URL | cut -d '/' -f4-)
+NEW_URL="https://${GITHUB_TOKEN}@github.com/${SUFFIX}"
+
+# set the new remote URL
+echo -e "$TRY: setting new remote URL: $NEW_URL"
+git remote set-url origin $NEW_URL
+
+if [ $? -ne 0 ]; then
+    echo -e "$ERR: failed to set the remote: $NEW_URL"
+    echo -e "$ERR: do this to revert the change:"
+    echo -e "git remote set-url origin $REMOTE_URL"
+    exit 1
+fi
+
+echo -e "$OK: remote URL set to: $NEW_URL"
+echo -e "$OK: how to revert: git remote set-url origin $REMOTE_URL"

@@ -1,0 +1,68 @@
+[init]
+	defaultBranch = main
+
+[alias]
+	fh = log --graph --date=format:'%Y-%m-%d %H:%M:%S' --all --format=\"%Cred%H %Cgreen%ad %Cred%aE %Cblue%f\" --
+	lg = log --date=format:'%Y-%m-%d %H:%M:%S' --format=\"%Cred%H %Cgreen%ad %Cred%aE %Cblue%f\" --all --graph --decorate
+	ll = log --date=format:'%Y-%m-%d %H:%M:%S' --format=\"%Cred%H %Cgreen%ad %Cred%aE %Cblue%f\"
+	lf = diff-tree --no-commit-id --name-only -r
+
+[log]
+	date = format:%Y-%m-%d %H:%M:%S
+
+[push]
+	autoSetupRemote = true
+
+[gitflow "branch"]
+	master = main
+	develop = develop
+
+[gitflow "prefix"]
+	feature = feature/
+	bugfix = bugfix/
+	release = release/
+	hotfix = hotfix/
+	support = support/
+	versiontag = 
+
+[diff]
+tool = bcompare
+
+[difftool "bcompare"]
+cmd = bcompare "$LOCAL" "$REMOTE"
+prompt = false
+trustExitCode = true
+
+[merge]
+tool = bcompare
+
+[mergetool "bcompare"]
+cmd = bcompare "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
+prompt = false
+trustExitCode = true
+keepBackup = false
+
+[core]
+	safecrlf = false
+	autocrlf = input
+
+[includeIf "gitdir:~/o2/"]
+    path = ~/.config/git/.gitconfig-o2
+
+[includeIf "gitdir:~/d-blocks/"]
+    path = ~/.config/git/.gitconfig-dblocks
+
+[includeIf "gitdir:~/dotfiles/"]
+    path = ~/.config/git/.gitconfig-personal
+
+[includeIf "gitdir:~/git/"]
+    path = ~/.config/git/.gitconfig-personal
+
+[includeIf "gitdir:~/logseq/"]
+    path = ~/.config/git/.gitconfig-personal
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential

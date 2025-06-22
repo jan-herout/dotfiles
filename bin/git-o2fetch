@@ -54,6 +54,6 @@ for dir in "$BASE_DIR"/*/; do
 done
 
 # git pull na bimeta
-pushd $HOME/o2/bimeta
+pushd $HOME/o2/BIDEV-MAIN_bimeta
 git pull --rebase
 popd

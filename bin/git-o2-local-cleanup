@@ -9,8 +9,17 @@
 # 1) the last commit on feature/branch is also on develop branch (feature/branch was merged to develop) and on the master branch (feature/branch was merged to master)
 # 2) the last commit is more than 1 week old
 
-REPO=~/o2/bimain
-cd "$REPO" || exit 1
+MAIN_BRANCH="main"
+
+# aktuální adresář je kořen, kde je git repo
+REPO_PATH=$(pwd)
+GIT_CONFIG_FILE=$REPO_PATH/.git/config
+
+if [ ! -f "$GIT_CONFIG_FILE" ]; then
+    echo -e "$ERR: Git configuration file not found at $GIT_CONFIG_FILE"
+    exit 1
+fi
+
 
 
 # colors
@@ -30,7 +39,7 @@ git for-each-ref --format='%(refname:short)' refs/heads/feature/ | while read -r
 
     # Check if the last commit is on develop and master
     on_develop=$(git branch --contains "$last_commit" | grep -q "develop" && echo "true" || echo "false")
-    on_master=$(git branch --contains "$last_commit" | grep -q "master" && echo "true" || echo "false")
+    on_master=$(git branch --contains "$last_commit" | grep -q "$MAIN_BRANCH" && echo "true" || echo "false")
 
     # Check if the commit is more than 1 week old
     one_week_ago=$((current_date - 7*24*60*60))

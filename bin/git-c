@@ -1,0 +1,3 @@
+#!/bin/bash
+
+git branch | fzf | sed s/\*// | xargs git switch
