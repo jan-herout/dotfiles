@@ -1,0 +1,13 @@
+#!/bin/bash
+
+SELECTED_DIR=$(ls $HOME/o2/feature | fzf)
+
+# Check if a directory was selected
+if [[ ! -n "$SELECTED_DIR" ]]; then
+  echo "No directory selected."
+else
+    SELECTED_DIR="${SELECTED_DIR%%#*}" # get everything before the pound (strip comments)
+    SELECTED_DIR=$(echo "$SELECTED_DIR" | sed 's/[[:space:]]*$//') # strip spaces at the end
+    echo "go to $SELECTED_DIR"
+    cd "$HOME/o2/feature/$SELECTED_DIR"
+fi

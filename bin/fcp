@@ -17,37 +17,24 @@ fi
 
 PROMPT="Select files to copy (use Shift+Tab to select multiple files): ESC to finish! >"
 # sestavíme seznam souborů do proměnné, oddělovačem je středník
-while [[ -n "$CONTINUE" ]]
-do
-    SELECTION=$(\
-        find $GITDIR -type f \                      # hledáme soubory v adresáři GITDIR
-        | sed "s|^$GITDIR/||" \                     # odstraníme prefix GITDIR z cesty
-        | fzf \
-            --prompt="$PROMPT" \                    # co ukázat na promptu
-            --multi \                               # povolit více výběrů       
-            --height=40 \                           # výška selectboxu je 40 řádek
-            --preview 'batcat --color=always {}' \  # použít batcat pro preview
-            --preview-window=right:60%:wrap \       # preview bude na pravé straně, 60% šířky
-            --delimiter '\n' \                      # oddělovač položek na vstupu
-            --print0                                # položky na výstupu oddělit nulovým znakem
-    ) 
-    
-    if [[ -n "$SELECTION" ]]; then
-        if [[ -n "$FILE_LIST" ]]; then
-            # 
-            FILE_LIST+=";$SELECTION"
-        else
-            FILE_LIST+="$SELECTION"
-        fi
-    else
-        CONTINUE=""
-    fi
-done
 
+SELECTION=$(\
+    find $GITDIR -type f \
+    | sed "s|^$GITDIR/||" \
+    | fzf \
+        --prompt="$PROMPT" \
+        --multi \
+        --height=40 \
+        --preview 'batcat --color=always {}' \
+        --preview-window=right:60%:wrap \
+        --delimiter '\n' \
+        --print0 \
+    | tr '\0' ';'
+) 
 
 echo "Selected files:"
 echo "-----------------"
-IFS=$"\0" read -ra FILES <<< "$FILE_LIST"
+IFS=$";" read -ra FILES <<< "$SELECTION"
 for FILE in "${FILES[@]}"; do 
     if [[ -z "$FILE" ]]; then
         continue
@@ -63,11 +50,14 @@ if [[ "$CONTINUE" != "y" && "$CONTINUE" != "Y" && "$CONTINUE" != "" ]]; then
 fi
 
 # iterujeme přes jednotlivé soubory
-IFS=";" read -ra FILES <<< "$FILE_LIST"
+IFS=";" read -ra FILES <<< "$SELECTION"
 for FILE in "${FILES[@]}"; do 
+    echo $FILE
     if [[ -z "$FILE" ]]; then
         continue
     fi
+
+    echo "Processing file: $FILE"
     
     FILE="$GITDIR/$FILE" # fzd removed the prefix
     FILE=$(realpath "$FILE")    

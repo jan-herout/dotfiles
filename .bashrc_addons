@@ -11,9 +11,9 @@ export PATH=$PATH:~/bin:~/sbin:~/.local/bin
 export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:~/go/bin
 
-export LD_LIBRARY_PATH=$HOME/sbin/$PWD/usr/lib/oracle/21/client64/lib:$LD_LIBRARY_PATH
-export PATH=$PWD/usr/lib/oracle/21/client64/bin:$PATH
-export ORACLE_HOME=/home/jan/sbin/instantclient_23_6
+export ORACLE_HOME=/home/jan/sbin/instantclient_23_8
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ORACLE_HOME
+export PATH=$PATH:$HOME/sbin/instantclient_23_8
 export EDITOR=nvim
 
 # press generator, pro init
@@ -47,8 +47,6 @@ alias flake8="flake8 --max-line-length=88"
 # ph completions
 source '/home/jan/.bash_completions/ph.sh'
 
-# zoxide a fzf
-eval "$(zoxide init bash)"
 
 
 # _fzf_comprun() {
@@ -243,8 +241,8 @@ alias nom="$HOME/bin/netmount"
 alias num="$HOME/bin/netumount"
 alias gs="git status"
 alias config="__config__"
-alias f="source $HOME/bin/fcd-script"
-alias m="source $HOME/bin/fcd-script"
+alias _cd_to_feature="source $HOME/bin/fcd-feature-script"
+alias _cd_to_mark="source $HOME/bin/fcd-script"
 
 # clipboard operations
 alias wcl="wl-copy"
@@ -282,11 +280,11 @@ alias escape="sed -e 's/\x00/<NUL#00>/g' \
     -e 's/\x1E/<RS#1E>/g'  \
     -e 's/\x1F/<US#1F>/g'"
 # perlbrew: https://perlbrew.pl/
-source $HOME/perl5/perlbrew/etc/bashrc
-export PERL5LIB=$HOME/o2/bimain/mstr/SRC/Shared_Libs/Perl.O2
+#source $HOME/perl5/perlbrew/etc/bashrc
+#export PERL5LIB=$HOME/o2/bimain/mstr/SRC/Shared_Libs/Perl.O2
+#perlbrew use perl-5.24.4
 
 # azure
 export ACR_REGISTRY="o2czbidevacr"
 
 # perlbrew
-perlbrew use perl-5.24.4

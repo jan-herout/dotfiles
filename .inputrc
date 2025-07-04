@@ -3,4 +3,5 @@
 "\e[6~": history-search-forward
 
 "\ez": 'cd -\015'
-"\em": 'm\015'
+"\em": '_cd_to_mark\015'
+"\ef": '_cd_to_feature\015'

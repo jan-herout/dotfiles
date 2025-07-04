@@ -28,7 +28,8 @@ YESTERDAY=$(find $DESTBASE -maxdepth 1 -type d -not -path $DESTBASE | sort | tai
 echo "$LOG YESTERDAY=$YESTERDAY" | logger
 echo $YESTERDAY
 
-# exclusion list
+# exclusion list, note that these are relative to the SOURCE path
+# so if SOURCE is /home/jan, then these are relative to /home/jan
 OPTS="--exclude .venv "
 OPTS+="--exclude .cache "
 OPTS+="--exclude *.pyc "
@@ -37,6 +38,10 @@ OPTS+="--exclude .var "
 OPTS+="--exclude .eclipse "
 OPTS+="--exclude .ipython "
 OPTS+="--exclude .jupyter "
+OPTS+="--exclude Vaults "
+OPTS+="--exclude .local/share/containers "
+OPTS+="--exclude go "
+OPTS+="--exclude .local/share/Trash "
 
 # Use yesterday's backup as the incremental base if it exists
 if [ ! -z "$YESTERDAY" ]; then
@@ -51,6 +56,8 @@ fi
 echo "bin/daily-backup: START" | logger
 echo rsync -av $OPTS "$SOURCE" "$DEST" | sed 's/^/bin\/daily-backup: rsync: /' | logger
 rsync -av $OPTS "$SOURCE" "$DEST" 2>1 | sed 's/^/bin\/daily-backup: rsync: /' | logger
+
+
 echo "bin/dailyl-backup: END" | logger
 
 # kill old dirs

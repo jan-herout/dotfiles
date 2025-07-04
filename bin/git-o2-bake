@@ -1,3 +1,23 @@
 #!/bin/bash
 cd $HOME/o2/feature
+
+# Save list of directories before
+before=$(ls -d */)
+echo $before
+# Run cookiecutter
 cookiecutter $HOME/o2/bidev-template
+
+
+# Save list of directories after
+after=$(ls -d */)
+echo $after
+
+# Find the new directory
+new_dir=$(comm -13 <(echo "$before") <(echo "$after"))
+echo "new dir: $new_dir"
+
+if [ -z "$new_dir" ]; then
+    echo "no new dir"
+    exit 1
+fi
+

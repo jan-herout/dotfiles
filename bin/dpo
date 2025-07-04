@@ -1,0 +1,9 @@
+#!/bin/bash
+
+TO_DEPLOY=$(find . -type f | grep -i pdc | fzf --prompt "Select a PDC deployment script to run: " --header "Select a script to deploy:")
+if [ -z "$TO_DEPLOY" ]; then
+  echo "No script selected, exiting."
+  exit 0
+fi
+
+
