@@ -25,26 +25,37 @@
 	support = support/
 	versiontag = 
 
+[interactive]
+    diffFilter = delta --color-only
+
+[delta]
+    navigate = true  # use n and N to move between diff sections
+    dark = true      # or light = true, or omit for auto-detection
+    side-by-side = true
+    line-numbers = true
+
 [diff]
-tool = bcompare
+    tool = bcompare
 
 [difftool "bcompare"]
-cmd = bcompare "$LOCAL" "$REMOTE"
-prompt = false
-trustExitCode = true
+    cmd = bcompare "$LOCAL" "$REMOTE"
+    prompt = false
+    trustExitCode = true
+    conflictstyle = zdiff3
 
 [merge]
-tool = bcompare
+    tool = bcompare
 
 [mergetool "bcompare"]
-cmd = bcompare "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
-prompt = false
-trustExitCode = true
-keepBackup = false
+    cmd = bcompare "$LOCAL" "$REMOTE" "$BASE" "$MERGED"
+    prompt = false
+    trustExitCode = true
+    keepBackup = false
 
 [core]
 	safecrlf = false
 	autocrlf = input
+    pager = delta
 
 [includeIf "gitdir:~/o2/"]
     path = ~/.config/git/.gitconfig-o2
