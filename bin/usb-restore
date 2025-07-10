@@ -1,0 +1,40 @@
+#!/bin/bash
+
+LOG="bin/usb-backup: "
+
+# notify about start
+notify-send "Cron Job Notification" "Záloha: START" --icon=dialog-information
+
+# all paths are relative to home dir
+cd /home/jan
+
+# Where to store the incremental backups
+BCKDIR=/media/jan/PENGUIN/bck
+
+# Where to store today's backup
+SOURCE=( ls $BCKDIR | fzf )
+
+if [[ -z "$SOURCE" ]]; then
+    echo "Nothing to do!"
+    exit 1
+fi
+
+# which dir or dirs should I restore
+
+
+
+# exclusion list, note that these are relative to the SOURCE path
+# so if SOURCE is /home/jan, then these are relative to /home/jan
+OPTS="--exclude .venv "
+OPTS+="--exclude .cache "
+OPTS+="--exclude *.pyc "
+OPTS+="--exclude .wine "
+OPTS+="--exclude .var "
+OPTS+="--exclude .eclipse "
+OPTS+="--exclude .ipython "
+OPTS+="--exclude .jupyter "
+OPTS+="--exclude Vaults "
+OPTS+="--exclude .local/share/containers "
+OPTS+="--exclude go "
+OPTS+="--exclude .local/share/Trash "
+

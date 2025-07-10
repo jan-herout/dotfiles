@@ -1,0 +1,55 @@
+#!/bin/bash
+
+LOG="bin/usb-backup: "
+
+# notify about start
+notify-send "Cron Job Notification" "Záloha: START" --icon=dialog-information
+
+# all paths are relative to home dir
+cd /home/jan
+
+# The source path to backup. Can be local or remote.
+SOURCE=.
+
+# Where to store the incremental backups
+DESTBASE=/media/jan/KINGSTON/bck
+
+# Where to store today's backup
+DEST="$DESTBASE/$(date +%Y-%m-%d_%H%M%S)"
+
+# Note: FAT filesystem doesn't support hard links, so no incremental linking possible
+echo "$LOG Using full copy method for FAT filesystem" | logger
+ 
+# Create destination directory
+mkdir -p "$DEST"
+
+# Build find exclusion patterns for FAT filesystem
+FIND_EXCLUDES="-not -path './.*' -not -path './.*/**'"
+FIND_EXCLUDES+=" -not -path '*/.venv/*'"
+FIND_EXCLUDES+=" -not -path '*/.cache/*'"
+FIND_EXCLUDES+=" -not -name '*.pyc'"
+FIND_EXCLUDES+=" -not -path '*/.wine/*'"
+FIND_EXCLUDES+=" -not -path '*/.var/*'"
+FIND_EXCLUDES+=" -not -path '*/.eclipse/*'"
+FIND_EXCLUDES+=" -not -path '*/.ipython/*'"
+FIND_EXCLUDES+=" -not -path '*/.jupyter/*'"
+FIND_EXCLUDES+=" -not -path '*/Vaults/*'"
+FIND_EXCLUDES+=" -not -path '*/.local/share/containers/*'"
+FIND_EXCLUDES+=" -not -path '*/go/*'"
+FIND_EXCLUDES+=" -not -path '*/svn-production/*'"
+FIND_EXCLUDES+=" -not -path '*/.local/share/Trash/*'"
+FIND_EXCLUDES+=" -not -path '*/.git/*'"
+
+
+# Copy files while preserving directory structure and respecting exclusions
+cd "$SOURCE"
+eval "find . -type f $FIND_EXCLUDES" | while IFS= read -r file; do
+    # Create destination directory for this file
+    dest_dir="$DEST/$(dirname "$file")"
+    mkdir -p "$dest_dir"
+    cp "$file" "$dest_dir/" 2>&1 | sed 's/^/bin\/daily-backup: cp: /'
+done
+
+
+notify-send "Cron Job Notification" "Záloha: END" --icon=dialog-information 2>&1 | logger
+
