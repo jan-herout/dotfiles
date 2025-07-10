@@ -12,7 +12,7 @@ cd /home/jan
 BCKDIR=/media/jan/PENGUIN/bck
 
 # Where to store today's backup
-SOURCE=( ls $BCKDIR | fzf )
+SOURCE=$(ls $BCKDIR | fzf)
 
 if [[ -z "$SOURCE" ]]; then
     echo "Nothing to do!"
@@ -20,8 +20,11 @@ if [[ -z "$SOURCE" ]]; then
 fi
 
 # which dir or dirs should I restore
-
-
+mapfile -t SUBDIRS < <(find "$BCKDIR/$SOURCE" -maxdepth 1 -mindepth 1 -type d | fzf --multi --prompt="Select subdirectories to restore: " --preview="ls -l {}")
+if [[ ${#SUBDIRS[@]} -eq 0 ]]; then
+    echo "Nothing to restore!"
+    exit 1
+fi
 
 # exclusion list, note that these are relative to the SOURCE path
 # so if SOURCE is /home/jan, then these are relative to /home/jan
@@ -38,3 +41,28 @@ OPTS+="--exclude .local/share/containers "
 OPTS+="--exclude go "
 OPTS+="--exclude .local/share/Trash "
 
+# check that we are sure
+for SUBDIR in "${SUBDIRS[@]}"; do
+    SUBDIR_NAME=$(basename "$SUBDIR")
+    echo $SUBDIR_NAME : rsync -avnh --dry-run --delete $OPTS "$SOURCE" "$TARGET"
+done
+
+read -p "Are you sure you want to restore these directories? (y/n) " SURE
+echo    # move to a new line
+if [[ ! $SURE =~ ^[Yy]$ ]]; then
+    echo "Aborting restore."
+    exit 1
+fi
+
+# iterate over directories that are in SUBDIRS
+for SUBDIR in "${SUBDIRS[@]}"; do
+    # get name of the directory
+    SUBDIR_NAME=$(basename "$SUBDIR")
+
+    SOURCE="$SUBDIR/"
+    TARGET="$HOME/$SUBDIR_NAME/"
+    echo "restoring $SOURCE => $TARGET"
+
+    # simulate the restor by rsync, use dry run with delete, restore from SOURCE to TARGET, use exclusion list in OPTS to not delete any excluded files and directories
+    rsync -avnh --dry-run --delete $OPTS "$SOURCE" "$TARGET"
+done
