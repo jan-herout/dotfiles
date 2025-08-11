@@ -1,23 +1,74 @@
 #!/bin/bash
-cd $HOME/o2/feature
+
+# colors
+COLOR_ERR="\e[31mERR\e[0m"
+COLOR_TRY="\033[33mTRY\033[0m"
+COLOR_OK="\033[34mOK\033[0m "
+
+# create a bail out function that accepts a message and exists with an error code
+bail_out() {
+    echo -e "$COLOR_ERR: $1"
+    read -p "Press enter to continue..."
+    exit 1
+}
+
+
+cd $HOME/o2-feature || bail_out "Failed to change directory to $HOME/o2-feature."
 
 # Save list of directories before
 before=$(ls -d */)
 echo $before
+
 # Run cookiecutter
 cookiecutter $HOME/o2/bidev-template
 
-
 # Save list of directories after
 after=$(ls -d */)
-echo $after
-
-# Find the new directory
 new_dir=$(comm -13 <(echo "$before") <(echo "$after"))
-echo "new dir: $new_dir"
+[ "$new_dir" == "" ] && bail_out "No new directory found, bail out."
 
-if [ -z "$new_dir" ]; then
-    echo "no new dir"
-    exit 1
-fi
 
+echo -e "$COLOR_OK: adresář založen! <$new_dir>"
+
+# můžeme chtít založit nové repo na githubu
+pat_file=$HOME/Vaults/o2/github/jan_herout_pat
+[ ! -f "$PAT_FILE" ] || bail_out "PAT file není dostupný, bail: $PAT_FILE"
+
+# použij fzf, a zjisti pat
+github_pat=$( \
+    cat $pat_file | \
+    fzf --prompt="Zadej github PAT (chceš personal/osobní PAT): " --header="Zadej github PAT pro přístup k API" | \
+    awk '{print $2}' \
+    )
+[ -z "$github_pat" ] && bail_out "No PAT provided, bail out."
+
+# optionally, call github API to create a new personal repo
+# these are the inputs for the action
+github_username="jan-herout_o2cz"
+
+# use CURL, call GitHub API to create a new repo; use github_user, and github_pat for authorization
+echo -e "$COLOR_TRY: creating new repo on GitHub for $new_dir"
+
+repo_name=$(basename "$new_dir")
+api_url="https://api.github.com/user/repos"
+
+# set proxy on, use CURL to create a new repo
+source $HOME/bin/set-proxy-on
+response=$(curl -L \
+  -w "%{http_code}" \
+  -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer $github_pat" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/user/repos \
+  -d "{\"name\":\"$repo_name\",\"description\":\"working repo: $repo_name\",\"homepage\":\"https://github.com\",\"private\":true,\"is_template\":false}")
+
+echo -e "$COLOR_TRY: adding remote origin for $repo_name"
+remote_url="https://$github_pat@github.com/jan-herout_o2cz/$repo_name.git"
+cd $HOME/o2-feature/$new_dir || bail_out "Failed to change directory to $HOME/o2-feature/$new_dir"
+git remote add origin $remote_url || bail_out "Failed to add remote origin for $remote_url"
+echo -e "$COLOR_OK: remote origin added successfully"
+
+echo -e "$COLOR_TRY: git push: $repo_name"
+git push -u origin main || bail_out "Failed to push to remote repository."
+echo -e "$COLOR_OK: git push successful, repo is ready to use: $repo_name"
