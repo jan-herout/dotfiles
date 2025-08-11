@@ -5,6 +5,10 @@ COLOR_ERR="\e[31mERR\e[0m"
 COLOR_TRY="\033[33mTRY\033[0m"
 COLOR_OK="\033[34mOK\033[0m "
 
+# paths
+FEATURE_PATH=$HOME/o2-feature
+TEMPLATE_PATH=$HOME/o2/bidev-template
+
 # create a bail out function that accepts a message and exists with an error code
 bail_out() {
     echo -e "$COLOR_ERR: $1"
@@ -13,17 +17,19 @@ bail_out() {
 }
 
 
-cd $HOME/o2-feature || bail_out "Failed to change directory to $HOME/o2-feature."
+cd $TEMPLATE_PATH || bail_out "Failed to change directory to $FEATURE_PATH."
 
 # Save list of directories before
 before=$(ls -d */)
 echo $before
 
-# Run cookiecutter
+# Run cookiecutter; initial commit is created by the cookiecutter
 cookiecutter $HOME/o2/bidev-template
 
 # Save list of directories after
 after=$(ls -d */)
+
+# compare before and after state to get name of the new dir
 new_dir=$(comm -13 <(echo "$before") <(echo "$after"))
 [ "$new_dir" == "" ] && bail_out "No new directory found, bail out."
 
@@ -65,10 +71,13 @@ response=$(curl -L \
 
 echo -e "$COLOR_TRY: adding remote origin for $repo_name"
 remote_url="https://$github_pat@github.com/jan-herout_o2cz/$repo_name.git"
-cd $HOME/o2-feature/$new_dir || bail_out "Failed to change directory to $HOME/o2-feature/$new_dir"
+
+# add remote
+cd $FEATURE_PATH/$new_dir || bail_out "Failed to change directory to $HOME/o2-feature/$new_dir"
 git remote add origin $remote_url || bail_out "Failed to add remote origin for $remote_url"
 echo -e "$COLOR_OK: remote origin added successfully"
 
+# push
 echo -e "$COLOR_TRY: git push: $repo_name"
 git push -u origin main || bail_out "Failed to push to remote repository."
 echo -e "$COLOR_OK: git push successful, repo is ready to use: $repo_name"
