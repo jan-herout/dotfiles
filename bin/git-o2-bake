@@ -17,7 +17,9 @@ bail_out() {
 }
 
 
-cd $TEMPLATE_PATH || bail_out "Failed to change directory to $FEATURE_PATH."
+##################################################
+
+cd $FEATURE_PATH || bail_out "Failed to change directory to $FEATURE_PATH."
 
 # Save list of directories before
 before=$(ls -d */)

@@ -1,0 +1,113 @@
+#!/bin/bash
+
+feature_dir=$HOME/o2-feature
+archive_dir="$HOME/o2-archiv/feature"
+maximum_age=30
+#-------------------------------
+
+notify-send "Cron Job git-o2-featurer-cleanup" "git-o2-featurer-cleanup: START" --icon=dialog-information
+
+# list all directories directly under feature_dir
+git_directories=$(find "$feature_dir" -mindepth 1 -maxdepth 1 -type d)
+
+
+# colors
+LOG="bin/git-o2-feature-cleanup: "
+COLOR_ERR="\e[31mERR\e[0m"
+COLOR_TRY="\033[33mTRY\033[0m"
+COLOR_OK="\033[34mOK\033[0m "
+
+# paths
+FEATURE_PATH=$HOME/o2-feature
+TEMPLATE_PATH=$HOME/o2/bidev-template
+
+# create a bail out function that accepts a message and exists with an error code
+bail_out() {
+    echo "$LOG: $1" | logger
+    _notify $1
+    exit 1
+}
+
+_notify() {
+    local message="$1"
+    notify-send "git-o2-feature-cleanup" "$message" --icon=dialog-information
+}
+
+_log() {
+    local message="$1"
+    echo "$LOG: $message" | logger
+}
+
+check_repo_clean() {
+    # Check if we are inside a git repository
+    pwd=$(pwd)
+    git rev-parse --is-inside-work-tree >/dev/null 2>&1 || bail_out "Not inside a git repository: $pwd"
+
+    # Return 1 if there are any changes (staged, unstaged, untracked, deleted, renamed, etc.)
+    if [ -n "$(git status --porcelain)" ]; then
+        return 1
+    fi
+    return 0
+}
+
+#####################š
+
+# filter git_repos=those dirs that have .git subdirectory
+git_repos=$(echo "$git_directories" | while read -r dir; do
+  if [ -d "$dir/.git" ]; then
+    echo "$dir"
+  fi
+done)
+
+# warn on all unclean repositories
+unclean_repos=$(echo "$git_repos" | while read -r repo; do
+  cd "$repo" || bail_out "Failed to change directory to $repo"
+  if ! check_repo_clean; then       
+    echo "$repo"
+  fi
+done)
+
+# for each repository, find a last commit (in ANY branch), and calculate age of the commit in days (round to integer)
+# store result as list in form of "repo_name:commit_age"
+commit_ages=$(echo "$git_repos" | while read -r repo; do
+  cd "$repo" || bail_out "Failed to change directory to $repo"
+  check_repo_clean || continue
+  last_commit_date=$(git log -1 --format="%ct")
+  if [ -n "$last_commit_date" ]; then
+    commit_age=$(( ( $(date +%s) - last_commit_date ) / 86400 ))
+    echo "$(basename "$repo"):$commit_age"
+  fi
+done)
+
+# warn for all unclean repositories
+if [ -n "$unclean_repos" ]; then
+  _notify "unclean_repos, viz /tmp/git-o2-feature-cleanup_unclean_repos.txt"
+  echo "$unclean_repos" > /tmp/git-o2-feature-cleanup_unclean_repos.txt
+  _log "$LOG: unclean repos: $unclean_repos"
+fi
+
+# find all repositories that are older than 30 days
+old_repos=$(echo "$commit_ages" | while read -r line; do
+  repo_name=$(echo "$line" | cut -d':' -f1)
+  commit_age=$(echo "$line" | cut -d':' -f2)
+  if [ "$commit_age" -gt $maximum_age ]; then
+    echo "$repo_name"
+  fi
+done)
+
+# if there are any old repositories, move them to archive
+mkdir -p "$archive_dir"
+if [ -n "$old_repos" ]; then
+  for repo in $old_repos; do    
+    src="$FEATURE_PATH/$repo"
+    dest="$archive_dir/$repo"
+    if [ -d "$src" ]; then
+      mv "$src" "$dest"
+      _notify "archive repo: $repo"
+    else
+      message="FAILED TO ASRCHIVE: $archive_dir"
+      _notify $message
+      _log $message
+    fi
+  done
+fi
