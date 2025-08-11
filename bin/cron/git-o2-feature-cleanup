@@ -7,6 +7,7 @@ maximum_age=30
 
 notify-send "Cron Job git-o2-featurer-cleanup" "git-o2-featurer-cleanup: START" --icon=dialog-information
 
+
 # list all directories directly under feature_dir
 git_directories=$(find "$feature_dir" -mindepth 1 -maxdepth 1 -type d)
 

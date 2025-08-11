@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# spouštět z cronu takto:
+# 34 16 * * * XDG_RUNTIME_DIR=/run/user/$(id -u) /home/jan/bin/cron/git-o2-feature-cleanup
+# nastavení proměnné XDG_RUNTIME_DIR řeší notifikace přes notify-send.
+
 LOG="bin/daily-backup: "
 
 # notify about start
