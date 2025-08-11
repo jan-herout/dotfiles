@@ -6,8 +6,47 @@ TRY="\033[33mTRY\033[0m"
 OK="\033[34mOK\033[0m "
 
 
+# is this a bare repo?
+is_bare_repo() {
+# This function looks for the existence of file named "config" in the current directory
+# If the file does not exist, return 1 
+# If the file exist, look for the line that (stripped) equals to "bare = true"
+# If the line exist, return 0, else return 1
+    echo -e "$TRY: checking if the current directory is a bare git repo"
+    if [ ! -f "config" ]; then
+        return 1
+    fi
+    if grep -q "^[[:space:]]*bare[[:space:]]*=[[:space:]]*true" config; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+echo -e "$TRY: checking if the current directory is a git repo"
+
+IS_GIT_REPO=0
+
 # test if the curent dir is already agit repo, find .git
 if [ ! -d ".git" ]; then
+    echo -e "$TRY: current directory is NOT a git repo, next try it is a bare git repo"    
+else
+    IS_GIT_REPO=1
+fi
+
+# test if this is a bare repo
+if [ $IS_GIT_REPO -eq 0 ]; then
+    if is_bare_repo; then
+        echo -e "$OK: current directory is a bare git repo"
+        IS_GIT_REPO=1
+    else
+        echo -e "$ERR: current directory is NOT a bare git repo"
+        exit 1
+    fi
+fi
+
+# bail if this is not a repo
+if [ $IS_GIT_REPO -eq 0 ]; then
     echo -e "$ERR: current directory is NOT a git repo"
     exit 1
 fi

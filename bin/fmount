@@ -11,9 +11,13 @@ COLOR_TRY="\033[33mTRY\033[0m"
 COLOR_OK="\033[34mOK\033[0m "
 
 PASSWORD=$(cat $HOME/Vaults/o2/o2_a1548834_password.txt)
+CREDENTIALS=$HOME/Vaults/o2/o2_a1548834_cifs_credentials.txt
+RANDOM_NAME=$(head /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 16)
+WRITABLE_CREDENTIALS="/tmp/$RANDOM_NAME"
 
-if [[ -z "$PASSWORD" ]]; then
-    echo -e "$COLOR_ERR: No pass provided, bail out: $HOME/Vaults/o2/o2_a1548834_password.txt"
+
+if [[ ! -f "$CREDENTIALS" ]]; then
+    echo -e "$COLOR_ERR: No pass provided, bail out: $CREDENTIALS"
     exit 1
 fi
 
@@ -28,6 +32,10 @@ fi
 # source the mount file and set vars
 source $HOME/bin/a-write-mounts/$MOUNTFILE
 
+# copy credentials
+cp $CREDENTIALS $WRITABLE_CREDENTIALS
+chmod 666 $RANDOM_NAME
+
 MOUNT_POINT=$_MNT_
 SHARE_UNC=$_SRC_
 
@@ -36,18 +44,22 @@ if [ $? -eq 0 ]; then
     echo -e "$COLOR_OK: directory is already mounted: $MOUNT_POINT"
 else
     echo -e "$COLOR_TRY: mounting $SHARE_UNC"
-    MM_OPTIONS="domain=TO2,username=$USERNAME,"
-    MM_OPTIONS+="password=$PASSWORD,"
+    MM_OPTIONS="credentials=$WRITABLE_CREDENTIALS,"
     MM_OPTIONS+="uid=$ME_UID,"
     MM_OPTIONS+="gid=$ME_GID,"
     MM_OPTIONS+="dir_mode=0755,file_mode=0755"
     MM_OPTIONS+=$_SUFFIX_    
-    sudo mount -t cifs -o "$MM_OPTIONS" $SHARE_UNC $MOUNT_POINT
+    echo -e $COLOR_TRY mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
+    sudo mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
 
 
     if [ $? -eq 0 ]; then
         echo -e "$COLOR_OK: mounted as $MOUNT_POINT"        
     else
         echo -e "$COLOR_ERR: error ???"
+        echo -e "$COLOR_TRY: ca: https://pam.cz.o2/PasswordVault/v10/Accounts"
+        echo -e "$COLOR_TRY: check credentials: $CREDENTIALS"
     fi
 fi
+
+rm $WRITABLE_CREDENTIALS

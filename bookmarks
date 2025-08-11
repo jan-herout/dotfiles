@@ -13,12 +13,13 @@
 /home/jan/o2/BIDEV-APP-GO_validator/govalidator
 /home/jan/o2/BIDEV-APP-GO_validator/govalidator
 /home/jan/o2/BIDEV-APP-PY_buddy/prepdocs
+/home/jan/o2/BIDEV-MAIN_azure
 /home/jan/o2/BIDEV-MAIN_bimeta
 /home/jan/o2/BIDEV-MAIN_bimeta/press
-/home/jan/o2/BIDEV-MAIN_edw                                     #gme root
 /home/jan/o2/BIDEV-MAIN_edw/env/devel_pdc			            #env
 /home/jan/o2/BIDEV-MAIN_edw/env/devel_teradata                  #gme
 /home/jan/o2/BIDEV-MAIN_edw/env/env_teradata                    #gme
+/home/jan/o2/BIDEV-MAIN_edw                                     #gme root
 /home/jan/o2/BIDEV-MAIN_edw/meta/async_marts                    #gme
 /home/jan/o2/BIDEV-MAIN_edw/meta/ddl                            #gme
 /home/jan/o2/BIDEV-MAIN_edw/meta/mappings                       #gme
@@ -45,6 +46,7 @@
 /home/jan/o2/feature/python-eng22-eng6
 /home/jan/o2/svn-production/db/Teradata                         #svn
 /home/jan/o2/svn-production/src/NTINFO402/EDW                   #svn
+https://edwmon.cz.o2/pdc/
 https://worldfoods.cz/
 https://worldfoods.cz/tydenni-menu/
 https://www.ukubika.cz/

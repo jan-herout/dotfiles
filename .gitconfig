@@ -60,6 +60,15 @@
 [includeIf "gitdir:~/o2/"]
     path = ~/.config/git/.gitconfig-o2
 
+[includeIf "gitdir:~/o2-feature/"]
+    path = ~/.config/git/.gitconfig-o2
+
+[includeIf "gitdir:~/o2-repoconfig/"]
+    path = ~/.config/git/.gitconfig-o2
+
+[includeIf "gitdir:~/o2-archiv/"]
+    path = ~/.config/git/.gitconfig-o2
+
 [includeIf "gitdir:~/d-blocks/"]
     path = ~/.config/git/.gitconfig-dblocks
 

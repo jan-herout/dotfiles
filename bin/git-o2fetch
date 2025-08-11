@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# colors
+COLOR_ERR="\e[31mERR\e[0m"
+COLOR_TRY="\033[33mTRY\033[0m"
+COLOR_OK="\033[34mOK\033[0m "
 # Define the base directory
 BASE_DIR="$HOME/o2"
 
@@ -7,33 +11,7 @@ BASE_DIR="$HOME/o2"
 for dir in "$BASE_DIR"/*/; do
     # Check if the directory is a Git repository
     if [ -d "$dir/.git" ]; then
-        # Get all configured remote URLs
-        remotes=$(git -C "$dir" remote -v)
-
-        if [[ -n $remotes ]]; then
-            # Check if any remote URL contains the string "aicentre"
-            if echo "$remotes" | grep -q "aicentre"; then
-                echo "Skipping fetch for repository (remote URL contains 'aicentre'): $dir"
-            else
-                echo "Fetching updates for repository: $dir"
-                git -C "$dir" fetch
-            fi
-        else
-            echo "No remotes configured for: $dir"
-        fi
-    else
-        echo "Not a Git repository: $dir"
-    fi
-done
-
-
-# Define the base directory
-BASE_DIR="$HOME/o2/feature"
-
-# Loop through each subdirectory in the base directory
-for dir in "$BASE_DIR"/*/; do
-    # Check if the directory is a Git repository
-    if [ -d "$dir/.git" ]; then
+        echo -e "$COLOR_TRY: $dir"
         # Get all configured remote URLs
         remotes=$(git -C "$dir" remote -v)
 
@@ -57,3 +35,31 @@ done
 pushd $HOME/o2/BIDEV-MAIN_bimeta
 git pull --rebase
 popd
+
+# Define the base directory
+BASE_DIR="$HOME/o2-feature"
+
+# Loop through each subdirectory in the base directory
+for dir in "$BASE_DIR"/*/; do
+    # Check if the directory is a Git repository
+    if [ -d "$dir/.git" ]; then
+        echo -e "$COLOR_TRY: $dir"
+        # Get all configured remote URLs
+        remotes=$(git -C "$dir" remote -v)
+
+        if [[ -n $remotes ]]; then
+            # Check if any remote URL contains the string "aicentre"
+            if echo "$remotes" | grep -q "aicentre"; then
+                echo "Skipping fetch for repository (remote URL contains 'aicentre'): $dir"
+            else
+                echo "Fetching updates for repository: $dir"
+                git -C "$dir" fetch
+            fi
+        else
+            echo "No remotes configured for: $dir"
+        fi
+    else
+        echo "Not a Git repository: $dir"
+    fi
+done
+

@@ -1,0 +1,21 @@
+#!/bin/bash
+
+
+# colors
+ERR="\e[31mERR\e[0m"
+TRY="\033[33mTRY\033[0m"
+OK="\033[34mOK\033[0m "
+
+# aktuální adresář je kořen, pod kterým provádíme aktualizaci
+REPO_PATH=$(pwd)
+
+git fetch --all
+BRANCH=$(git branch -r | fzf) 
+if [[ -z "$BRANCH" ]]; then
+        echo -e "$ERR: no branch selectedt "
+        exit 1
+fi
+
+echo git merge --progress "$BRANCH" --no-ff
+git merge --progress "$BRANCH" --no-ff
+

@@ -11,9 +11,9 @@ export PATH=$PATH:~/bin:~/sbin:~/.local/bin
 export PATH=$PATH:/usr/local/go/bin
 export PATH=$PATH:~/go/bin
 
-export ORACLE_HOME=/home/jan/sbin/instantclient_23_8
+export ORACLE_HOME=/home/jan/sbin/instantclient_23_6
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ORACLE_HOME
-export PATH=$PATH:$HOME/sbin/instantclient_23_8
+export PATH=$PATH:$HOME/sbin/instantclient_23_6
 export EDITOR=nvim
 
 # press generator, pro init
@@ -23,6 +23,8 @@ export PRESS_PROFILE_DIR=/home/jan/o2/BIDEV-MAIN_bimeta/press/profiles.lin
 export PRESS_PDC_METADATA_FILE=/home/jan/o2/BIDEV-MAIN_bimeta/ModelMetadata/PDCMetadata.json
 export PRESS_PRODUCTION_DDL_DIR=/home/jan/o2/svn-production/db/Teradata/DDL
 
+# azure functions
+export FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT=1
 
 #################################
 # pyenv
@@ -180,6 +182,9 @@ then
 fi
 
 
+alias fbat='selection=$(find . -maxdepth 1 -type f | fzf); if [ -n "$selection" ]; then echo "$selection" | xargs batcat; else echo "nothing to do"; fi'
+alias fcat='selection=$(find . -maxdepth 1 -type f | fzf); if [ -n "$selection" ]; then echo "$selection" | xargs cat; else echo "nothing to do"; fi'
+
 # batcat
 if command -v batcat &>/dev/null
 then
@@ -189,9 +194,9 @@ fi
 # eza
 if command -v eza &>/dev/null
 then
-    alias ll="/usr/bin/ls -lA"
     alias la="/usr/bin/ls -A"
     alias l="eza --color=always --long -b --icons  --no-user --no-permissions -h --time-style='+%Y-%m-%d %H:%M:%S'"
+    alias ll="eza --color=always --long -b --icons  --no-user --no-permissions -h --time-style='+%Y-%m-%d %H:%M:%S' --sort=time --reverse | bat"
 fi
 
 # proxy functions
@@ -206,6 +211,22 @@ proxoff () {
 move-to-bookmark () {
     source "$HOME/bin/fcd-script"
 }
+
+
+_insert_home_dir_path() {
+  # Find directories under $HOME excluding hidden, select via fzf
+  local dir
+  dir=$(find "$HOME" -type d ! -path '*/.*' 2>/dev/null | fzf)
+  if [[ -n "$dir" ]]; then
+    # Insert the directory path into the current command line at the cursor
+    # Use readline's bind 'rl_insert_text' via 'printf' and 'readline' magic
+    # This uses the builtin "readline" command to manipulate the buffer
+    READLINE_LINE="${READLINE_LINE:0:READLINE_POINT}$dir${READLINE_LINE:READLINE_POINT}"
+    READLINE_POINT=$(( READLINE_POINT + ${#dir} ))
+  fi
+}
+bind -x '"\C-f":_insert_home_dir_path'
+
 
 # nvm a node.js
 export NVM_DIR="$HOME/.nvm"
@@ -287,4 +308,4 @@ alias escape="sed -e 's/\x00/<NUL#00>/g' \
 # azure
 export ACR_REGISTRY="o2czbidevacr"
 
-# perlbrew
+alias ch="code ."

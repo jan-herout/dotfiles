@@ -21,6 +21,8 @@ PROMPT="Select files to copy (use Shift+Tab to select multiple files): ESC to fi
 SELECTION=$(\
     find $GITDIR -type f \
     | sed "s|^$GITDIR/||" \
+    | grep -E "^(ddl|mappings)" \
+    | grep -viE "(^ddl/([a-z0-9_]+)_V)|(EP_LND|EP_IND)|(\d{9})|(\.bteq$)" \
     | fzf \
         --prompt="$PROMPT" \
         --multi \
