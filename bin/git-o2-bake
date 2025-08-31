@@ -8,6 +8,7 @@ COLOR_OK="\033[34mOK\033[0m "
 # paths
 FEATURE_PATH=$HOME/o2-feature
 TEMPLATE_PATH=$HOME/o2/bidev-template
+REPO_LIST_FILE=$FEATURE_PATH/repo-list.txt
 
 # create a bail out function that accepts a message and exists with an error code
 bail_out() {
@@ -61,15 +62,26 @@ repo_name=$(basename "$new_dir")
 api_url="https://api.github.com/user/repos"
 
 # set proxy on, use CURL to create a new repo
+# -o /dev/null to suppress output
+# -w "%{http_code}" to output only the HTTP status code
 source $HOME/bin/set-proxy-on
 response=$(curl -L \
   -w "%{http_code}" \
+  -o /dev/null \
+  -s \
   -X POST \
   -H "Accept: application/vnd.github+json" \
   -H "Authorization: Bearer $github_pat" \
   -H "X-GitHub-Api-Version: 2022-11-28" \
   https://api.github.com/user/repos \
   -d "{\"name\":\"$repo_name\",\"description\":\"working repo: $repo_name\",\"homepage\":\"https://github.com\",\"private\":true,\"is_template\":false}")
+
+# check if the response is 201 Created
+if [ "$response" -ne 201 ]; then
+    bail_out "Failed to create repository on GitHub. HTTP response code: $response"
+else
+    echo -e "$COLOR_OK: repository created successfully on GitHub: $repo_name"
+fi
 
 echo -e "$COLOR_TRY: adding remote origin for $repo_name"
 remote_url="https://$github_pat@github.com/jan-herout_o2cz/$repo_name.git"
@@ -83,3 +95,8 @@ echo -e "$COLOR_OK: remote origin added successfully"
 echo -e "$COLOR_TRY: git push: $repo_name"
 git push -u origin main || bail_out "Failed to push to remote repository."
 echo -e "$COLOR_OK: git push successful, repo is ready to use: $repo_name"
+
+# add repo address and creation date to the list of repos
+current_date=$(date +"%Y-%m-%d")
+repo_home_page="https://github.com/jan-herout_o2cz/$repo_name"
+echo "$current_date $repo_name $repo_home_page" >> $REPO_LIST_FILE || bail_out "Failed to append to repo list file: $REPO_LIST_FILE"

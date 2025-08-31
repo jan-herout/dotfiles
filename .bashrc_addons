@@ -260,6 +260,8 @@ alias src="source ~/.bashrc"
 alias vc="export __CWD__=`pwd` && cd ~/dotfiles/.config/nvim && nvim . &&  cd $__CWD__  && unset __CWD__"
 alias nom="$HOME/bin/netmount"
 alias num="$HOME/bin/netumount"
+alias on="$HOME/bin/netmount"
+alias off="$HOME/bin/netumount"
 alias gs="git status"
 alias config="__config__"
 alias _cd_to_feature="source $HOME/bin/fcd-feature-script"
@@ -309,3 +311,10 @@ alias escape="sed -e 's/\x00/<NUL#00>/g' \
 export ACR_REGISTRY="o2czbidevacr"
 
 alias ch="code ."
+
+# basic functions
+if [[ -f $HOME/bin/basic-func.sh ]]; then
+    source $HOME/bin/basic-func.sh
+else
+    echo "nemam funkce"
+fi

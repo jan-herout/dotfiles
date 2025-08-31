@@ -1,24 +1,22 @@
 #!/bin/bash
 
-COLOR_ERR="\e[31mERR\e[0m"
-COLOR_TRY="\033[33mTRY\033[0m"
-COLOR_OK="\033[34mOK\033[0m "
+source $HOME/bin/basic-func.sh
+if [[ $? -ne 0 ]]; then
+  echo "sourcing failed"
+  exit 1
+fi
+
 
 MOUNT_POINT=$(ls /mnt | fzf --prompt="Vyber mount: ")
-if [[ -z "$MOUNT_POINT" ]]; then
-    echo -e "$COLOR_ERR: No mount selected, bail out"
-    exit 1
-fi
+[[ -z "$MOUNT_POINT" ]] && fdie "No mount selected, bail out"
 
 sudo umount "/mnt/$MOUNT_POINT"
 if [ $? -eq 0 ]; then
-    echo -e "$COLOR_OK: Unmounted $MOUNT_POINT successfully"
+    flog "Unmounted $MOUNT_POINT successfully" info
     exit 0
 fi
 
-echo -e "$COLOR_OK: Error unmounting $MOUNT_POINT"
-echo -e "$COLOR_TRY: Find blocking PIDs"
-
+flog "Error unmounting $MOUNT_POINT, find blocking pids" error
 
 # PIDy
 KILL_THESE=$(lsof \
@@ -27,10 +25,7 @@ KILL_THESE=$(lsof \
     | xargs -I{} sh -c 'echo -n "PID: {} CMD: "; tr "\0" " " < /proc/{}/cmdline; echo' \
     | fzf --prompt="Select PID to kill (Shift+Tab to select multiple) ")
 
-if [[ -z "$KILL_THESE" ]]; then
-    echo -e "$COLOR_ERR: bail out"
-    exit 1
-fi
+[[ -z "$KILL_THESE" ]] && fdie "no pids selected, bail out"
 
 # read the selection and kill the PIDs, separator is \0 character
 IFS=$'\0' read -r -a ITEMS <<< "$KILL_THESE"
@@ -39,20 +34,15 @@ for ITEM in "${ITEMS[@]}"; do
     PID=$(echo "$ITEM" | cut -d ' ' -f 2)
     
     if [[ -n "$PID" ]]; then
-        echo -e "$COLOR_TRY: Killing PID $PID"
         kill -9 "$PID"
         if [[ $? -eq 0 ]]; then
-            echo -e "$COLOR_OK: PID $PID killed successfully"
+            flog "PID $PID killed successfully" info
         else 
-            echo -e "$COLOR_ERR: Error killing PID $PID"
+            flog "Error killing PID $PID" warning
         fi
     fi
 done
 
 # try again
-sudo umount "/mnt/$MOUNT_POINT"
-if [ $? -eq 0 ]; then
-    echo -e "$COLOR_OK: Unmounted $MOUNT_POINT successfully"
-    exit 0
-fi
-echo -e "$COLOR_OK: Error unmounting $MOUNT_POINT"
+sudo umount "/mnt/$MOUNT_POINT" || fdie "Error unmounting $MOUNT_POINT" 
+flog "done"

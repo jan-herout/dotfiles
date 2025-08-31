@@ -1,64 +1,57 @@
 #!/bin/bash
-USERNAME="a1548834"
 
-LINUX_USERNAME=`whoami`
-ME_UID=`id -u $LINUX_USERNAME`
-ME_GID=`id -g $LINUX_USERNAME`
+source $HOME/bin/basic-func.sh
+if [[ $? -ne 0 ]]; then
+  echo "sourcing failed"
+  exit 1
+fi
 
-# colors
-COLOR_ERR="\e[31mERR\e[0m"
-COLOR_TRY="\033[33mTRY\033[0m"
-COLOR_OK="\033[34mOK\033[0m "
+network_username="a1548834"
+linux_username=$(whoami)
+var_uid=$(id -u $linux_username)
+var_gid=$(id -g $linux_username)
 
-PASSWORD=$(cat $HOME/Vaults/o2/o2_a1548834_password.txt)
 CREDENTIALS=$HOME/Vaults/o2/o2_a1548834_cifs_credentials.txt
+[[ ! -f "$CREDENTIALS" ]] && fdie "No pass provided, bail out: $CREDENTIALS"
+
 RANDOM_NAME=$(head /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 16)
 WRITABLE_CREDENTIALS="/tmp/$RANDOM_NAME"
 
 
-if [[ ! -f "$CREDENTIALS" ]]; then
-    echo -e "$COLOR_ERR: No pass provided, bail out: $CREDENTIALS"
-    exit 1
-fi
-
-
 # select the share to be mounted
 MOUNTFILE=$(ls $HOME/bin/a-write-mounts | fzf --prompt="Vyber mount: ")
-if [[ -z "$MOUNTFILE" ]]; then
-    echo -e "$COLOR_ERR: No mount selected, bail out"
-    exit 1
-fi
+[[ -z "$MOUNTFILE" ]] && fdie "No mount selected, bail out"
+
 
 # source the mount file and set vars
 source $HOME/bin/a-write-mounts/$MOUNTFILE
 
 # copy credentials
-cp $CREDENTIALS $WRITABLE_CREDENTIALS
-chmod 666 $RANDOM_NAME
+cp $CREDENTIALS $WRITABLE_CREDENTIALS || fdie "failed to copy credentials"
+chmod 666 $WRITABLE_CREDENTIALS || fdie "failed to make credentials readable"
 
 MOUNT_POINT=$_MNT_
 SHARE_UNC=$_SRC_
 
 findmnt $MOUNT_POINT >/dev/null 2>&1
 if [ $? -eq 0 ]; then
-    echo -e "$COLOR_OK: directory is already mounted: $MOUNT_POINT"
+    flog "directory is already mounted: $MOUNT_POINT" warning
 else
-    echo -e "$COLOR_TRY: mounting $SHARE_UNC"
+    flog "mounting $SHARE_UNC to $MOUNT_POINT" info
     MM_OPTIONS="credentials=$WRITABLE_CREDENTIALS,"
-    MM_OPTIONS+="uid=$ME_UID,"
-    MM_OPTIONS+="gid=$ME_GID,"
+    MM_OPTIONS+="uid=$var_uid,"
+    MM_OPTIONS+="gid=$var_gid,"
     MM_OPTIONS+="dir_mode=0755,file_mode=0755"
-    MM_OPTIONS+=$_SUFFIX_    
-    echo -e $COLOR_TRY mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
+    MM_OPTIONS+=$_SUFFIX_
+    if [[ ! -d $MOUNT_POINT ]]; then
+        flog "mount point does not exist, creating it"
+        sudo mkdir $MOUNT_POINT
+    fi
     sudo mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
-
-
-    if [ $? -eq 0 ]; then
-        echo -e "$COLOR_OK: mounted as $MOUNT_POINT"        
-    else
-        echo -e "$COLOR_ERR: error ???"
-        echo -e "$COLOR_TRY: ca: https://pam.cz.o2/PasswordVault/v10/Accounts"
-        echo -e "$COLOR_TRY: check credentials: $CREDENTIALS"
+    if [ $? -ne 0 ]; then
+        flog "mount failed" error
+        flog "- ca: https://pam.cz.o2/PasswordVault/v10/Accounts" error
+        flog "- check credentials: $CREDENTIALS" error
     fi
 fi
 

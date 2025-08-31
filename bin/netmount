@@ -1,100 +1,77 @@
 #!/bin/bash
 
-MM_DEFDIR=$HOME/bin/net-mount-points
-MM_PASSWORD_FILE=$HOME/Vaults/o2/domain-password.txt
+source $HOME/bin/basic-func.sh
+if [[ $? -eq 0 ]]; then
+  flog "Sourcing succeeded"
+else
+  echo "Sourcing failed"
+  exit 1
+fi
 
-# colors
-MM_ERR="\e[31mERR\e[0m"
-MM_TRY="\033[33mTRY\033[0m"
-MM_OK="\033[34mOK\033[0m "
+mount_points_def_dir=$HOME/bin/net-mount-points
+domain_passfile=$HOME/Vaults/o2/domain-password.txt
 
 
-CHOICE=$(echo "mount a git fetch
+what_to_do=$(echo "mount a git fetch
 mount
 jenom vpn" | fzf)
 
-# kontrola existence adresáře s definicemi
-echo -e "$MM_TRY: test mount points config: $MM_DEFDIR"
-if [ ! -d "$MM_DEFDIR" ]; then
-    echo -e "$MM_ERR: Directory does not exist: $MM_DEFDIR <directory>"
-    exit 1
+# sanity check and cryfs
+[[ -d "$mount_points_def_dir" ]] || fdie "Directory does not exist: $mount_points_def_dir"
+if [[ ! -f "$domain_passfile" ]]; then
+    flog "try to read: $domain_passfile" info
+    cryfs $HOME/.local/share/plasma-vault/o2.enc $HOME/Vaults/o2/ || fdie "cryfs failed"
 fi
-echo -e "$MM_OK: mount point config dir exists"
-
-# kontrola existence secrets souboru
-echo -e "$MM_TRY: test secrets file: $MM_PASSWORD_FILE"
-if [ ! -f "$MM_PASSWORD_FILE" ]; then
-    echo -e "$MM_ERR: File does not exist: $MM_PASSWORD_FILE"
-
-    cryfs $HOME/.local/share/plasma-vault/o2.enc $HOME/Vaults/o2/
-fi
-
-echo -e "$MM_TRY: test secrets file: $MM_PASSWORD_FILE"
-if [ ! -f "$MM_PASSWORD_FILE" ]; then
-    echo -e "$MM_ERR: File does not exist: $MM_PASSWORD_FILE"
-    exit 1
-fi
-
+[[ -f "$domain_passfile" ]] || fdie "File does not exist: $domain_passfile"
 
 
 # načti secrets a další
-echo -e "$MM_TRY: read secrets: $MM_PASSWORD_FILE"
-_ME_=`whoami`
-_UID_=`id -u $_ME_`
-_GID_=`id -g $_ME_`
-_PASS_=`cat ~/Vaults/o2/domain-password.txt`
+var_me=$(whoami)
+var_uid=$(id -u $var_me)
+var_gid=$(id -g $var_me)
+var_pass=$(<$HOME/Vaults/o2/domain-password.txt)
+[[ -z $var_pass ]] && fdie "failed to read domain password from $domain_passfile"
 
-if [ -z "$_PASS_" ]; then
-    echo -e "$ERR: read secrets: failed: $MM_PASSWORD_FILE"
-    exit 1
-fi
-echo -e "$MM_OK: secrets read"
+flog "secrets read sucessfully" info
 
 # test napojení na VPN
-IS_O2_CONUP=`nmcli connection show --active | grep extvpn.o2.cz`
-if [ -z "$IS_O2_CONUP" ]; then
-	echo -e "$ERR: connecting to VPN"
-	nmcli connection up extvpn.o2.cz
-else
-	echo -e "IS_O2_CONUP=>$IS_O2_CONUP<"
+is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
+if [[ -z "$is_on_vpn" ]]; then
+	flog "connecting to VPN" warning
+	nmcli connection up extvpn.o2.cz || fdie "failed to connect"
 fi
 
 
 # proveď mount
 #if [ "${__MOUNT_DRIVES__^^}" = "Y" ]; then 
-if [[ "$CHOICE" =~ "mount" ]]; then
-    for MM_DEFFILE in "$MM_DEFDIR"/*; do
-        echo -e "$MM_TRY: read $MM_DEFFILE"
-        source $MM_DEFFILE
+if [[ "$what_to_do" =~ "mount" ]]; then
+    for mount_point in "$mount_points_def_dir"/*; do
+        flog "read $mount_point" info
+        source $mount_point
 
         if [ -d "$_MNT_" ]; then
             findmnt $_MNT_ >/dev/null 2>&1
             if [ $? -eq 0 ]; then
-                echo -e "$MM_OK: directory is already mounted: $_MNT_"
+                flog "directory is already mounted: $_MNT_" warning
             else
-                echo -e "$MM_TRY: mounting $_SRC_"
+                flog "mounting $_SRC_" info
                 MM_OPTIONS="domain=TO2,username=X0548834,"
-                MM_OPTIONS+="password=$_PASS_,"
-                MM_OPTIONS+="uid=$_UID_,"
-                MM_OPTIONS+="gid=$_GID_,"
+                MM_OPTIONS+="password=$var_pass,"
+                MM_OPTIONS+="uid=$var_uid,"
+                MM_OPTIONS+="gid=$var_gid,"
                 MM_OPTIONS+="dir_mode=0755,file_mode=0755"
                 MM_OPTIONS+=$_SUFFIX_
                 sudo mount -t cifs -o $MM_OPTIONS $_SRC_ $_MNT_
 
-                if [ $? -eq 0 ]; then
-                    echo -e "$MM_OK: mounted"
-                else
-                    echo -e "$MM_ERR: error ???"
+                if [[ $? -gt 0 ]]; then
+                    flog "failed to mount $_SRC_" error
                 fi
             fi
         fi
     done
-else
-    echo ""
-    echo -e "$MM_ERR: přeskakuji mapování disků!"
 fi
 
 # odjeď git fetch
-if [[ "$CHOICE" =~ "git" ]]; then
+if [[ "$what_to_do" =~ "git" ]]; then
     $HOME/bin/git-o2fetch
 fi

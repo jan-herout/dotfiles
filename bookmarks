@@ -24,12 +24,14 @@
 /home/jan/o2/BIDEV-MAIN_edw/meta/ddl                            #gme
 /home/jan/o2/BIDEV-MAIN_edw/meta/mappings                       #gme
 /home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/e09/PMRootDir_ASG		    #gme
+/home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/e09/PMRootDir_ASG/py_scripts/LND
 /home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/e29			            #gme
 /home/jan/o2/BIDEV-MAIN_edw/mstr/SRC				            #gme
 /home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/main/PMRootDir_EDW/Script	#gme
 /home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/Shared_Libs                #gme
 /home/jan/o2/BIDEV-MAIN_edw/pkg/main                            #gme
 /home/jan/o2/BIDEV-MAIN_edw/reqs                                #gme
+/home/jan/o2/BIDEV-MAIN_ia
 /home/jan/o2/BIDEV-MAIN_ntr2expn
 /home/jan/o2/BIDEV-MAIN_py-o2edw
 /home/jan/o2/BIDEV-MAIN_vodwh                                   #gvo root
@@ -39,6 +41,7 @@
 /home/jan/o2/BIDEV-WORK_moat-produkcionalizace/gen-ap
 /home/jan/o2-feature
 /home/jan/o2-feature/bidev-7434-vodwh-na
+/home/jan/o2-repoconfig
 /home/jan/o2/svn-production/db/Teradata                         #svn
 /home/jan/o2/svn-production/src/NTINFO402/EDW                   #svn
 https://edwmon.cz.o2/pdc/
