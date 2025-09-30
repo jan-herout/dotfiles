@@ -17,18 +17,6 @@ if [ ! -d "$MM_DEFDIR" ]; then
 fi
 echo -e "$MM_OK"
 
-# kontrola existence secrets souboru
-echo -e "$MM_TRY: test secrets file: $MM_PASSWORD_FILE"
-if [ ! -f "$MM_PASSWORD_FILE" ]; then
-    echo -e "$MM_ERR: File does not exist: $MM_PASSWORD_FILE"
-    exit 1
-fi
-
-# načti secrets a další
-_ME_=`whoami`
-_UID_=`id -u $_ME_`
-_GID_=`id -g $_ME_`
-
 
 # co chceme dělat
 CHOICE=$(echo "jenom umount

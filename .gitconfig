@@ -2,7 +2,9 @@
 	defaultBranch = main
 
 [alias]
-	fh = log --graph --date=format:'%Y-%m-%d %H:%M:%S' --all --format=\"%Cred%H %Cgreen%ad %Cred%aE %Cblue%f\" --
+#    fh = log --graph --date=format:'%Y-%m-%d %H:%M:%S' --all --format=\"%Cred%H %Cgreen%ad %Cred%aE %Cblue%f\" --
+    fh = log --graph --date=format:'%Y-%m-%d %H:%M:%S' --all --format='%Cred%H %Cgreen%ad %Cred%aE %Cblue%B' --
+
 	lg = log --date=format:'%Y-%m-%d %H:%M:%S' --format=\"%Cred%H %Cgreen%ad %Cred%aE %Cblue%f\" --all --graph --decorate
 	ll = log --date=format:'%Y-%m-%d %H:%M:%S' --format=\"%Cred%H %Cgreen%ad %Cred%aE %Cblue%f\"
 	lf = diff-tree --no-commit-id --name-only -r

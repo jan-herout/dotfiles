@@ -14,6 +14,12 @@ SOURCE=.
 # Where to store the incremental backups
 DESTBASE=/media/jan/PENGUIN/bck
 
+#
+if [[ ! -d "$DESTBASE" ]]; then
+    echo "can not access $DESTBASE"
+    exit 1
+fi
+
 # how long to keep backups, in days
 # WARNING: always make sure that the prefix of the number is PLUS sign!
 KEEPAGE="+31"

@@ -9,6 +9,38 @@ OK="\033[34mOK\033[0m "
 # aktuální adresář je kořen, pod kterým provádíme aktualizaci
 REPO_PATH=$(pwd)
 
+
+# IMPLEMENT_HERE
+# implement a function named _select_pat. The function
+# - reads the PAT file
+# - uses fzf to select a PAT
+# - returns the selected PAT
+_select_pat() {    
+    if command -v fzf &>/dev/null
+    then
+        # pokud mám fzf, použiju fzf
+        local _GITHUB_TOKEN=$(cat $PAT_FILE | fzf)    
+    else
+        # fallback, nemám fzf
+        nl -ba "$PAT_FILE"
+        read -p "Který PAT mám použít?: " lineno
+        if [[ -z "$lineno" ]]; then
+            echo -e "$ERR: No github token provided, bail out"
+            exit 1
+        fi
+        local _GITHUB_TOKEN=$(sed -n "${lineno}p" "$PAT_FILE")
+    fi
+
+    if [[ -z "$_GITHUB_TOKEN" ]]; then
+        echo "ERR"
+        exit 1
+    fi
+
+    local _GITHUB_TOKEN=$(echo $_GITHUB_TOKEN | awk '{print $2}')
+    echo $_GITHUB_TOKEN
+}
+
+
 # v následujícím souboru je seznam tokenů které jsou k dispozici
 # seznam obsahuje na každém řádku NÁZEV tokenu a HODNOTU tokenu oddělené MEZEROU, zhruba tedy:
 # o2-hlavní-token github_pat_11.....................
@@ -24,41 +56,22 @@ PATs se načítají ze souboru $PAT_FILE.
 "
 
 
-if [ ! -f "$PAT_FILE" ]; then
-    echo -e "$ERR: PAT file not found at $PAT_FILE"
-    exit 1
-fi
-
-
-
-
-# načteme si stadý PAT, který budeme aktualizovat
-nl -ba "$PAT_FILE"
-read -p "Který PAT budeme nahrazovat? " lineno
-if [[ -z "$lineno" ]]; then
+OLD_GITHUB_TOKEN=$(_select_pat | tail -n 1)
+if [[ $OLD_GITHUB_TOKEN == "ERR" ]]; then
     echo -e "$ERR: No github token provided, bail out"
     exit 1
 fi
-OLD_GITHUB_TOKEN=$(sed -n "${lineno}p" "$PAT_FILE")
-OLD_GITHUB_TOKEN=$(echo $OLD_GITHUB_TOKEN | cut -d' ' -f2)
-if [[ -z "$OLD_GITHUB_TOKEN" ]]; then
-        echo -e "$ERR: No github token provided, bail out"
-        exit 1
-fi
 
-
-# načteme si nový PAT, za který provedeme náhradu
-nl -ba "$PAT_FILE"
-read -p "Který PAT mám použít?: " lineno
-if [[ -z "$lineno" ]]; then
+GITHUB_TOKEN=$(_select_pat | tail -n 1)
+if [[ $GITHUB_TOKEN == "ERR" ]]; then
     echo -e "$ERR: No github token provided, bail out"
     exit 1
 fi
-GITHUB_TOKEN=$(sed -n "${lineno}p" "$PAT_FILE")
-GITHUB_TOKEN=$(echo $GITHUB_TOKEN | cut -d' ' -f2)
-if [[ -z "$GITHUB_TOKEN" ]]; then
-        echo -e "$ERR: No github token provided, bail out"
-        exit 1
+
+
+if [[ -z "$OLD_GITHUB_TOKEN" || -z "$GITHUB_TOKEN" ]]; then
+    echo -e "$ERR: No github token provided, bail out"
+    exit 1
 fi
 
 # find all files named config, that are in a subdirectory .git, recursively

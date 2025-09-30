@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# colors
+ERR="\e[31mERR\e[0m"
+TRY="\033[33mTRY\033[0m"
+OK="\033[34mOK\033[0m "
+
+# read the address of the proxy server
+O2_USERNAME=""
+O2_PASSWORD=""
+O2_USERNAME_FILE=$HOME/Vaults/o2/o2_username.txt
+O2_PASSWORD_FILE=$HOME/Vaults/o2/o2_password.txt
+
+if ! test -f $O2_USERNAME_FILE; then
+  echo -e "$ERR: File does not exist: $O2_USERNAME_FILE"
+  exit 1
+fi
+
+if ! test -f $O2_PASSWORD_FILE; then
+  echo -e "$ERR: File does not exist: $O2_USERNAME_FILE"
+  exit 1
+fi
+
+echo -e "$TRY: seting proxy, reading file: $O2_USERNAME_FILE"
+echo -e "$TRY: seting proxy, reading file: $O2_PASSWORD_FILE"
+
+O2_USERNAME=$(cat $O2_USERNAME_FILE)
+O2_PASSWORD=$(cat $O2_PASSWORD_FILE)
+O2_PROXY="internet-proxy-s1.cz.o2:8080"
+
+echo -e "$OK: Setting proxy to: http://$O2_USERNAME:************@$O2_PROXY"
+http_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
+
+add_proxy_settings() {
+    local repo_dir="$1"
+    local git_config_file="$repo_dir/.git/config"
+    if [ ! -d "$repo_dir/.git" ]; then
+        echo -e "$ERR: Directory is not a git repo: $repo_dir"
+        return 1
+    fi    
+    pushd "$repo_dir" > /dev/null || { echo -e "$ERR: Failed to change directory to $repo_dir"; return 1; }
+    git config --local remote.origin.proxy $http_proxy || { echo -e "$ERR: Failed to set proxy in $git_config_file"; return 1; }
+    echo -e "$OK: $repo_dir"
+    popd > /dev/null
+}
+
+
+# find all git repos in current directory, and set the proxy
+directories=("$HOME/o2" "$HOME/o2-feature" "$HOME/o2-repoconfig")
+
+
+for parent_dir in "${directories[@]}"; do
+    if [ ! -d "$parent_dir" ]; then
+        echo -e "$ERR: Directory does not exist: $parent_dir"
+        continue
+    fi
+        
+    for dir in "$parent_dir"/*; do
+        if [ -d "$dir/.git" ]; then
+            add_proxy_settings "$dir"
+        else
+            echo -e "$OK: Skipping non-git directory: $dir"
+        fi
+    done
+done

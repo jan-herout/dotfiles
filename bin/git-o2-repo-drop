@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# colors
+COLOR_ERR="\e[31mERR\e[0m"
+COLOR_TRY="\033[33mTRY\033[0m"
+COLOR_OK="\033[34mOK\033[0m "
+
+# paths
+FEATURE_PATH=$HOME/o2-feature
+TEMPLATE_PATH=$HOME/o2/bidev-template
+REPO_LIST_FILE=$FEATURE_PATH/repo-list.txt
+
+# create a bail out function that accepts a message and exists with an error code
+bail_out() {
+    echo -e "$COLOR_ERR: $1"
+    read -p "Press enter to continue..."
+    exit 1
+}
+
+repo_name=$(cat $REPO_LIST_FILE | fzf --prompt="Select a repo to drop: " --header="Select a repo to drop from the list" | awk '{print $2}')
+[ -z "$repo_name" ] && bail_out "No repo selected, bail out."
+
+pat_file=$HOME/Vaults/o2/github/jan_herout_pat
+[ ! -f "$PAT_FILE" ] || bail_out "PAT file není dostupný, bail: $PAT_FILE"
+
+# použij fzf, a zjisti pat
+github_pat=$( \
+    cat $pat_file | \
+    fzf --prompt="Zadej github PAT (chceš personal/osobní PAT): " --header="Zadej github PAT pro přístup k API" | \
+    awk '{print $2}' \
+    )
+[ -z "$github_pat" ] && bail_out "No PAT provided, bail out."
+
+# set proxy on, use CURL to delete the repo
+source $HOME/bin/set-proxy-on
+
+
+# use curl to delete the repo
+github_username="jan-herout_o2cz"
+api_url="https://api.github.com/repos/$github_username/$repo_name"
+
+echo -e "$COLOR_TRY: Deleting repo $repo_name on GitHub..."
+response=$(curl -s -w "HTTPSTATUS:%{http_code}" -X DELETE "$api_url" \
+    -H "Authorization: Bearer $github_pat" \
+    -H "Accept: application/vnd.github+json")
+
+status=$(echo "$response" | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+body=$(echo "$response" | sed -e 's/HTTPSTATUS:.*//g')
+
+if [ "$status" -eq 204 ]; then
+    echo -e "$COLOR_OK: Repo $repo_name deleted successfully!"
+else
+    echo "$body"
+    bail_out "Failed to delete repo on GitHub. HTTP status: $status"
+fi
+
+# remove the repo from the list file
+if [ -f "$REPO_LIST_FILE" ]; then    
+    sed -i -E "/[[:space:]]$repo_name/d" "$REPO_LIST_FILE"
+    echo -e "$COLOR_OK: Repo $repo_name removed from the list file: $REPO_LIST_FILE"
+else
+    bail_out "Repo list file not found: $REPO_LIST_FILE"
+fi
