@@ -43,8 +43,14 @@ for mount_point in "$mount_points_def_dir"/*; do
 done
 
 if [[ "$CHOICE" =~ "umount a disconnect vpn" ]]; then    
-    $vpn_client disconnect extvpn.o2.cz || fdie "failed to connect"
-    killall $vpn_client_ui
+    is_on_vpn=$(ps aux | grep vpnui | grep -v grep | awk ' { print $2 }')
+    if [[ ! -z "$is_on_vpn" ]]; then
+        flog "disconnecting VPN" warning
+        $vpn_client disconnect extvpn.o2.cz
+        killall $vpn_client_ui
+    else
+        flog "VPN is not connected" info
+    fi    
     # IS_O2_CONUP=$(nmcli connection show --active | grep extvpn.o2.cz)
     # if [ -z "$IS_O2_CONUP" ]; then
     #     flog "disconnected" info

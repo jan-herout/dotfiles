@@ -35,12 +35,26 @@ var_pass=$(<$HOME/Vaults/o2/domain-password.txt)
 flog "secrets read sucessfully" info
 
 # test napojení na VPN
-is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
+# is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
+is_on_vpn=$(ps aux | grep vpnui | grep -v grep | awk ' { print $2 }')
 if [[ -z "$is_on_vpn" ]]; then
 	flog "connecting to VPN" warning
 	# nmcli connection up extvpn.o2.cz || fdie "failed to connect"
     # $vpn_client connect extvpn.o2.cz || fdie "failed to connect"
-    $vpn_client_ui >/dev/null 2>&1 &
+    $vpn_client_ui >/dev/null 2>&1 & 
+    
+    # infinite loop
+    while true; do         
+        sleep 1
+        vpn_state=$($vpn_client state | grep Connected | head -n 1 | awk '{print $4}')
+        if [[ "$vpn_state" =~ "Connected" ]]; then
+            flog "VPN is connected" info
+            break
+        fi
+        flog "waiting on VPN to connect..." warning
+    done    
+else
+    flog "VPN is already connected" info
 fi
 
 
