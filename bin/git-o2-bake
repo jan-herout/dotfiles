@@ -10,6 +10,33 @@ FEATURE_PATH=$HOME/o2-feature
 TEMPLATE_PATH=$HOME/o2/bidev-template
 REPO_LIST_FILE=$FEATURE_PATH/repo-list.txt
 
+# read the address of the proxy server
+O2_USERNAME=""
+O2_PASSWORD=""
+O2_USERNAME_FILE=$HOME/Vaults/o2/o2_username.txt
+O2_PASSWORD_FILE=$HOME/Vaults/o2/o2_password.txt
+
+if ! test -f $O2_USERNAME_FILE; then
+  echo -e "$ERR: File does not exist: $O2_USERNAME_FILE"
+  exit 1
+fi
+
+if ! test -f $O2_PASSWORD_FILE; then
+  echo -e "$ERR: File does not exist: $O2_USERNAME_FILE"
+  exit 1
+fi
+
+echo -e "$TRY: seting proxy, reading file: $O2_USERNAME_FILE"
+echo -e "$TRY: seting proxy, reading file: $O2_PASSWORD_FILE"
+
+O2_USERNAME=$(cat $O2_USERNAME_FILE)
+O2_PASSWORD=$(cat $O2_PASSWORD_FILE)
+O2_PROXY="internet-proxy-s1.cz.o2:8080"
+
+echo -e "$OK: Setting proxy to: http://$O2_USERNAME:************@$O2_PROXY"
+http_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
+
+
 # create a bail out function that accepts a message and exists with an error code
 bail_out() {
     echo -e "$COLOR_ERR: $1"
@@ -89,6 +116,7 @@ remote_url="https://$github_pat@github.com/jan-herout_o2cz/$repo_name.git"
 # add remote
 cd $FEATURE_PATH/$new_dir || bail_out "Failed to change directory to $HOME/o2-feature/$new_dir"
 git remote add origin $remote_url || bail_out "Failed to add remote origin for $remote_url"
+git config --local remote.origin.proxy $http_proxy || { echo -e "$ERR: Failed to set proxy in $git_config_file"; return 1; }
 echo -e "$COLOR_OK: remote origin added successfully"
 
 # push
@@ -100,3 +128,5 @@ echo -e "$COLOR_OK: git push successful, repo is ready to use: $repo_name"
 current_date=$(date +"%Y-%m-%d")
 repo_home_page="https://github.com/jan-herout_o2cz/$repo_name"
 echo "$current_date $repo_name $repo_home_page" >> $REPO_LIST_FILE || bail_out "Failed to append to repo list file: $REPO_LIST_FILE"
+
+# add proxy setings
