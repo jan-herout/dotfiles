@@ -1,5 +1,4 @@
 #!/bin/bash
-
 source $HOME/bin/basic-func.sh
 if [[ $? -eq 0 ]]; then
   flog "Sourcing succeeded"
@@ -10,7 +9,8 @@ fi
 
 mount_points_def_dir=$HOME/bin/net-mount-points
 domain_passfile=$HOME/Vaults/o2/domain-password.txt
-
+vpn_client="/opt/cisco/anyconnect/bin/vpn"
+vpn_client_ui="/opt/cisco/anyconnect/bin/vpnui"
 
 what_to_do=$(echo "mount a git fetch
 mount
@@ -38,7 +38,9 @@ flog "secrets read sucessfully" info
 is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
 if [[ -z "$is_on_vpn" ]]; then
 	flog "connecting to VPN" warning
-	nmcli connection up extvpn.o2.cz || fdie "failed to connect"
+	# nmcli connection up extvpn.o2.cz || fdie "failed to connect"
+    # $vpn_client connect extvpn.o2.cz || fdie "failed to connect"
+    $vpn_client_ui >/dev/null 2>&1 &
 fi
 
 
