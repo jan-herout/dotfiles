@@ -43,3 +43,8 @@ require("config.colors")
 require("config.mappings")
 require("config.after")
 require("config.settings")
+
+
+-- https://neovim.io/doc/user/options.html#%27guicursor%27
+vim.opt.guicursor = "n-v-c-sm:ver25,i-ci-ve:ver25,r-cr-o:hor20"
+
