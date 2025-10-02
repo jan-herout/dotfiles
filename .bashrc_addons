@@ -310,3 +310,10 @@ alias escape="sed -e 's/\x00/<NUL#00>/g' \
 # azure
 export ACR_REGISTRY="o2czbidevacr"
 alias ch="code ."
+
+# basic functions
+if [[ -f $HOME/bin/basic-func.sh ]]; then
+    source $HOME/bin/basic-func.sh
+else
+    echo "nemam funkce"
+fi
