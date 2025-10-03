@@ -43,20 +43,24 @@ for mount_point in "$mount_points_def_dir"/*; do
 done
 
 if [[ "$CHOICE" =~ "umount a disconnect vpn" ]]; then    
-    is_on_vpn=$(ps aux | grep vpnui | grep -v grep | awk ' { print $2 }')
-    if [[ ! -z "$is_on_vpn" ]]; then
-        flog "disconnecting VPN" warning
-        $vpn_client disconnect extvpn.o2.cz
-        killall $vpn_client_ui
+    # CISCO # is_on_vpn=$(ps aux | grep vpnui | grep -v grep | awk ' { print $2 }')
+    # CISCO # if [[ ! -z "$is_on_vpn" ]]; then
+    # CISCO #     flog "disconnecting VPN" warning
+    # CISCO #     $vpn_client disconnect extvpn.o2.cz
+    # CISCO #     killall $vpn_client_ui
+    # CISCO #     if [[ -d "$HOME/.cisco" ]]; then
+    # CISCO #         flog "removing dir $HOME/.cisco" warning
+    # CISCO #         rm -rf "$HOME/.cisco"
+    # CISCO #     fi
+    # CISCO # else
+    # CISCO #     flog "VPN is not connected" info
+    # CISCO # fi    
+    IS_O2_CONUP=$(nmcli connection show --active | grep extvpn.o2.cz)
+    if [ -z "$IS_O2_CONUP" ]; then
+        flog "disconnected" info
     else
-        flog "VPN is not connected" info
-    fi    
-    # IS_O2_CONUP=$(nmcli connection show --active | grep extvpn.o2.cz)
-    # if [ -z "$IS_O2_CONUP" ]; then
-    #     flog "disconnected" info
-    # else
-    #     nmcli connection down extvpn.o2.cz
-    # fi
+        nmcli connection down extvpn.o2.cz
+    fi
 fi
 
 flog "done" info

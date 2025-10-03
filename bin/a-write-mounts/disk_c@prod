@@ -1,6 +1,6 @@
 _MNT_=/mnt/prod-w-c
 _SRC_=//ntinfo402.to2.to2cz.cz/C$
-_SUFFIX_=,rw
+_SUFFIX_=,ro
 
 
 

@@ -37,7 +37,7 @@ add_proxy_settings() {
     if [ ! -d "$repo_dir/.git" ]; then
         echo -e "$ERR: Directory is not a git repo: $repo_dir"
         return 1
-    fi    
+    fi
     pushd "$repo_dir" > /dev/null || { echo -e "$ERR: Failed to change directory to $repo_dir"; return 1; }
     git config --local remote.origin.proxy $http_proxy || { echo -e "$ERR: Failed to set proxy in $git_config_file"; return 1; }
     echo -e "$OK: $repo_dir"
@@ -46,7 +46,7 @@ add_proxy_settings() {
 
 
 # find all git repos in current directory, and set the proxy
-directories=("$HOME/o2" "$HOME/o2-feature" "$HOME/o2-repoconfig")
+directories=("$HOME/o2" "$HOME/o2-feature" "$HOME/o2-repoconfig" "$HOME")
 
 
 for parent_dir in "${directories[@]}"; do
@@ -54,7 +54,7 @@ for parent_dir in "${directories[@]}"; do
         echo -e "$ERR: Directory does not exist: $parent_dir"
         continue
     fi
-        
+
     for dir in "$parent_dir"/*; do
         if [ -d "$dir/.git" ]; then
             add_proxy_settings "$dir"

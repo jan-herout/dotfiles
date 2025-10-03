@@ -22,6 +22,8 @@ WRITABLE_CREDENTIALS="/tmp/$RANDOM_NAME"
 MOUNTFILE=$(ls $HOME/bin/a-write-mounts | fzf --prompt="Vyber mount: ")
 [[ -z "$MOUNTFILE" ]] && fdie "No mount selected, bail out"
 
+echo "ro - read only
+rw - read write" | fzf --prompt="Mount type: " --header="Choose mount type" >/dev/null 2>&1
 
 # source the mount file and set vars
 source $HOME/bin/a-write-mounts/$MOUNTFILE
@@ -47,12 +49,15 @@ else
         flog "mount point does not exist, creating it"
         sudo mkdir $MOUNT_POINT
     fi
+    flog "mount options: $MM_OPTIONS" info    
     sudo mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
     if [ $? -ne 0 ]; then
         flog "mount failed" error
         flog "- ca: https://pam.cz.o2/PasswordVault/v10/Accounts" error
         flog "- check credentials: $CREDENTIALS" error
+        echo sudo mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
+
     fi
 fi
 
-rm $WRITABLE_CREDENTIALS
+# rm $WRITABLE_CREDENTIALS
