@@ -46,7 +46,6 @@ https://worldfoods.cz/
 https://worldfoods.cz/tydenni-menu/
 https://www.ukubika.cz/
 http://www.cervena-cibule.cz/cz/poledni-menu/
-/mnt/dev_fix_files
 /mnt/dev-virt-node
 /mnt/dev-virt-node/EDW_JHE                              #jhe
 /mnt/dev-virt-node/EDW_JHE/PMRootDir_ASG
@@ -61,6 +60,7 @@ http://www.cervena-cibule.cz/cz/poledni-menu/
 /mnt/dev-virt-node/Shared_Libs/Python
 /mnt/dev-virt-node/VODWH_JHE
 /mnt/dev-virt-node/VODWH_JHE/PMWorkflowLogDir_A69
+/mnt/dev_fix_files
 /mnt/preprod-src
 /mnt/prod-var-arch
 /mnt/prod-var-arch/edw/OldLogs
@@ -74,4 +74,3 @@ http://www.cervena-cibule.cz/cz/poledni-menu/
 /mnt/prod-virt-node/EDW/PMWorkflowLogDir_E26            #prod #log
 /mnt/prod-virt-node/EDW                                 #prod
 /mnt/prod-virt-node/EDW/Source/SrcSystems_LND		    #prod #src
-/tmp

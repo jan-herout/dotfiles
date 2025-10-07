@@ -3,6 +3,7 @@
 # Define the bookmark file
 BOOKMARK_FILE="$HOME/dotfiles/bookmarks"
 BACKUP="$BOOKMARK_FILE.old"
+UNIQUE="$BOOKMARK_FILE.unique"
 
 # Create the bookmark file if it doesn't exist
 if [ ! -f "$BOOKMARK_FILE" ]; then
@@ -37,3 +38,9 @@ else
         echo "$CURRENT_DIR is already bookmarked."
     fi
 fi
+
+# dedupilcate
+[[ -f "$UNIQUE" ]] && rm "$UNIQUE"
+cat "$BOOKMARK_FILE" | uniq >"$UNIQUE"
+rm "$BOOKMARK_FILE"
+cp "$UNIQUE" "$BOOKMARK_FILE"

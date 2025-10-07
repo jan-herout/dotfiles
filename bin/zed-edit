@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+
+# run zed
+zed "$@" >/dev/null 2>&1 &
+
+# bring zed to focus
+wmctrl -xa "zed"
