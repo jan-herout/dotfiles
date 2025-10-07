@@ -22,11 +22,15 @@ WRITABLE_CREDENTIALS="/tmp/$RANDOM_NAME"
 MOUNTFILE=$(ls $HOME/bin/a-write-mounts | fzf --prompt="Vyber mount: ")
 [[ -z "$MOUNTFILE" ]] && fdie "No mount selected, bail out"
 
-echo "ro - read only
-rw - read write" | fzf --prompt="Mount type: " --header="Choose mount type" >/dev/null 2>&1
 
 # source the mount file and set vars
 source $HOME/bin/a-write-mounts/$MOUNTFILE
+
+
+
+mounttype=$(echo "ro - read only
+rw - read write" | fzf --prompt="Mount type: " --header="Choose mount type")
+_SUFFIX_=",$(echo $mounttype | awk '{ print $1 }')"
 
 # copy credentials
 cp $CREDENTIALS $WRITABLE_CREDENTIALS || fdie "failed to copy credentials"
