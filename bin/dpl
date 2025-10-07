@@ -54,7 +54,7 @@ fi
 # budeme nasazovat na Oracle?
 # pouze pokud cílová složka obsahuje mount (mnt)
 if [[ "$DEPLOY_DIR" == *"/mnt/"* ]] ; then
-    TO_DEPLOY=$(find . -type f | grep -i pdc | fzf --prompt "Select a PDC deployment script to run: " --header "Select a script to deploy:")
+    TO_DEPLOY=$(find . -type f | grep -i pdc | grep -v -E "mandev|rms" | fzf --prompt "Select a PDC deployment script to run: " --header "Select a script to deploy:")
     if [ ! -z "$TO_DEPLOY" ]; then
         PDC=$(echo "PDC_X0548834
 PDC_NEW_1" | fzf --prompt "Which PDC? " --header "Select a PDC to deploy to:")

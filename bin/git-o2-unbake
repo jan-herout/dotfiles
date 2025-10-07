@@ -8,8 +8,10 @@ COLOR_OK="\033[34mOK\033[0m "
 # paths
 FEATURE_PATH=$HOME/o2-feature
 TEMPLATE_PATH=$HOME/o2/bidev-template
-REPO_LIST_FILE=$FEATURE_PATH/repo-list.txt
 
+# repo-list-file - udržujeme přes git o2-bake
+REPO_LIST_FILE=$FEATURE_PATH/repo-list.txt
+ARCHDIR=$HOME/o2-archive/feature
 # create a bail out function that accepts a message and exists with an error code
 bail_out() {
     echo -e "$COLOR_ERR: $1"
@@ -17,11 +19,13 @@ bail_out() {
     exit 1
 }
 
-repo_name=$(cat $REPO_LIST_FILE | fzf --prompt="Select a repo to drop: " --header="Select a repo to drop from the list" | awk '{print $2}')
+repo_name=$(cat $REPO_LIST_FILE | fzf --prompt="Select a repo to drop AND move to archive: " --header="Select a repo to drop from the list" | awk '{print $2}')
 [ -z "$repo_name" ] && bail_out "No repo selected, bail out."
 
 pat_file=$HOME/Vaults/o2/github/jan_herout_pat
 [ ! -f "$PAT_FILE" ] || bail_out "PAT file není dostupný, bail: $PAT_FILE"
+
+repo_dir="$HOME/O2-feature/$repo_name"
 
 # použij fzf, a zjisti pat
 github_pat=$( \
@@ -51,7 +55,7 @@ if [ "$status" -eq 204 ]; then
     echo -e "$COLOR_OK: Repo $repo_name deleted successfully!"
 else
     echo "$body"
-    bail_out "Failed to delete repo on GitHub. HTTP status: $status"
+    echo -e "$COLOR_ERR: Failed to delete repo on GitHub. HTTP status: $status"
 fi
 
 # remove the repo from the list file
@@ -61,3 +65,12 @@ if [ -f "$REPO_LIST_FILE" ]; then
 else
     bail_out "Repo list file not found: $REPO_LIST_FILE"
 fi
+
+# move the repo to archive
+if [[ -d "$repo_dir" ]]; then
+    echo -e "$COLOR_TRY: Moving repo $repo_name to archive..."
+    mv "$repo_dir" "$ARCHDIR" || bail_out "Failed to move repo to archive: $ARCHDIR"
+else
+    bail_out "Repo directory not found, can not move it to archive: $repo_dir"
+fi
+

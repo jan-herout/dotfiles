@@ -2,6 +2,11 @@
 "\e[5~": history-search-backward 
 "\e[6~": history-search-forward
 
+# Alt+Z
 "\ez": 'cd -\015'
+
+# Alt+M
 "\em": '_cd_to_mark\015'
+
+# Alt+F
 "\ef": '_cd_to_feature\015'
