@@ -102,5 +102,5 @@ fi
 
 # odjeď git fetch
 if [[ "$what_to_do" =~ "git" ]]; then
-    $HOME/bin/git-o2fetch
+    $HOME/bin/git-o2-fetch
 fi

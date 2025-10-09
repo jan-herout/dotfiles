@@ -1,0 +1,58 @@
+#!/bin/bash
+SELECTION="__"
+CONTINUE="__"
+FILE_OR_DIR_LIST=""
+
+
+# z jakého repa? metadata jdou buď z VODWH nebo EDW
+# GITDIR=$(echo "
+# $HOME/o2/BIDEV-MAIN_edw/meta/async_marts
+# $HOME/o2/BIDEV-MAIN_vodwh/metadata" | fzf --prompt="Select source directory: " --height=10)
+# if [[ -z "$GITDIR" ]]; then
+#     echo "No source directory selected. Exiting."
+#     exit 1
+# fi
+GITDIR="$HOME/o2/BIDEV-MAIN_edw/meta/async_marts"
+
+
+PROMPT="Select FILE_OR_DIRs to copy (use Shift+Tab to select multiple FILE_OR_DIRs): ESC to finish! >"
+# sestavíme seznam souborů do proměnné, oddělovačem je středník
+
+SELECTION=$(\
+    find $GITDIR -maxdepth 1 -type d \
+    | grep -vE "^$GITDIR$" \
+    | fzf \
+        --prompt="$PROMPT" \
+        --height=40 \
+        --delimiter '\n' \
+        --print0 \
+    | tr '\0' ';'
+) 
+
+echo "Selected nart:"
+echo "-----------------"
+IFS=$";" read -ra FILE_OR_DIRS <<< "$SELECTION"
+for FILE_OR_DIR in "${FILE_OR_DIRS[@]}"; do 
+    if [[ -z "$FILE_OR_DIR" ]]; then
+        continue
+    fi
+    echo "$FILE_OR_DIR"
+done
+
+echo "Continue? (y/n)"
+read -r CONTINUE
+if [[ "$CONTINUE" != "y" && "$CONTINUE" != "Y" && "$CONTINUE" != "" ]]; then
+    echo "Exiting without copying FILE_OR_DIRs."
+    exit 0
+fi
+
+# iterujeme přes jednotlivé soubory
+IFS=";" read -ra FILE_OR_DIRS <<< "$SELECTION"
+for FILE_OR_DIR in "${FILE_OR_DIRS[@]}"; do
+    for item in $FILE_OR_DIR/*; do
+        if [ -e "$item" ]; then
+            echo "Copying $item to $PWD"
+            cp -r "$item" "$PWD"
+        fi
+    done    
+done

@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source $HOME/bin/basic-func.sh
+
+func_update_repo() {
+    local repo=$1
+    local branch=$2
+    pushd "$repo" || fdie "Failed to change directory to $repo"
+    check_repo_clean || fdie "$repo: repository is not clean."
+    git switch $branch || fdie "$repo: Failed to switch to main branch."
+    git pull --rebase || fdie "$repo: Failed to pull latest changes."    
+    return 0
+}
+
+func_update_repo "$HOME/o2/BIDEV-MAIN_edw" main    || fdie "Failed to update BIDEV-MAIN_edw repository."
+func_update_repo "$HOME/o2/BIDEV-MAIN_edw" develop || fdie "Failed to update BIDEV-MAIN_edw repository."
+func_update_repo "$HOME/o2/BIDEV-MAIN_bimeta" main || fdie "Failed to update BIDEV-MAIN_vodwh repository."

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+source $HOME/bin/basic-func.sh
+
+funcfetch() {
+    local BASE_DIR=$1
+    # Loop through each subdirectory in the base directory
+    for dir in "$BASE_DIR"/*/; do
+        # Check if the directory is a Git repository
+        if [ -d "$dir/.git" ]; then
+            flog "$COLOR_TRY: $dir" info
+            # Get all configured remote URLs
+            remotes=$(git -C "$dir" remote -v)
+
+            if [[ -n $remotes ]]; then
+                # Check if any remote URL contains the string "aicentre"
+                if echo "$remotes" | grep -q "aicentre"; then
+                   flog "Skipping fetch for repository (remote URL contains 'aicentre'): $dir" info
+                else
+                    git -C "$dir" fetch
+                fi
+            fi
+        fi
+    done
+}
+
+declare -a dirs=("$HOME/o2" "$HOME/o2-feature")
+for dir in "${dirs[@]}"; do
+    funcfetch $dir
+done
+
+

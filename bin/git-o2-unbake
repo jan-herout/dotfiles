@@ -25,7 +25,7 @@ repo_name=$(cat $REPO_LIST_FILE | fzf --prompt="Select a repo to drop AND move t
 pat_file=$HOME/Vaults/o2/github/jan_herout_pat
 [ ! -f "$PAT_FILE" ] || bail_out "PAT file není dostupný, bail: $PAT_FILE"
 
-repo_dir="$HOME/O2-feature/$repo_name"
+repo_dir="$HOME/o2-feature/$repo_name"
 
 # použij fzf, a zjisti pat
 github_pat=$( \
