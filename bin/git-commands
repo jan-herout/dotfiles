@@ -34,6 +34,12 @@ for file in $git_files; do
     fi
     
     # Vypíše ve formátu: git <command>: <help> s padding
-    # <command> bude tučné modré písmo
-    printf "git \033[1;34m%-*s\033[0m: %s\n" "$max_length" "$command" "$help_text"
+    # <command> bude tučné modré písmo pouze pokud vypisujeme na terminál
+    if [[ -t 1 ]]; then
+        # Výstup jde na terminál - použij barevné formátování
+        printf "git \033[1;34m%-*s\033[0m: %s\n" "$max_length" "$command" "$help_text"
+    else
+        # Výstup jde do souboru/pipe - bez escape sekvencí
+        printf "git %-*s: %s\n" "$max_length" "$command" "$help_text"
+    fi
 done

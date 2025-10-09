@@ -41,7 +41,13 @@ for file in $all_files; do
         fi
         
         # Vypíše ve formátu: <command>: <help> s padding
-        # <command> bude tučné modré písmo
-        printf "\033[1;34m%-*s\033[0m: %s\n" "$max_length" "$command" "$help_text"
+        # <command> bude tučné modré písmo pouze pokud vypisujeme na terminál
+        if [[ -t 1 ]]; then
+            # Výstup jde na terminál - použij barevné formátování
+            printf "\033[1;34m%-*s\033[0m: %s\n" "$max_length" "$command" "$help_text"
+        else
+            # Výstup jde do souboru/pipe - bez escape sekvencí
+            printf "%-*s: %s\n" "$max_length" "$command" "$help_text"
+        fi
     fi
 done
