@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Deploy skriptů s Oracle PDC podporou a kopírováním do target adresářů
 
 # colors
 MM_ERR="\e[31mERR\e[0m"

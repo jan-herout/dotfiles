@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Výběr a spuštění PDC deployment skriptu pomocí fzf
 
 TO_DEPLOY=$(find . -type f | grep -i pdc | fzf --prompt "Select a PDC deployment script to run: " --header "Select a script to deploy:")
 if [ -z "$TO_DEPLOY" ]; then

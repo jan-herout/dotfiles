@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Inkrementální rsync záloha domovského adresáře s rotací a notifikacemi
 
 LOG="bin/daily-backup: "
 

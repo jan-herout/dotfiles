@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Kopírování metadata souborů z git repozitářů s preview a filtrováním
 SELECTION="__"
 CONTINUE="__"
 FILE_LIST=""

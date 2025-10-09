@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Interaktivní CIFS mount s automatickým nastavením credentials a práv
 
 source $HOME/bin/basic-func.sh
 if [[ $? -ne 0 ]]; then

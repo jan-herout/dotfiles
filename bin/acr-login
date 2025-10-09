@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Přihlášení do Azure Container Registry pomocí az cli a podman
 ACR_REGISTRY="o2czbidevacr"
 ACR_TOKEN=$(az acr login \
 	--name $ACR_REGISTRY \

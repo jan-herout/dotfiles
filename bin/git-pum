@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# doc: Updatuje main a develop větve v BIDEV repozitářích
+# doc: Updatuje main a develop větve v BIDEV repozitářích BIDEV-MAIN_edw a BIDEV-MAIN_bimeta
 
 source $HOME/bin/basic-func.sh
 

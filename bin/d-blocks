@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Nastavuje SSH agent a env proměnné pro d-blocks projekt
 
 eval "$(ssh-agent -s)"
 ssh-add ~/.ssh/id-d-blocks-coder

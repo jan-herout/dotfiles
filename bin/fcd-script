@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Přepínání mezi adresáři a URL z bookmarks pomocí fzf
 
 BOOKMARKS_FILE=~/bookmarks
 SELECTED_DIR=$(cat "$BOOKMARKS_FILE" | fzf)

@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Přidává aktuální adresář do bookmarks a spravuje seznam záložek
 
 # Define the bookmark file
 BOOKMARK_FILE="$HOME/dotfiles/bookmarks"

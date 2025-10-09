@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Kopírování metadata adresářů z git repozitářů pomocí fzf výběru
 SELECTION="__"
 CONTINUE="__"
 FILE_OR_DIR_LIST=""

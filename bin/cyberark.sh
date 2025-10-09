@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Spouští xfreerdp s RDP souborem a po ukončení ho smaže
 
 # get the first parameter
 cyberark_rdp_file=$1

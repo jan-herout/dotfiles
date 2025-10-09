@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Umount CIFS s automatickým zabíjením blokujících procesů
 
 source $HOME/bin/basic-func.sh
 if [[ $? -ne 0 ]]; then

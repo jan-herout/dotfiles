@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Připojí VPN a namountuje síťové disky s možností git fetch
 source $HOME/bin/basic-func.sh
 if [[ $? -eq 0 ]]; then
   flog "Sourcing succeeded"

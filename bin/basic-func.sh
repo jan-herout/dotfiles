@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# doc: Knihovna užitečných funkcí pro barevné logování a kontrolu git repozitářů
 
 ##
 # flog: logs a message to stdrr, use colors if we are on a console.
