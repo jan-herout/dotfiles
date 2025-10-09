@@ -5,6 +5,7 @@
 # MM_TRY="\033[33mTRY\033[0m"
 # MM_OK="\033[34mOK\033[0m "
 
+export PS1="]0;jan@blacktux:/home/jan/o2-feature/bidev-8829-ebox-views/data\\n\[\e[0;36m\]┌─\[\e[97;1m\][\u@\h]\[\e[0;36m\]─\[\e[33;1m\](\w)\n\[\e[0;36m\]└─\[\e[32;1m\][\A]\[\e[0;36m\]-\[\e[32;1m\](\[\e[0;32m\]^_^\[\e[32;1m\])\[\e[0;36m\]-\[\e[36;1m\][\[\e[0;32m\]\[\e[32;1m\]$\[\e[36;1m\]]\[\e[0;32m\] "
 export PATH=$PATH:~/bin:~/sbin:~/.local/bin
 
 # golang
