@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# doc: Zobrazuje přehled všech skriptů v bin s jejich dokumentací
+
+# Sestaví seznam všech souborů v $HOME/bin a seřadí podle abecedy
+all_files=$(ls -1 $HOME/bin/* 2>/dev/null | sort)
+
+# Najde nejdelší název souboru pro správné zarovnání
+max_length=0
+for file in $all_files; do
+    # Ověří, že je to skutečně spustitelný soubor
+    if [[ -f "$file" && -x "$file" ]]; then
+        command=$(basename "$file")
+        
+        # Vyloučí sám sebe
+        if [[ "$command" != "commands" ]]; then
+            if [[ ${#command} -gt $max_length ]]; then
+                max_length=${#command}
+            fi
+        fi
+    fi
+done
+
+# Projde každý soubor a načte dokumentaci
+for file in $all_files; do
+    # Ověří, že je to skutečně spustitelný soubor
+    if [[ -f "$file" && -x "$file" ]]; then
+        # Získá název příkazu
+        command=$(basename "$file")
+        
+        # Vyloučí sám sebe
+        if [[ "$command" == "commands" ]]; then
+            continue
+        fi
+        
+        # Načte dokumentaci ze souboru
+        help_text=$(grep "^# doc: " "$file" 2>/dev/null | sed 's/^# doc: //')
+        
+        # Pokud nemá dokumentaci, použije placeholder
+        if [[ -z "$help_text" ]]; then
+            help_text="(bez dokumentace)"
+        fi
+        
+        # Vypíše ve formátu: <command>: <help> s padding
+        # <command> bude tučné modré písmo
+        printf "\033[1;34m%-*s\033[0m: %s\n" "$max_length" "$command" "$help_text"
+    fi
+done

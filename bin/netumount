@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Odpojí síťové disky a volitelně i VPN spojení
 
 source $HOME/bin/basic-func.sh
 if [[ $? -eq 0 ]]; then
