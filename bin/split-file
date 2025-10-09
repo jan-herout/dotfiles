@@ -85,29 +85,43 @@ flog "Splitting file '$INPUT_FILE' into $PARTS parts" info
 flog "Output directory: $OUTPUT_DIR" info
 flog "Base filename: $BASE_NAME" info
 
-# Create output files array
-declare -a OUTPUT_FILES
-for ((i=1; i<=PARTS; i++)); do
-    OUTPUT_FILES[$i]="$OUTPUT_DIR/${BASE_NAME}_part${i}"
-    # Clear the output file if it exists
-    > "${OUTPUT_FILES[$i]}"
-done
-
 # Read input file line by line and distribute round-robin
-line_number=1
-while IFS= read -r line; do
-    part_index=$(( ((line_number - 1) % PARTS) + 1 ))
-    echo "$line" >> "${OUTPUT_FILES[$part_index]}"
-    ((line_number++))
-done < "$INPUT_FILE"
+# For better performance with large files, use awk instead of bash loop
+flog "Using awk for efficient processing of large files" info
 
-total_lines=$((line_number - 1))
+awk -v parts="$PARTS" -v base_dir="$OUTPUT_DIR" -v base_name="$BASE_NAME" '
+BEGIN {
+    # Initialize output file paths
+    for (i = 1; i <= parts; i++) {
+        output_files[i] = base_dir "/" base_name "_part" i
+        # Clear output files
+        print "" > output_files[i]
+        close(output_files[i])
+    }
+}
+{
+    # Calculate which part this line belongs to (1-based)
+    part_index = ((NR - 1) % parts) + 1
+    
+    # Write line to appropriate part file
+    print $0 >> output_files[part_index]
+}
+END {
+    # Close all files and print summary
+    for (i = 1; i <= parts; i++) {
+        close(output_files[i])
+    }
+    printf "Processed %d lines\n", NR > "/dev/stderr"
+}' "$INPUT_FILE"
+
+total_lines=$(wc -l < "$INPUT_FILE")
 flog "Processed $total_lines lines" info
 
 # Show summary
 for ((i=1; i<=PARTS; i++)); do
-    part_lines=$(wc -l < "${OUTPUT_FILES[$i]}")
-    flog "Part $i: ${OUTPUT_FILES[$i]} ($part_lines lines)" info
+    part_file="$OUTPUT_DIR/${BASE_NAME}_part${i}"
+    part_lines=$(wc -l < "$part_file")
+    flog "Part $i: $part_file ($part_lines lines)" info
 done
 
 flog "File splitting completed successfully" info
