@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# doc: Zobrazuje přehled všech git skriptů s jejich dokumentací
+
+# Sestaví seznam všech git* souborů v $HOME/bin a seřadí podle abecedy
+git_files=$(ls -1 $HOME/bin/git* 2>/dev/null | sort)
+
+# Najde nejdelší název příkazu pro správné zarovnání
+max_length=0
+for file in $git_files; do
+    command=$(basename "$file" | sed 's/^git-//')
+    if [[ "$command" != "commands" ]]; then
+        if [[ ${#command} -gt $max_length ]]; then
+            max_length=${#command}
+        fi
+    fi
+done
+
+# Projde každý soubor a načte dokumentaci
+for file in $git_files; do
+    # Získá název příkazu (odebere prefix git-)
+    command=$(basename "$file" | sed 's/^git-//')
+    
+    # Vyloučí sám sebe
+    if [[ "$command" == "commands" ]]; then
+        continue
+    fi
+    
+    # Načte dokumentaci ze souboru
+    help_text=$(grep "^# doc: " "$file" 2>/dev/null | sed 's/^# doc: //')
+    
+    # Pokud nemá dokumentaci, použije placeholder
+    if [[ -z "$help_text" ]]; then
+        help_text="(bez dokumentace)"
+    fi
+    
+    # Vypíše ve formátu: git <command>: <help> s padding
+    # <command> bude tučné modré písmo
+    printf "git \033[1;34m%-*s\033[0m: %s\n" "$max_length" "$command" "$help_text"
+done

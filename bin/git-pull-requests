@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Zobrazuje pull requesty z GitHub API ve formátované tabulce
 
 GIT_CONFIG_FILE=.git/config
 if [ ! -f "$GIT_CONFIG_FILE" ]; then

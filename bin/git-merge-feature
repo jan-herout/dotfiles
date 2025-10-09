@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Merge remote branch do aktuální pomocí fzf výběru s non-fast-forward
 
 
 # colors

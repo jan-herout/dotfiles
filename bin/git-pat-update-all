@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Hromadná náhrada GitHub PAT tokenů ve všech .git/config souborech
 
 
 # colors

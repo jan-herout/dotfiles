@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Aktualizuje GitHub PAT token pro aktuální git repozitář
 
 # colors
 ERR="\e[31mERR\e[0m"

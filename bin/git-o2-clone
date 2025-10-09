@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Klonuje GitHub repo s automatickým nastavením O2 proxy a PAT tokenu
 
 # colors
 ERR="\e[31mERR\e[0m"

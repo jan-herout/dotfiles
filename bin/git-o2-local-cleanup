@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Archivuje starší lokální feature branches mergnuté do main/develop
 
 # write me a bash script, that - given the REPO=~/o2/bimain does the following:
 # 

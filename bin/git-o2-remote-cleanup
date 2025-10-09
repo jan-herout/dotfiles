@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Maže staré remote feature branches mergnuté do main/develop
 
 REPO_PATH=$(pwd)
 BRANCHES_TO_DELETE_FILE="branches_to_delete.txt"

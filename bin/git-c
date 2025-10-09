@@ -1,3 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Interaktivní přepínání mezi git větvemi pomocí fzf
 
 git branch | fzf | sed s/\*// | xargs git switch

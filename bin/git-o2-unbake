@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Smaže GitHub repo a přesune lokální kopii do archivu
 
 # colors
 COLOR_ERR="\e[31mERR\e[0m"

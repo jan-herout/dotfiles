@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Updatuje main a develop větve v BIDEV repozitářích
 
 source $HOME/bin/basic-func.sh
 

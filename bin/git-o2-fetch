@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Fetch změn ze všech git repozitářů v o2 a o2-feature adresářích
 
 source $HOME/bin/basic-func.sh
 

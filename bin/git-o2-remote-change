@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# doc: Změní remote origin URL a nastaví O2 proxy pro existující git repo
 
 # colors
 ERR="\e[31mERR\e[0m"
