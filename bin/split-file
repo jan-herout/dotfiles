@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+# doc: Rozděluje soubor na části po řádcích round-robin způsobem
+
+# Source basic functions
+source "$HOME/bin/basic-func.sh" || { echo "Failed to source basic-func.sh"; exit 1; }
+
+# Default values
+PARTS=2
+OUTPUT_DIR="$(pwd)"
+INPUT_FILE=""
+
+# Function to show usage
+show_usage() {
+    echo "Usage: $0 <filename> [--parts <digit>] [--dir <path>]"
+    echo "       $0 <filename> [--parts <digit>] [<output_dir>]"
+    echo ""
+    echo "  <filename>      Input file to split (required)"
+    echo "  --parts <digit> Number of parts to split into (default: 2)"
+    echo "  --dir <path>    Output directory (default: current directory)"
+    echo "  <output_dir>    Output directory as positional argument (alternative to --dir)"
+    echo ""
+    echo "Examples:"
+    echo "  $0 file.txt --parts 3 --dir /tmp"
+    echo "  $0 file.txt --parts 3 /tmp"
+    echo "  $0 file.txt --parts 3 ."
+    exit 1
+}
+
+# Parse command line arguments
+positional_args=()
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --parts)
+            [[ -z "$2" ]] && fdie "--parts requires a value"
+            PARTS="$2"
+            shift 2
+            ;;
+        --dir)
+            [[ -z "$2" ]] && fdie "--dir requires a value"
+            OUTPUT_DIR="$2"
+            shift 2
+            ;;
+        --help|-h)
+            show_usage
+            ;;
+        -*)
+            fdie "Unknown option: $1"
+            ;;
+        *)
+            positional_args+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Process positional arguments
+if [[ ${#positional_args[@]} -eq 0 ]]; then
+    fdie "Input filename is required"
+elif [[ ${#positional_args[@]} -eq 1 ]]; then
+    INPUT_FILE="${positional_args[0]}"
+elif [[ ${#positional_args[@]} -eq 2 ]]; then
+    INPUT_FILE="${positional_args[0]}"
+    # Only set OUTPUT_DIR if it wasn't already set by --dir
+    if [[ "$OUTPUT_DIR" == "$(pwd)" ]]; then
+        OUTPUT_DIR="${positional_args[1]}"
+    else
+        fdie "Cannot specify both --dir and positional output directory"
+    fi
+else
+    fdie "Too many positional arguments. Expected: <filename> [<output_dir>]"
+fi
+
+# Validate parameters
+[[ -z "$INPUT_FILE" ]] && fdie "Input filename is required"
+[[ ! -f "$INPUT_FILE" ]] && fdie "Input file does not exist: $INPUT_FILE"
+[[ ! "$PARTS" =~ ^[0-9]+$ ]] && fdie "Parts must be a positive integer: $PARTS"
+[[ "$PARTS" -lt 1 ]] && fdie "Parts must be at least 1: $PARTS"
+[[ ! -d "$OUTPUT_DIR" ]] && fdie "Output directory does not exist: $OUTPUT_DIR"
+[[ ! -w "$OUTPUT_DIR" ]] && fdie "Output directory is not writable: $OUTPUT_DIR"
+
+# Get base filename without path
+BASE_NAME=$(basename "$INPUT_FILE")
+
+flog "Splitting file '$INPUT_FILE' into $PARTS parts" info
+flog "Output directory: $OUTPUT_DIR" info
+flog "Base filename: $BASE_NAME" info
+
+# Create output files array
+declare -a OUTPUT_FILES
+for ((i=1; i<=PARTS; i++)); do
+    OUTPUT_FILES[$i]="$OUTPUT_DIR/${BASE_NAME}_part${i}"
+    # Clear the output file if it exists
+    > "${OUTPUT_FILES[$i]}"
+done
+
+# Read input file line by line and distribute round-robin
+line_number=1
+while IFS= read -r line; do
+    part_index=$(( ((line_number - 1) % PARTS) + 1 ))
+    echo "$line" >> "${OUTPUT_FILES[$part_index]}"
+    ((line_number++))
+done < "$INPUT_FILE"
+
+total_lines=$((line_number - 1))
+flog "Processed $total_lines lines" info
+
+# Show summary
+for ((i=1; i<=PARTS; i++)); do
+    part_lines=$(wc -l < "${OUTPUT_FILES[$i]}")
+    flog "Part $i: ${OUTPUT_FILES[$i]} ($part_lines lines)" info
+done
+
+flog "File splitting completed successfully" info
