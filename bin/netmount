@@ -33,7 +33,6 @@ var_uid=$(id -u $var_me)
 var_gid=$(id -g $var_me)
 var_pass=$(<$HOME/Vaults/o2/domain-password.txt)
 [[ -z $var_pass ]] && fdie "failed to read domain password from $domain_passfile"
-
 flog "secrets read sucessfully" info
 
 # test napojení na VPN

@@ -1,0 +1,158 @@
+#!/usr/bin/env bash
+# doc: Check for invalid GitHub PAT tokens in all .git/config files
+
+# Source basic functions
+source "$HOME/dotfiles/bin/basic-func.sh"
+
+# Configuration
+PAT_FILE="$HOME/Vaults/o2/github/jan_herout_pat"
+VALID_DIRS=("$HOME/o2" "$HOME/o2-feature")
+
+# Check current working directory
+_check_working_directory() {
+    local current_dir=$(pwd)
+    local is_valid=false
+    
+    for valid_dir in "${VALID_DIRS[@]}"; do
+        if [[ "$current_dir" == "$valid_dir"* ]]; then
+            is_valid=true
+            break
+        fi
+    done
+    
+    if [[ "$is_valid" == false ]]; then
+        flog "Current directory is not under $HOME/o2 or $HOME/o2-feature" "warning"
+        
+        if command -v fzf &>/dev/null; then
+            flog "Using fzf to select directory" "info"
+            local selected_dir=$(printf "%s\n" "${VALID_DIRS[@]}" | fzf --prompt="Select directory to switch to: ")
+            if [[ -n "$selected_dir" && -d "$selected_dir" ]]; then
+                flog "Switching to $selected_dir" "info"
+                cd "$selected_dir" || fdie "Failed to switch to $selected_dir"
+            else
+                fdie "No valid directory selected"
+            fi
+        else
+            echo "Available directories:"
+            for i in "${!VALID_DIRS[@]}"; do
+                echo "$((i+1)). ${VALID_DIRS[i]}"
+            done
+            read -p "Select directory (1-${#VALID_DIRS[@]}): " choice
+            
+            if [[ "$choice" =~ ^[0-9]+$ ]] && [[ "$choice" -ge 1 ]] && [[ "$choice" -le "${#VALID_DIRS[@]}" ]]; then
+                local selected_dir="${VALID_DIRS[$((choice-1))]}"
+                flog "Switching to $selected_dir" "info"
+                cd "$selected_dir" || fdie "Failed to switch to $selected_dir"
+            else
+                fdie "Invalid selection"
+            fi
+        fi
+    else
+        flog "Working directory is valid: $current_dir" "info"
+    fi
+}
+
+# Read PAT file and create dictionary
+_load_pat_dictionary() {
+    if [[ ! -f "$PAT_FILE" ]]; then
+        fdie "PAT file not found: $PAT_FILE"
+    fi
+    
+    flog "Loading PAT dictionary from $PAT_FILE" "info"
+    
+    declare -gA PAT_DICT
+    local count=0
+    
+    while read -r line; do
+        if [[ -n "$line" && ! "$line" =~ ^[[:space:]]*# ]]; then
+            local pat_name=$(echo "$line" | awk '{print $1}')
+            local pat_value=$(echo "$line" | awk '{print $2}')
+            if [[ -n "$pat_name" && -n "$pat_value" ]]; then
+                PAT_DICT["$pat_value"]="$pat_name"
+                ((count++))
+            fi
+        fi
+    done < "$PAT_FILE"
+    
+    flog "Loaded $count PATs from dictionary" "info"
+}
+
+# Extract PAT from git remote URL
+_extract_pat_from_url() {
+    local url="$1"
+    if [[ "$url" =~ https://([^@]+)@.* ]]; then
+        echo "${BASH_REMATCH[1]}"
+    fi
+}
+
+# Check all git repositories
+_check_git_repositories() {
+    local current_dir=$(pwd)
+    declare -A invalid_pats
+    local repo_count=0
+    local checked_count=0
+    
+    flog "Scanning for .git/config files under $current_dir" "info"
+    
+    while IFS= read -r -d '' config_file; do
+        local repo_dir=$(dirname "$(dirname "$config_file")")
+        ((repo_count++))
+        
+        # Extract origin URL from git config
+        local origin_url=$(git -C "$repo_dir" config --get remote.origin.url 2>/dev/null)
+        
+        if [[ -n "$origin_url" ]]; then
+            local pat=$(_extract_pat_from_url "$origin_url")
+            
+            if [[ -n "$pat" ]]; then
+                ((checked_count++))
+                # Check if PAT is in our dictionary
+                if [[ -z "${PAT_DICT[$pat]:-}" ]]; then
+                    invalid_pats["$pat"]+="$repo_dir "
+                    flog "Found invalid PAT in $repo_dir" "warning"
+                else
+                    flog "Valid PAT found in $repo_dir (${PAT_DICT[$pat]})" "info"
+                fi
+            else
+                flog "No PAT found in URL for $repo_dir" "info"
+            fi
+        else
+            flog "No origin URL found for $repo_dir" "info"
+        fi
+    done < <(find "$current_dir" -type f -path "*/.git/config" -print0 2>/dev/null)
+    
+    flog "Scanned $repo_count repositories, checked $checked_count PATs" "info"
+    
+    # Print results
+    if [[ ${#invalid_pats[@]} -eq 0 ]]; then
+        flog "All PATs are valid!" "info"
+        echo -e "\n\e[32m✓ All PATs are valid!\e[0m"
+    else
+        flog "Found ${#invalid_pats[@]} invalid PATs" "error"
+        echo -e "\n\e[31m✗ Invalid PATs found:\e[0m"
+        echo "==================="
+        for pat in "${!invalid_pats[@]}"; do
+            echo -e "\n\e[33mInvalid PAT:\e[0m $pat"
+            echo -e "\e[33mLocations:\e[0m"
+            for location in ${invalid_pats[$pat]}; do
+                echo "  - $location"
+            done
+        done
+    fi
+}
+
+# Main execution
+main() {
+    flog "Starting PAT validation check" "info"
+    
+    _check_working_directory
+    _load_pat_dictionary
+    _check_git_repositories
+    
+    flog "PAT validation check completed" "info"
+}
+
+# Run main function if script is executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
