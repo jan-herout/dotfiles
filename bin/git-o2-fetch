@@ -25,8 +25,17 @@ funcfetch() {
     done
 }
 
+git pum
+
 declare -a dirs=("$HOME/o2" "$HOME/o2-feature")
 for dir in "${dirs[@]}"; do
+    # dvě repa řeším zvlášť
+    if [ "$dir" == "$HOME/o2-feature/BIDEV-MAIN_edw" ]; then
+        continue
+    fi
+    if [ "$dir" == "$HOME/o2-feature/BIDEV-MAIN_bimeta" ]; then
+        continue
+    fi    
     funcfetch $dir
 done
 

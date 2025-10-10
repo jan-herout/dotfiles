@@ -75,3 +75,4 @@ check_repo_clean() {
     fi
     return 0
 }
+
