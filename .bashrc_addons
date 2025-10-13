@@ -303,9 +303,13 @@ alias escape="sed -e 's/\x00/<NUL#00>/g' \
 #perlbrew use perl-5.24.4
 alias pb="perlbrew use perl-5.24.4"
 
+# alsamixer
+alias unmute="amixer -c 1 set Headphone unmute"
+
 # azure
 export ACR_REGISTRY="o2czbidevacr"
 alias ch="code ."
+alias f="source fzfm"
 
 # basic functions
 if [[ -f $HOME/bin/basic-func.sh ]]; then

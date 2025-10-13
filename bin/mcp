@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# doc: spustí Teradata MCP server
+source $HOME/bin/basic-func.sh
+if [[ $? -eq 0 ]]; then
+  flog "Sourcing succeeded"
+else
+  echo "Sourcing failed"
+  exit 1
+fi
+
+var_pass=$(<$HOME/Vaults/o2/o2-x0548834-teradata-pass)
+[[ -z $var_pass ]] && fdie "failed to read domain password from $HOME/Vaults/o2/o2-x0548834-teradata-pass"
+
+var_user=$(<$HOME/Vaults/o2/o2_username.txt)
+[[ -z $var_user ]] && fdie "failed to read domain password from $HOME/Vaults/o2/o2_username.txt"
+
+flog "secrets read sucessfully" info
+
+export DATABASE_URI="teradata://$var_user:$var_pass@edwprod:1025/EP_TGT_V"
+teradata-mcp-server
