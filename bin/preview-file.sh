@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
 file="$1"
-size=$(stat -c%s "$file") # 40_000 is roughly 500 lines....
+lcase_file=${file,,}
 
-if file --mime-encoding "$file" | grep -q "binary"; then
+
+if [[ ! "$lcase_file" =~ *.log ]] && file --mime-encoding "$file" | grep -q "binary"; then
     echo "### BINARY FILE - Cannot preview ###"
     echo "File type: $(file --mime-type -b "$file")"
     echo "Size: $size bytes"

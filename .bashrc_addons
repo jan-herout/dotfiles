@@ -298,7 +298,7 @@ alias unmute="amixer -c 1 set Headphone unmute"
 
 # azure
 export ACR_REGISTRY="o2czbidevacr"
-alias ch="code ."
+alias ch="$HOME/bin/code-here.sh"
 alias f="source fzfm"
 
 # basic functions

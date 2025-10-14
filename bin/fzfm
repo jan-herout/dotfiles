@@ -488,7 +488,8 @@ copy_selection() {
 
 # Check and open file based on mime type
 open_file() {    
-    local file="$1"    
+    local file="$1"
+    local lcase_file=${file,,}
     file=${file#\'}
     file=${file%\'}
 
@@ -511,21 +512,31 @@ open_file() {
         *)
             # Check if file variable is not empty and file exists
             if [[ -n "$file" && -f "$file" ]]; then
+                
+                # log files - always use vim                
+                if [[ "$lcase_file" =~ \.log$ ]]; then
+                    $TEXT_EDITOR "$file"
+                    clear
+                    return
+                fi
+                
                 # Use file command to detect binary files
                 if file --mime-encoding "$file" | grep -q "binary"; then
                     $TEXT_EDITOR "$file"
                     clear
-                else
-                    if [[ -n "$MEDIA_OPENER" ]]; then
-                        $MEDIA_OPENER "$file" &>/dev/null || {
-                            $TEXT_EDITOR "$file"
-                            clear
-                        }
-                    else
+                    return
+                fi
+                if [[ -n "$MEDIA_OPENER" ]]; then
+                    $MEDIA_OPENER "$file" &>/dev/null || {
                         $TEXT_EDITOR "$file"
                         clear
-                    fi
+                    }
+                    return
                 fi
+                
+                # don't know the file type, open with batcat
+                batcat "$file"
+                clear                                
             else
                 echo "Invalid file: '$file'"
                 read -n 1 -s -r -p "Press any key to continue..."
