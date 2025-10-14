@@ -345,8 +345,13 @@ select_bookmark() {
             " \
         | awk '{ print $1 }')
     
+
     if [[ -n "$bookmark_selection" ]] && [[ -d "$bookmark_selection" ]]; then
         cd "$bookmark_selection" || return 1
+    else
+        echo "Invalid bookmark selection: $bookmark_selection"
+        read -n 1 -s -r -p "Press any key to continue..."
+        return 1
     fi
 }
 
