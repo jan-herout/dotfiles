@@ -9,6 +9,115 @@ LIST_ARGS="-1 --icons --color=always"
 TMP_FZFM_ACTION="/tmp/.fzfm_action"
 TMP_FZFM_SELECTION="/tmp/.fzfm_selection"
 
+# Main function
+fzfm() {
+    setup_dependencies
+
+    local list_command="$LIST_COMMAND $LIST_ARGS"
+
+    while true; do
+        selection=$( (echo ".."; eval "$list_command") | fzf \
+            --ansi \
+            --reverse \
+            --height 100% \
+            --info right \
+            --prompt "💻 fzfm 1: $(pwd) " \
+            --pointer ">" \
+            --marker "󰄲" \
+            --border "rounded" \
+            --border-label="💻 book(m)ark | h(i)dden | (c)hange | (f)eatures | (x)save | copy(v) " \
+            --border-label-pos center \
+            --color 'fg:#cdd6f4,fg+:#cdd6f4,bg+:#313244,border:#a5aac3,pointer:#cba6f7,label:#cdd6f4' \
+            --bind "right:accept" \
+            --bind "enter:accept" \
+            --bind "shift-up:preview-up" \
+            --bind "shift-down:preview-down" \
+            --bind "ctrl-r:reload($list_command)" \
+            --bind "alt-m:execute-silent(echo 'bookmark_nav' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-i:execute-silent(echo 'toggle_hidden' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-c:execute-silent(echo 'subdir_nav' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-f:execute-silent(echo 'feature_nav' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-x:execute-silent(echo 'save_selection' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-v:execute-silent(echo 'copy_selection' > $TMP_FZFM_ACTION)+abort" \
+            --preview-window="right:65%" \
+            --preview "
+                file={}
+                if [[ \"\$file\" == \"..\" ]]; then
+                    echo \"💻 Move up to parent directory\"
+                elif [[ -d \"\$file\" ]]; then
+                    echo \"💻 Folder: \$file\"
+                    echo \"\"
+                    $list_command \"\$file\" 2>/dev/null
+                elif [[ -f \"\$file\" ]]; then
+                    echo \"💻 File: \$file\"
+                    echo \"\"
+                    preview-file.sh \$file
+                else                    
+                    # implement_herer
+                fi
+            ")            
+
+        # Check if Alt+m was pressed (bookmark navigation)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "bookmark_nav" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            select_bookmark
+            continue
+        fi
+        
+        # Check if Alt+i was pressed (toggle hidden files)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "toggle_hidden" ]]; then            
+            rm -f $TMP_FZFM_ACTION
+            toggle_hidden_files
+            list_command="$LIST_COMMAND $LIST_ARGS"
+            continue
+        fi
+        
+        # Check if Alt+c was pressed (subdirectory navigation)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "subdir_nav" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            select_subdirectory
+            continue
+        fi
+        
+        # Check if Alt+f was pressed (feature directory navigation)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "feature_nav" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            change_to_feature
+            continue
+        fi
+        
+        # Check if Alt+x was pressed (save selection)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "save_selection" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            save_selection
+            continue
+        fi
+        
+        # Check if Alt+v was pressed (copy selection)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "copy_selection" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            copy_selection
+            continue
+        fi
+        
+        # If selection is empty and not bookmark navigation, exit
+        [[ -z "$selection" ]] && break
+
+        if [[ "$selection" == ".." ]]; then
+            cd .. || break
+        elif [[ -d "$selection" ]]; then
+            cd "$selection" || break
+        elif [[ -f "$selection" ]]; then
+            open_file "$selection"
+        else
+            break
+        fi
+    done
+    
+    # Clean up temporary file
+    rm -f $TMP_FZFM_ACTION
+}
+
 
 # Function to check if a command exists
 command_exists() {
@@ -400,114 +509,6 @@ open_file() {
     esac
 }
 
-# Main function
-fzfm() {
-    setup_dependencies
-
-    local list_command="$LIST_COMMAND $LIST_ARGS"
-
-    while true; do
-        selection=$( (echo ".."; eval "$list_command") | fzf \
-            --ansi \
-            --reverse \
-            --height 100% \
-            --info right \
-            --prompt "💻 $(pwd) " \
-            --pointer ">" \
-            --marker "󰄲" \
-            --border "rounded" \
-            --border-label="💻 book(m)ark | h(i)dden | (c)hange | (f)eatures | (x)save | copy(v) " \
-            --border-label-pos center \
-            --color 'fg:#cdd6f4,fg+:#cdd6f4,bg+:#313244,border:#a5aac3,pointer:#cba6f7,label:#cdd6f4' \
-            --bind "right:accept" \
-            --bind "enter:accept" \
-            --bind "shift-up:preview-up" \
-            --bind "shift-down:preview-down" \
-            --bind "ctrl-r:reload($list_command)" \
-            --bind "alt-m:execute-silent(echo 'bookmark_nav' > $TMP_FZFM_ACTION)+abort" \
-            --bind "alt-i:execute-silent(echo 'toggle_hidden' > $TMP_FZFM_ACTION)+abort" \
-            --bind "alt-c:execute-silent(echo 'subdir_nav' > $TMP_FZFM_ACTION)+abort" \
-            --bind "alt-f:execute-silent(echo 'feature_nav' > $TMP_FZFM_ACTION)+abort" \
-            --bind "alt-x:execute-silent(echo 'save_selection' > $TMP_FZFM_ACTION)+abort" \
-            --bind "alt-v:execute-silent(echo 'copy_selection' > $TMP_FZFM_ACTION)+abort" \
-            --preview-window="right:65%" \
-            --preview "
-                file={}
-                if [[ \"\$file\" == \"..\" ]]; then
-                    echo \"💻 Move up to parent directory\"
-                elif [[ -d \"\$file\" ]]; then
-                    echo \"💻 Folder: \$file\"
-                    echo \"\"
-                    $list_command \"\$file\" 2>/dev/null
-                elif [[ -f \"\$file\" ]]; then
-                    echo \"💻 File: \$file\"
-                    echo \"\"
-                    preview-file.sh \$file
-                else
-                    echo \"Invalid selection: \$file\"
-                fi
-            ")            
-
-        # Check if Alt+m was pressed (bookmark navigation)
-        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "bookmark_nav" ]]; then
-            rm -f $TMP_FZFM_ACTION
-            select_bookmark
-            continue
-        fi
-        
-        # Check if Alt+i was pressed (toggle hidden files)
-        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "toggle_hidden" ]]; then            
-            rm -f $TMP_FZFM_ACTION
-            toggle_hidden_files
-            list_command="$LIST_COMMAND $LIST_ARGS"
-            continue
-        fi
-        
-        # Check if Alt+c was pressed (subdirectory navigation)
-        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "subdir_nav" ]]; then
-            rm -f $TMP_FZFM_ACTION
-            select_subdirectory
-            continue
-        fi
-        
-        # Check if Alt+f was pressed (feature directory navigation)
-        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "feature_nav" ]]; then
-            rm -f $TMP_FZFM_ACTION
-            change_to_feature
-            continue
-        fi
-        
-        # Check if Alt+x was pressed (save selection)
-        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "save_selection" ]]; then
-            rm -f $TMP_FZFM_ACTION
-            save_selection
-            continue
-        fi
-        
-        # Check if Alt+v was pressed (copy selection)
-        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "copy_selection" ]]; then
-            rm -f $TMP_FZFM_ACTION
-            copy_selection
-            continue
-        fi
-        
-        # If selection is empty and not bookmark navigation, exit
-        [[ -z "$selection" ]] && break
-
-        if [[ "$selection" == ".." ]]; then
-            cd .. || break
-        elif [[ -d "$selection" ]]; then
-            cd "$selection" || break
-        elif [[ -f "$selection" ]]; then
-            open_file "$selection"
-        else
-            break
-        fi
-    done
-    
-    # Clean up temporary file
-    rm -f $TMP_FZFM_ACTION
-}
 
 # Allow configuration through environment variables
 [[ -n "$FZFM_MEDIA_OPENER" ]] && MEDIA_OPENER="$FZFM_MEDIA_OPENER"
