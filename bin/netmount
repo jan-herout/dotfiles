@@ -47,7 +47,7 @@ if [[ -z "$is_on_vpn" ]]; then
     # CISCO # fi
 
 	flog "connecting to VPN" warning
-	nmcli connection up extvpn.o2.cz || fdie "failed to connect"
+	nmcli connection up extvpn.o2.cz 1>/dev/null 2>&1 || fdie "failed to connect"
     # CISCO # # lepší přes GUI $vpn_client connect extvpn.o2.cz || fdie "failed to connect"
     # CISCO # $vpn_client_ui >/dev/null 2>&1 & 
     
