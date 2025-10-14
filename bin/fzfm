@@ -1,0 +1,520 @@
+#!/usr/bin/env bash
+
+# Configuration variables with defaults
+MEDIA_OPENER="wslview"
+TEXT_EDITOR="nvim"
+LIST_COMMAND="eza"
+BOOKMARKS_FILE=~/bookmarks
+LIST_ARGS="-1 --icons --color=always"
+TMP_FZFM_ACTION="/tmp/.fzfm_action"
+TMP_FZFM_SELECTION="/tmp/.fzfm_selection"
+
+
+# Function to check if a command exists
+command_exists() {
+    command -v "$1" &> /dev/null
+}
+
+# Check and set up dependencies
+setup_dependencies() {
+    # Check for fzf as it's required
+    if ! command_exists "fzf"; then
+        echo "Error: fzf is required but not installed"
+        exit 1
+    fi
+
+    # Check and set list command (eza or ls)
+    if ! command_exists "$LIST_COMMAND"; then
+        echo "Warning: $LIST_COMMAND not found, falling back to ls"
+        LIST_COMMAND="ls"
+        LIST_ARGS="-1 --color=always"  # ls arguments
+    else
+        LIST_ARGS="-1 --icons --color=always"  # eza arguments
+    fi
+
+    
+    # Check and set text editor
+    if ! command_exists "$TEXT_EDITOR"; then
+        echo "Warning: $TEXT_EDITOR not found, falling back to nano"
+        command_exists "nano" && TEXT_EDITOR="nano" || {
+            echo "Error: No suitable text editor found"
+            exit 1
+        }
+    fi
+
+    # Check and set media opener
+    if ! command_exists "$MEDIA_OPENER"; then
+        if command_exists "xdg-open"; then
+            # echo "Warning: $MEDIA_OPENER not found, falling back to xdg-open"
+            MEDIA_OPENER="xdg-open"
+        elif command_exists "open"; then
+            echo "Warning: $MEDIA_OPENER not found, falling back to open"
+            MEDIA_OPENER="open"
+        else
+            echo "Warning: No suitable media opener found, multimedia files won't be opened"
+            MEDIA_OPENER=""
+        fi
+    fi
+}
+
+# Function to toggle hidden files visibility
+toggle_hidden_files() {
+    # Check if currently showing hidden files (contains -a or -A flag)
+    if [[ "$LIST_ARGS" =~ -[0-9]*a ]] || [[ "$LIST_ARGS" =~ -[0-9]*A ]]; then
+        # Currently showing hidden files, switch to hide them
+        if [[ "$LIST_COMMAND" == "eza" ]]; then
+            LIST_ARGS="-1 --icons --color=always"
+        else
+            LIST_ARGS="-1 --color=always"
+        fi
+    else
+        # Currently hiding hidden files, switch to show them
+        if [[ "$LIST_COMMAND" == "eza" ]]; then
+            LIST_ARGS="-1a --icons --color=always"
+        else
+            LIST_ARGS="-1A --color=always"
+        fi
+    fi
+}
+
+# Function to change to a directory under $HOME/O2-feature
+change_to_feature() {
+    local feature_dir="$HOME/o2-feature"
+    
+    # Check if the O2-feature directory exists
+    if [[ ! -d "$feature_dir" ]]; then
+        echo "O2-feature directory not found: $feature_dir"
+        read -n 1 -s -r -p "Press any key to continue..."
+        return 1
+    fi
+    
+    local feature_selection
+    
+    # Find all directories under $HOME/O2-feature
+    feature_selection=$(find "$feature_dir" -maxdepth 1 -type d | \
+        sed "s|^$feature_dir/||"  | \
+        sed "s|^$feature_dir$|.|" | \
+        grep -vE "^\.$" | sort | fzf \
+        --ansi \
+        --reverse \
+        --height 50% \
+        --info right \
+        --prompt "🧨 Select Feature: " \
+        --pointer ">" \
+        --marker "🧨" \
+        --border "rounded" \
+        --border-label="🧨 O2-feature directories " \
+        --border-label-pos center \
+        --color 'fg:#cdd6f4,fg+:#cdd6f4,bg+:#313244,border:#a5aac3,pointer:#cba6f7,label:#cdd6f4' \
+        --preview "
+                file=$feature_dir/{}
+                if [[ \"\$file\" == \"..\" ]]; then
+                    echo \"💻 Move up to parent directory\"
+                elif [[ -d \"\$file\" ]]; then
+                    echo \"💻 Folder: \$file\"
+                    echo \"\"
+                    $list_command \"\$file\" 2>/dev/null
+                elif [[ -f \"\$file\" ]]; then
+                    echo \"💻 File: \$file\"
+                    echo \"\"
+                    preview-file.sh \$file
+                else
+                    echo \"Invalid selection: \$file\"
+                fi
+            " \
+    )
+    
+    if [[ -n "$feature_selection" ]]; then
+        if [[ "$feature_selection" == "." ]]; then
+            cd "$feature_dir" || return 1
+        else
+            cd "$feature_dir/$feature_selection" || return 1
+        fi
+    fi
+}
+
+# Function to find and navigate to subdirectories (maxdepth 2)
+select_subdirectory() {
+    local subdir_selection
+    
+    # Find all directories with maxdepth 2, excluding the current directory
+    subdir_selection=$(find . -maxdepth 2 -type d -not -path "." | sed 's|^\./||' | sort | fzf \
+        --ansi \
+        --reverse \
+        --height 50% \
+        --info right \
+        --prompt "🧩 Select Directory: " \
+        --pointer ">" \
+        --marker "🧩" \
+        --border "rounded" \
+        --border-label=" 🧩 Subdirectories (depth ≤ 2) " \
+        --border-label-pos center \
+        --color 'fg:#cdd6f4,fg+:#cdd6f4,bg+:#313244,border:#a5aac3,pointer:#cba6f7,label:#cdd6f4' \
+        --preview "
+                file={}
+                if [[ \"\$file\" == \"..\" ]]; then
+                    echo \"💻 Move up to parent directory\"
+                elif [[ -d \"\$file\" ]]; then
+                    echo \"💻 Folder: \$file\"
+                    echo \"\"
+                    $list_command \"\$file\" 2>/dev/null
+                elif [[ -f \"\$file\" ]]; then
+                    echo \"💻 File: \$file\"
+                    echo \"\"
+                    preview-file.sh \$file
+                else
+                    echo \"Invalid selection: \$file\"
+                fi
+            " \
+        )
+    
+    if [[ -n "$subdir_selection" ]] && [[ -d "$subdir_selection" ]]; then
+        cd "$subdir_selection" || return 1
+    fi
+}
+
+# Function to select and navigate to bookmarked directory
+select_bookmark() {
+    if [[ ! -f "$BOOKMARKS_FILE" ]]; then
+        echo "Bookmarks file not found: $BOOKMARKS_FILE"
+        read -n 1 -s -r -p "Press any key to continue..."
+        return 1
+    fi
+    
+    local bookmark_selection
+    bookmark_selection=$(cat "$BOOKMARKS_FILE" | fzf \
+        --ansi \
+        --reverse \
+        --height 50% \
+        --info right \
+        --prompt "👨🏻‍💻 Select Bookmark: " \
+        --pointer ">" \
+        --marker "👨🏻‍💻" \
+        --border "rounded" \
+        --border-label=" 👨🏻‍💻 Bookmarks " \
+        --border-label-pos center \
+        --color 'fg:#cdd6f4,fg+:#cdd6f4,bg+:#313244,border:#a5aac3,pointer:#cba6f7,label:#cdd6f4' \
+        --preview "
+                file={}                
+                file=\$(echo \$file | cut -d' ' -f1 )
+                if [[ \"\$file\" == \"..\" ]]; then
+                    echo \"💻 Move up to parent directory\"
+                elif [[ -d \"\$file\" ]]; then
+                    echo \"💻 Folder: \$file\"
+                    echo \"\"
+                    $list_command \"\$file\" 2>/dev/null
+                elif [[ -f \"\$file\" ]]; then
+                    echo \"💻 File: \$file\"
+                    echo \"\"
+                    preview-file.sh \$file
+                else
+                    echo \"Invalid selection: +\$file+\"
+                fi
+            " \
+        | awk '{ print $1 }')
+    
+    if [[ -n "$bookmark_selection" ]] && [[ -d "$bookmark_selection" ]]; then
+        cd "$bookmark_selection" || return 1
+    fi
+}
+
+# Function to save current selection to file
+save_selection() {
+    local current_dir="$(pwd)"
+    local selection_file="$TMP_FZFM_SELECTION"
+    
+    # Get current directory contents for selection
+    local items
+    items=$( (echo ".."; eval "$LIST_COMMAND $LIST_ARGS") | fzf \
+        --ansi \
+        --reverse \
+        --height 50% \
+        --info right \
+        --prompt "📌 Select items to save: " \
+        --pointer ">" \
+        --marker "📌" \
+        --border "rounded" \
+        --border-label=" 📌 Multi-select with Tab, Enter to confirm " \
+        --border-label-pos center \
+        --color 'fg:#cdd6f4,fg+:#cdd6f4,bg+:#313244,border:#a5aac3,pointer:#cba6f7,label:#cdd6f4' \
+        --multi \
+        --bind "tab:toggle" \
+        )
+    
+    if [[ -n "$items" ]]; then
+        # Clear the selection file
+        > "$selection_file"
+        
+        # Process each selected item
+        while IFS= read -r item; do
+            if [[ "$item" == ".." ]]; then
+                # Add parent directory path
+                echo "$(dirname "$current_dir")" >> "$selection_file"
+            elif [[ -e "$item" ]]; then
+                # Add full path of existing files/directories
+                echo "$current_dir/$item" >> "$selection_file"
+            fi
+        done <<< "$items"
+        
+        echo "Selection saved to $selection_file"
+        echo "Selected $(wc -l < "$selection_file") item(s)"
+        read -n 1 -s -r -p "Press any key to continue..."
+    fi
+}
+
+# Function to copy selected items from file to current directory
+copy_selection() {
+    local selection_file="$TMP_FZFM_SELECTION"
+    local current_dir="$(pwd)"
+    
+    # Check if selection file exists
+    if [[ ! -f "$selection_file" ]]; then
+        echo "Selection file not found: $selection_file"
+        echo "Use Alt+x to save selections first."
+        read -n 1 -s -r -p "Press any key to continue..."
+        return 1
+    fi
+    
+    # Check if selection file is empty
+    if [[ ! -s "$selection_file" ]]; then
+        echo "Selection file is empty: $selection_file"
+        echo "Use Alt+x to save selections first."
+        read -n 1 -s -r -p "Press any key to continue..."
+        return 1
+    fi
+    
+    echo "Copy operations to prepare:"
+    echo "Target directory: $current_dir"
+    echo ""
+    
+    local copy_commands=()
+    local item_count=0
+    
+    # Read each line and prepare copy commands
+    while IFS= read -r source_path; do
+        if [[ -n "$source_path" && -e "$source_path" ]]; then
+            local basename_item=$(basename "$source_path")
+            local target_path="$current_dir/$basename_item"
+            
+            if [[ -d "$source_path" ]]; then
+                copy_commands+=("cp -rf \"$source_path\" \"$current_dir/\"")
+                echo "[$((++item_count))] Copy directory: $source_path -> $target_path"
+            elif [[ -f "$source_path" ]]; then
+                copy_commands+=("cp -f \"$source_path\" \"$current_dir/\"")
+                echo "[$((++item_count))] Copy file: $source_path -> $target_path"
+            fi
+            
+            # Warn if target already exists
+            if [[ -e "$target_path" ]]; then
+                echo "    ⚠️  Warning: $basename_item already exists and will be overwritten"
+            fi
+        else
+            echo "⚠️  Skipping invalid/missing path: $source_path"
+        fi
+    done < "$selection_file"
+    
+    if [[ ${#copy_commands[@]} -eq 0 ]]; then
+        echo ""
+        echo "No valid items found to copy."
+        read -n 1 -s -r -p "Press any key to continue..."
+        return 1
+    fi
+    
+    echo ""
+    echo "Ready to copy $item_count item(s) with recursive and force overwrite."
+    echo ""
+    read -r -p "Do you want to proceed? [y/N]: " confirm
+    
+    case "$confirm" in
+        [yY]|[yY][eE][sS])
+            echo ""
+            echo "Executing copy operations..."
+            local success_count=0
+            local failed_count=0
+            
+            for cmd in "${copy_commands[@]}"; do
+                echo "Running: $cmd"
+                if eval "$cmd"; then
+                    ((success_count++))
+                else
+                    ((failed_count++))
+                    echo "❌ Failed: $cmd"
+                fi
+            done
+            
+            echo ""
+            echo "Copy completed: $success_count successful, $failed_count failed"
+            ;;
+        *)
+            echo ""
+            echo "Copy operation cancelled."
+            ;;
+    esac
+    
+    read -n 1 -s -r -p "Press any key to continue..."
+}
+
+# Check and open file based on mime type
+open_file() {
+    local file="$1"
+    local mime_type=$(file --mime-type -b "$file")
+   
+    case "$mime_type" in
+        text/*|application/json|application/xml|application/javascript|application/x-shellscript)
+            $TEXT_EDITOR "$file"
+            clear
+            ;;
+        image/*|video/*|audio/*|application/pdf)
+            if [[ -n "$MEDIA_OPENER" ]]; then
+                $MEDIA_OPENER "$file" &>/dev/null &
+            else
+                echo "No media opener available. Cannot open $file"
+                read -n 1 -s -r -p "Press any key to continue..."
+                clear
+            fi
+            ;;
+        *)
+            # Check if file variable is not empty and file exists
+            if [[ -n "$file" && -f "$file" ]]; then
+                # Use file command to detect binary files
+                if file --mime-encoding "$file" | grep -q "binary"; then
+                    $TEXT_EDITOR "$file"
+                    clear
+                else
+                    if [[ -n "$MEDIA_OPENER" ]]; then
+                        $MEDIA_OPENER "$file" &>/dev/null || {
+                            $TEXT_EDITOR "$file"
+                            clear
+                        }
+                    else
+                        $TEXT_EDITOR "$file"
+                        clear
+                    fi
+                fi
+            else
+                echo "Invalid file: '$file'"
+                read -n 1 -s -r -p "Press any key to continue..."
+                clear
+            fi
+            ;;
+    esac
+}
+
+# Main function
+fzfm() {
+    setup_dependencies
+
+    local list_command="$LIST_COMMAND $LIST_ARGS"
+
+    while true; do
+        selection=$( (echo ".."; eval "$list_command") | fzf \
+            --ansi \
+            --reverse \
+            --height 100% \
+            --info right \
+            --prompt "💻 $(pwd) " \
+            --pointer ">" \
+            --marker "󰄲" \
+            --border "rounded" \
+            --border-label="💻 book(m)ark | h(i)dden | (c)hange | (f)eatures | (x)save | copy(v) " \
+            --border-label-pos center \
+            --color 'fg:#cdd6f4,fg+:#cdd6f4,bg+:#313244,border:#a5aac3,pointer:#cba6f7,label:#cdd6f4' \
+            --bind "right:accept" \
+            --bind "enter:accept" \
+            --bind "shift-up:preview-up" \
+            --bind "shift-down:preview-down" \
+            --bind "ctrl-r:reload($list_command)" \
+            --bind "alt-m:execute-silent(echo 'bookmark_nav' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-i:execute-silent(echo 'toggle_hidden' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-c:execute-silent(echo 'subdir_nav' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-f:execute-silent(echo 'feature_nav' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-x:execute-silent(echo 'save_selection' > $TMP_FZFM_ACTION)+abort" \
+            --bind "alt-v:execute-silent(echo 'copy_selection' > $TMP_FZFM_ACTION)+abort" \
+            --preview-window="right:65%" \
+            --preview "
+                file={}
+                if [[ \"\$file\" == \"..\" ]]; then
+                    echo \"💻 Move up to parent directory\"
+                elif [[ -d \"\$file\" ]]; then
+                    echo \"💻 Folder: \$file\"
+                    echo \"\"
+                    $list_command \"\$file\" 2>/dev/null
+                elif [[ -f \"\$file\" ]]; then
+                    echo \"💻 File: \$file\"
+                    echo \"\"
+                    preview-file.sh \$file
+                else
+                    echo \"Invalid selection: \$file\"
+                fi
+            ")            
+
+        # Check if Alt+m was pressed (bookmark navigation)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "bookmark_nav" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            select_bookmark
+            continue
+        fi
+        
+        # Check if Alt+i was pressed (toggle hidden files)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "toggle_hidden" ]]; then            
+            rm -f $TMP_FZFM_ACTION
+            toggle_hidden_files
+            list_command="$LIST_COMMAND $LIST_ARGS"
+            continue
+        fi
+        
+        # Check if Alt+c was pressed (subdirectory navigation)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "subdir_nav" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            select_subdirectory
+            continue
+        fi
+        
+        # Check if Alt+f was pressed (feature directory navigation)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "feature_nav" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            change_to_feature
+            continue
+        fi
+        
+        # Check if Alt+x was pressed (save selection)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "save_selection" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            save_selection
+            continue
+        fi
+        
+        # Check if Alt+v was pressed (copy selection)
+        if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "copy_selection" ]]; then
+            rm -f $TMP_FZFM_ACTION
+            copy_selection
+            continue
+        fi
+        
+        # If selection is empty and not bookmark navigation, exit
+        [[ -z "$selection" ]] && break
+
+        if [[ "$selection" == ".." ]]; then
+            cd .. || break
+        elif [[ -d "$selection" ]]; then
+            cd "$selection" || break
+        elif [[ -f "$selection" ]]; then
+            open_file "$selection"
+        else
+            break
+        fi
+    done
+    
+    # Clean up temporary file
+    rm -f $TMP_FZFM_ACTION
+}
+
+# Allow configuration through environment variables
+[[ -n "$FZFM_MEDIA_OPENER" ]] && MEDIA_OPENER="$FZFM_MEDIA_OPENER"
+[[ -n "$FZFM_TEXT_EDITOR" ]] && TEXT_EDITOR="$FZFM_TEXT_EDITOR"
+[[ -n "$FZFM_LIST_COMMAND" ]] && LIST_COMMAND="$FZFM_LIST_COMMAND"
+
+clear
+fzfm
+clear
+pwd
