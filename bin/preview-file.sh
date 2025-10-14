@@ -10,7 +10,7 @@ if [[ ! "$lcase_file" =~ *.log ]] && file --mime-encoding "$file" | grep -q "bin
     echo "Size: $size bytes"
     echo "Use a binary viewer or appropriate application to open this file."
 else
-    if [ "$size" -le 20000 ]; then 
+    if [[ "$size" -le 40000 ]]; then 
         batcat "$file" --style=numbers --color=always 2>/dev/null || cat "$file"
     else 
         echo "### PREVIEW IS TRUNCATED - first 60 and last 60 lines ###"
