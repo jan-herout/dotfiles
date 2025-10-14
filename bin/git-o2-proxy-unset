@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# doc: Nastaví O2 proxy pro všechny git repozitáře v definovaných adresářích
+
+# colors
+ERR="\e[31mERR\e[0m"
+TRY="\033[33mTRY\033[0m"
+OK="\033[34mOK\033[0m "
+
+# read the address of the proxy server
+remove_proxy_settings() {
+    local repo_dir="$1"
+    local git_config_file="$repo_dir/.git/config"
+    if [ ! -d "$repo_dir/.git" ]; then
+        echo -e "$ERR: Directory is not a git repo: $repo_dir"
+        return 1
+    fi
+    pushd "$repo_dir" > /dev/null || { echo -e "$ERR: Failed to change directory to $repo_dir"; return 1; }
+    git config --local --unset remote.origin.proxy  || { echo -e "$ERR: Failed to set proxy in $git_config_file"; return 1; }
+    echo -e "$OK: $repo_dir"
+    popd > /dev/null
+}
+
+
+# find all git repos in current directory, and set the proxy
+directories=("$HOME/o2" "$HOME/o2-feature" "$HOME/o2-repoconfig" "$HOME")
+
+
+for parent_dir in "${directories[@]}"; do
+    if [ ! -d "$parent_dir" ]; then
+        echo -e "$ERR: Directory does not exist: $parent_dir"
+        continue
+    fi
+
+    for dir in "$parent_dir"/*; do
+        if [ -d "$dir/.git" ]; then
+            remove_proxy_settings "$dir"
+        else
+            echo -e "$OK: Skipping non-git directory: $dir"
+        fi
+    done
+done

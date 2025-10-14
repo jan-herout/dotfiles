@@ -37,6 +37,7 @@ flog "secrets read sucessfully" info
 
 # test napojení na VPN
 is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
+
 # CISCO # is_on_vpn=$(ps aux | grep vpnui | grep -v grep | awk ' { print $2 }')
 if [[ -z "$is_on_vpn" ]]; then
     # CISCO # if [[ ! -d "$HOME/.cisco" ]]; then
@@ -70,6 +71,8 @@ else
     flog "VPN is already connected" info
 fi
 
+$HOME/bin/set-proxy-on
+
 
 # proveď mount
 #if [ "${__MOUNT_DRIVES__^^}" = "Y" ]; then 
@@ -100,7 +103,9 @@ if [[ "$what_to_do" =~ "mount" ]]; then
     done
 fi
 
+
 # odjeď git fetch
 if [[ "$what_to_do" =~ "git" ]]; then
     $HOME/bin/git-o2-fetch
 fi
+

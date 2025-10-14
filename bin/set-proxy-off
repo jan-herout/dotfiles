@@ -1,2 +1,8 @@
+source "$HOME/bin/basic-func.sh" 
+
 export http_proxy=""
 export https_proxy=""
+
+# set git proxy
+flog "git config --global --unset http.proxy" info
+git config --global --unset http.proxy || flog "Failed to set http_proxy: $http_proxy" error

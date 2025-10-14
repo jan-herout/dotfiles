@@ -1,14 +1,16 @@
 #!/bin/bash
+source "$HOME/bin/basic-func.sh" 
+
 O2_USERNAME=""
 O2_PASSWORD=""
 
 if ! test -f ~/Vaults/o2/o2_username.txt; then
-  echo "First, connect to o2 vault."
+  fdie "First, connect to o2 vault." error
 fi
 
 
 if ! test -f ~/Vaults/o2/o2_password.txt; then
-  echo "First, connect to o2 vault."
+  fdie "First, connect to o2 vault."
 fi
 
 
@@ -17,10 +19,15 @@ O2_USERNAME=`cat ~/Vaults/o2/o2_username.txt`
 O2_PASSWORD=`cat ~/Vaults/o2/o2_password.txt`
 O2_PROXY="internet-proxy-s1.cz.o2:8080"
 
-echo "Setting proxy for $O2_USERNAME"
+flog "Setting proxy for $O2_USERNAME" info
 export http_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
+fake_proxy="http://$O2_USERNAME:**********@$O2_PROXY"
 export https_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
 export HTTP_PROXY=$http_proxy
 export HTTPS_PROXY=$https_proxy
 export no_proxy="localhost,127.0.0.1,::1"
 export NO_PROXY="localhost,127.0.0.1,::1"
+
+# set git proxy
+flog "git config --global http.proxy $fake_proxy" info
+git config --global http.proxy "$http_proxy" || flog "Failed to set http_proxy: $http_proxy" error

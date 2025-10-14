@@ -43,6 +43,8 @@ for mount_point in "$mount_points_def_dir"/*; do
     fi
 done
 
+$HOME/bin/set-proxy-off
+
 if [[ "$CHOICE" =~ "umount a disconnect vpn" ]]; then    
     # CISCO # is_on_vpn=$(ps aux | grep vpnui | grep -v grep | awk ' { print $2 }')
     # CISCO # if [[ ! -z "$is_on_vpn" ]]; then
