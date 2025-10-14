@@ -29,10 +29,16 @@ export no_proxy="localhost,127.0.0.1,::1"
 export NO_PROXY="localhost,127.0.0.1,::1"
 
 # set git proxy
-flog "git config --global http.proxy $fake_proxy" info
+
 # git config --global http.proxy "$http_proxy" || flog "Failed to set http_proxy: $http_proxy" error
 
-[[ -f $HOME/.gitproxy ]] && rm $HOME/.gitproxy
-echo "[http]
-	proxy = $http_proxy
-" >$HOME/.gitproxy
+
+cur_proxy=""
+[[ -f $HOME/.gitproxy ]] && cur_proxy=$(cat $HOME/.gitproxy | grep proxy | awk '{ print $3 }') 
+
+if [[ -z "$cur_proxy" ]] ; then
+  rm $HOME/.gitproxy
+  echo "[http]
+	    proxy = $http_proxy" >$HOME/.gitproxy
+    flog "git config --global http.proxy $fake_proxy" info
+fi
