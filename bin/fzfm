@@ -41,7 +41,10 @@ fzfm() {
             --bind "alt-v:execute-silent(echo 'copy_selection' > $TMP_FZFM_ACTION)+abort" \
             --preview-window="right:65%" \
             --preview "
-                file={}
+                file={}                
+                file=\${file#\'}
+                file=\${file%\'}
+
                 if [[ \"\$file\" == \"..\" ]]; then
                     echo \"💻 Move up to parent directory\"
                 elif [[ -d \"\$file\" ]]; then
@@ -51,9 +54,24 @@ fzfm() {
                 elif [[ -f \"\$file\" ]]; then
                     echo \"💻 File: \$file\"
                     echo \"\"
-                    preview-file.sh \$file
+                    preview-file.sh \"\$file\"
                 else                    
-                    # implement_herer
+                    # Handle symlinks detected by eza output format: symlink_name -> target
+                    if [[ \"\$file\" =~ ^(.+)' -> '(.+)\$ ]]; then
+                        symlink_name=\"\${BASH_REMATCH[1]}\"
+                        symlink_target=\"\${BASH_REMATCH[2]}\"
+                        echo \"💻 Symlink: \$symlink_name -> \$symlink_target\"
+                        echo \"\"
+                        if [[ -d \"\$symlink_name\" ]]; then
+                            # Symlink points to a directory, use list command
+                            $list_command \"\$symlink_name\" 2>/dev/null
+                        else
+                            # Symlink points to a file, use preview command
+                            preview-file.sh \"\$symlink_name\"
+                        fi
+                    else
+                        echo \"💻 Unknown item: \$file\"
+                    fi
                 fi
             ")            
 
