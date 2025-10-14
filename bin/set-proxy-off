@@ -5,4 +5,7 @@ export https_proxy=""
 
 # set git proxy
 flog "git config --global --unset http.proxy" info
-git config --global --unset http.proxy || flog "Failed to set http_proxy: $http_proxy" error
+
+[[ -f $HOME/.gitproxy ]] && rm $HOME/.gitproxy
+echo "[http]
+    proxy = " >$HOME/.gitproxy || flog "Failed to set http_proxy: $http_proxy" error

@@ -59,6 +59,9 @@
 	autocrlf = input
     pager = delta
 
+[include]
+    path = ~/.gitproxy
+
 [includeIf "gitdir:~/o2/"]
     path = ~/.config/git/.gitconfig-o2
 
@@ -88,3 +91,4 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+

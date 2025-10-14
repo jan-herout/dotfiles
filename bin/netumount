@@ -43,7 +43,7 @@ for mount_point in "$mount_points_def_dir"/*; do
     fi
 done
 
-$HOME/bin/set-proxy-off
+
 
 if [[ "$CHOICE" =~ "umount a disconnect vpn" ]]; then    
     # CISCO # is_on_vpn=$(ps aux | grep vpnui | grep -v grep | awk ' { print $2 }')
@@ -60,9 +60,10 @@ if [[ "$CHOICE" =~ "umount a disconnect vpn" ]]; then
     # CISCO # fi    
     IS_O2_CONUP=$(nmcli connection show --active | grep extvpn.o2.cz)
     if [ -z "$IS_O2_CONUP" ]; then
-        flog "disconnected" info
+        flog "disconnected" info        
     else
         nmcli connection down extvpn.o2.cz
+        $HOME/bin/set-proxy-off
     fi
 fi
 
