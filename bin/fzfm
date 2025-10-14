@@ -75,6 +75,11 @@ fzfm() {
                 fi
             ")            
 
+        # selection
+        [[ "$selection" =~ ^(.+)' -> '(.+)\$ ]] && selection=${BASH_REMATCH[1]}
+        selection=${selection#\'}
+        selection=${selection%\'}
+        
         # Check if Alt+m was pressed (bookmark navigation)
         if [[ -z "$selection" ]] && [[ -f "$TMP_FZFM_ACTION" ]] && [[ "$(cat $TMP_FZFM_ACTION)" == "bookmark_nav" ]]; then
             rm -f $TMP_FZFM_ACTION
@@ -482,16 +487,19 @@ copy_selection() {
 }
 
 # Check and open file based on mime type
-open_file() {
-    local file="$1"
-    local mime_type=$(file --mime-type -b "$file")
+open_file() {    
+    local file="$1"    
+    file=${file#\'}
+    file=${file%\'}
+
+    local mime_type=$(file --mime-type -b "$file")    
    
     case "$mime_type" in
         text/*|application/json|application/xml|application/javascript|application/x-shellscript)
             $TEXT_EDITOR "$file"
             clear
             ;;
-        image/*|video/*|audio/*|application/pdf)
+        image/*|video/*|audio/*|application/pdf)            
             if [[ -n "$MEDIA_OPENER" ]]; then
                 $MEDIA_OPENER "$file" &>/dev/null &
             else
