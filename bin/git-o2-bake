@@ -90,7 +90,6 @@ remote_url="https://$github_pat@github.com/jan-herout_o2cz/$repo_name.git"
 # add remote
 cd $FEATURE_PATH/$new_dir || bail_out "Failed to change directory to $HOME/o2-feature/$new_dir"
 git remote add origin $remote_url || bail_out "Failed to add remote origin for $remote_url"
-git config --local remote.origin.proxy $http_proxy || { echo -e "$ERR: Failed to set proxy in $git_config_file"; return 1; }
 echo -e "$COLOR_OK: remote origin added successfully"
 
 # push

@@ -134,39 +134,10 @@ echo -e "$OK: github address provided: $GITHUB_ADDRESS"
 # we need it to be in the form https://$GITHUB_TOKEN@github.com/jan-herout_o2cz/test-repo.git
 GITHUB_ADDRESS=${GITHUB_ADDRESS/https:\/\//https:\/\/$GITHUB_TOKEN@}
 
-# read the address of the proxy server
-O2_USERNAME=""
-O2_PASSWORD=""
-O2_USERNAME_FILE=$HOME/Vaults/o2/o2_username.txt
-O2_PASSWORD_FILE=$HOME/Vaults/o2/o2_password.txt
-
-if ! test -f $O2_USERNAME_FILE; then
-  echo -e "$ERR: File does not exist: $O2_USERNAME_FILE"
-  exit 1
-fi
-
-if ! test -f $O2_PASSWORD_FILE; then
-  echo -e "$ERR: File does not exist: $O2_USERNAME_FILE"
-  exit 1
-fi
-
-echo -e "$TRY: seting proxy, reading file: $O2_USERNAME_FILE"
-echo -e "$TRY: seting proxy, reading file: $O2_PASSWORD_FILE"
-
-O2_USERNAME=$(cat $O2_USERNAME_FILE)
-O2_PASSWORD=$(cat $O2_PASSWORD_FILE)
-O2_PROXY="internet-proxy-s1.cz.o2:8080"
-
-echo -e "$OK: Setting proxy to: http://$O2_USERNAME:************@$O2_PROXY"
-http_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
-
-
 git remote add origin $GITHUB_ADDRESS
 if [ $? -ne 0 ]; then
     echo -e "$ERR: failed to add a new origin for the repo: $GITHUB_ADDRESS"        
     exit 1
 fi
-
-git config --local remote.origin.proxy $http_proxy
 
 cat .git/config

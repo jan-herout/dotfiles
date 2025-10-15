@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# doc: Klonuje GitHub repo s automatickým nastavením O2 proxy a PAT tokenu
+# doc: Klonuje GitHub repo s automatickým nastavením PAT tokenu
 
 # colors
 ERR="\e[31mERR\e[0m"
@@ -121,15 +121,6 @@ if ! test -f $O2_PASSWORD_FILE; then
   exit 1
 fi
 
-echo -e "$TRY: seting proxy, reading file: $O2_USERNAME_FILE"
-echo -e "$TRY: seting proxy, reading file: $O2_PASSWORD_FILE"
-
-O2_USERNAME=$(cat $O2_USERNAME_FILE)
-O2_PASSWORD=$(cat $O2_PASSWORD_FILE)
-O2_PROXY="internet-proxy-s1.cz.o2:8080"
-
-echo -e "$OK: Setting proxy to: http://$O2_USERNAME:************@$O2_PROXY"
-http_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
 
 # clone the repo
 echo -e "$TRY: cloning the repo"
@@ -142,11 +133,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo -e "$OK: cloned the repo, setting the proxy in the repo"
-
-cd $FOLDER_NAME
-git config --local remote.origin.proxy $http_proxy
-cd ..
 
 
 echo -e "$OK: ALL DONE: $FOLDER_NAME - see the tree"

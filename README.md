@@ -10,10 +10,7 @@ This repository contains a collection of useful scripts, configurations, and too
 dotfiles/
 ├── bin/                    # Executable scripts (the main tools)
 ├── install.md              # Detailed installation instructions in Czech
-├── bookmarks               # List of frequently accessed directories and URLs
-├── baloofilerc            # KDE Baloo file indexing configuration
-├── krusaderrc             # Krusader file manager configuration
-└── mytheme.gtkrc          # GTK theme configuration
+└── bookmarks               # List of frequently accessed directories and URLs
 ```
 
 ### 🛠️ Main Tools in `/bin`
