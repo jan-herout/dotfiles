@@ -1,0 +1,47 @@
+# ssave this as Taskfile.yml
+version: '3'
+
+tasks:
+    default:
+        cmds:
+            - task: all
+    all:
+        cmds:
+            - task: gen
+            - task: copy_mandev
+            - task: dev
+            - task: pilot
+            - task: win_deploy
+
+    # nakopíruje skripty z mandev pod output
+    copy_mandev:
+        cmds:
+            - cmd /c XCOPY mandev\* output /E /I /Q
+            # tyhle stats potřebujeme dostat na produkci v předstihu, a z balíčku je MOŽNÁ můžeme smazat ???
+            # - cmd /c RMDIR /S /Q output/DB/Teradata/41-stats-jhe/AP_STG
+            # - cmd /c RMDIR /S /Q output/DB/Teradata/41-stats-jhe/VP_STG
+    
+    gen:
+        cmds:
+            #- rm -rf output
+            - cmd /c RMDIR /S /Q output
+            - press run
+            - task: join_pdc
+    
+    dev:
+        cmds:
+            # provede přepis skriptů podle předpisu: pipx install genpypress        
+            - ph rewrite --max-files=800
+            # doplní conditional drop do create skriptů
+            - ph cc output/db/teradata/01-copy-source-ddl-tbl --max-files=200
+   
+    win_deploy:
+        dir: 'output'
+        cmds:
+            - bihelp deploy --settings
+   
+    join_pdc:
+        dir: 'output/PDC/Engine_60'
+        cmds:
+            - cmd /c del part_1.sql 
+            - ph join . --delete
