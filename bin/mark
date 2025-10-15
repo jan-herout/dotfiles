@@ -40,8 +40,9 @@ else
     fi
 fi
 
-# dedupilcate
+# deduplicate
 [[ -f "$UNIQUE" ]] && rm "$UNIQUE"
 cat "$BOOKMARK_FILE" | uniq >"$UNIQUE"
 rm "$BOOKMARK_FILE"
 cp "$UNIQUE" "$BOOKMARK_FILE"
+rm "$UNIQUE"
