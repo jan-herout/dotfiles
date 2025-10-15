@@ -2,10 +2,14 @@ source "$HOME/bin/basic-func.sh"
 
 export http_proxy=""
 export https_proxy=""
+cur_proxy=""
 
-# set git proxy
+[[ -f $HOME/.gitproxy ]] && cur_proxy=$(cat $HOME/.gitproxy | grep proxy | awk '{ print $3 }') 
+[[ -z "$cur_proxy" ]] && exit 0
+
+
+
 flog "git config --global --unset http.proxy" info
-
 [[ -f $HOME/.gitproxy ]] && rm $HOME/.gitproxy
 echo "[http]
     proxy = " >$HOME/.gitproxy || flog "Failed to set http_proxy: $http_proxy" error

@@ -201,11 +201,15 @@ fi
 
 # proxy functions
 proxon () {
-    source ~/bin/set-proxy-on
+    source ~/bin/set-proxy
 }
 
 proxoff () {
-    source ~/bin/set-proxy-off
+    source ~/bin/set-proxy
+}
+
+proxy () {
+    source ~/bin/set-proxy
 }
 
 move-to-bookmark () {

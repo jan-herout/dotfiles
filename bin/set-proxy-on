@@ -1,6 +1,11 @@
 #!/bin/bash
 source "$HOME/bin/basic-func.sh" 
 
+is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
+if [[ -z "$is_on_vpn" ]]; then  
+  return
+fi
+
 O2_USERNAME=""
 O2_PASSWORD=""
 
