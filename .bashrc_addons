@@ -1,9 +1,24 @@
 #!/bin/bash
 
-# colors
-# MM_ERR="\e[31mERR\e[0m"
-# MM_TRY="\033[33mTRY\033[0m"
-# MM_OK="\033[34mOK\033[0m "
+# source all libs
+source_dirs=(
+    "$HOME/bin/lib"
+    "$HOME/bin/init"
+    "$HOME/bin/init/completions"
+)
+
+# loop via all source_dirs, identify all shell scripts and source them
+for dir in "${source_dirs[@]}"; do
+    if [[ -d $dir ]]; then
+        for f in "$dir"/*.sh; do
+            [[ -r $f ]] && [[ -f $f ]] && source "$f"
+        done
+    fi
+done
+
+export OMB_CASE_SENSITIVE=false         # case insensitive completion and globbing
+export OMB_HYPHEN_SENSITIVE=false       # hyphen and underscore are equivalent in completion
+
 
 export PS1="]0;jan@blacktux:/home/jan/o2-feature/bidev-8829-ebox-views/data\\n\[\e[0;36m\]┌─\[\e[97;1m\][\u@\h]\[\e[0;36m\]─\[\e[33;1m\](\w)\n\[\e[0;36m\]└─\[\e[32;1m\][\A]\[\e[0;36m\]-\[\e[32;1m\](\[\e[0;32m\]^_^\[\e[32;1m\])\[\e[0;36m\]-\[\e[36;1m\][\[\e[0;32m\]\[\e[32;1m\]$\[\e[36;1m\]]\[\e[0;32m\] "
 export PATH=$PATH:~/bin:~/sbin:~/.local/bin
@@ -27,12 +42,6 @@ export PRESS_PRODUCTION_DDL_DIR=/home/jan/o2/svn-production/db/Teradata/DDL
 export FUNCTIONS_CORE_TOOLS_TELEMETRY_OPTOUT=1
 
 #################################
-# pyenv
-# Load pyenv automatically by appending
-# the following to
-# ~/.bash_profile if it exists, otherwise ~/.profile (for login shells)
-# and ~/.bashrc (for interactive shells) :
-
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
@@ -42,36 +51,9 @@ export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 
-# python settings
-alias flake8="flake8 --max-line-length=88"
-# export PYTHONPATH="/home/jan/o2/py-o2edw"
-
-# ph completions
-source '/home/jan/.bash_completions/ph.sh'
-
-
-
-# _fzf_comprun() {
-#     local command=$1
-#     shift
-#     case "$command" in
-#         cd)           fzf --preview 'tree -C {} | head -200'   "$@" ;;
-#         export|unset) fzf --preview "eval 'echo \$'{}"         "$@" ;;
-#         ssh)          fzf --preview 'dig {}'                   "$@" ;;
-#         *)            fzf --preview 'bat -n --color=always {}' "$@" ;;
-#         # cd)         	fzf --preview 'eza --tree --color=always {} | head -200' "$@" ;;
-#         # export|unset)	fzf --preview "eval 'echo \$' {}"	"$@" ;;
-#         # ssh)		    fzf --preview 'dig {}'			"$@" ;;
-#         # cp)             find $HOME -type f | fzf --preview "'batcat -n --color=always --line-range :500 {}'" "$@" ;;
-#         # *)		        fzf --preview "'batcat -n --color=always --line-range :500 {}'" "$@" ;;
-#     esac
-# }
 
 if command -v fzf &>/dev/null
-then
-    [ -f /usr/share/doc/fzf/examples/key-bindings.bash ] && source /usr/share/doc/fzf/examples/key-bindings.bash
-    [ -f /usr/share/doc/fzf/examples/completion.bash ] && source /usr/share/doc/fzf/examples/completion.bash
-
+then   
     # use fdfind instead of find
     if command -v fdfind &>/dev/null
     then
@@ -119,108 +101,12 @@ then
             echo "$pids" | xargs kill -9 "$@"
         fi
     }
-
-    alias fkill='fzf_kill'
-
-    # fzf_find_edit() {
-    #     local file=$(
-    #     find . -type f | fzf --query="$1" --no-multi --select-1 --exit-0 \
-    #         --preview 'batcat --color=always --line-range :500 {}'
-    #     )
-    #     if [[ -n "$file" ]]; then
-    #         $EDITOR "$file"
-    #     fi
-    # }
-    # alias fe="fzf_find_edit"
-    # fzf_git_add() {
-    #     local selections=$(
-    #     git ls-files -m -o --exclude-standard | \
-    #         fzf \
-    #         --ansi \
-    #         --preview 'if (git ls-files --error-unmatch {1} &>/dev/null); then
-    #                 git diff --color=always {1}
-    #             else
-    #                 batcat --color=always --line-range :500 {1}
-    #                 fi'
-    #     )
-    #     if [[ -n $selections ]]; then
-    #         git add --verbose $selections
-    #     fi
-    # }
-    # alias gadd='fzf_git_add'
-    # fzf_git_log() {
-    #             local selection=$(
-    #             git ll --color=always "$@" | \
-    #                 fzf --no-multi --ansi --no-sort --no-height \
-    #                 --preview "echo {} | grep -o '[a-f0-9]\{7\}' | head -1 |
-    #                 xargs -I@ sh -c 'git show --color=always @'"
-    #             )
-    #             if [[ -n $selection ]]; then
-    #                 local commit=$(echo "$selection" | sed 's/^[* |]*//' | awk '{print $1}' | tr -d '\n')
-    #                 git show $commit
-    #             fi
-    # }
-    # alias gll='fzf_git_log'
-    # fzf_git_reflog() {
-    #             local selection=$(
-    #             git reflog --color=always "$@" |
-    #                 fzf --no-multi --ansi --no-sort --no-height \
-    #                 --preview "git show --color=always {1}"
-    #             )
-    #             if [[ -n $selection ]]; then
-    #                 git show $(echo $selection | awk '{print $1}')
-    #             fi
-    # }
-    # alias grl='fzf_git_reflog'
-    # fzf_git_branch() {
-    #     local selection=$(git branch | fzf --no-multi --ansi --no-sort --no-height)
-    #     if [[ -n $selection ]]; then 
-    #         git checkout $selection
-    #     fi
-    # }
-    # alias gcb='fzf_git_branch'
 fi
-
-# neotřebuji, Ctrl+T to řeší "za mě"
-# alias fbat='selection=$( find . -maxdepth 1 -type f | fzf --preview "batcat -n --color=always --line-range :500 {}" ); if [ -n "$selection" ]; then echo "$selection" | xargs batcat; else echo "nothing to do"; fi'
-# alias fcat='selection=$( find . -maxdepth 1 -type f | fzf --preview "batcat -n --color=always --line-range :500 {}" ); if [ -n "$selection" ]; then echo "$selection" | xargs cat; else echo "nothing to do"; fi'
-
-# batcat
-if command -v batcat &>/dev/null
-then
-    alias bat="batcat"
-fi
-
-# eza
-if command -v eza &>/dev/null
-then
-    alias la="/usr/bin/ls -A"
-    alias l="eza --color=always --long -b --icons  --no-user --no-permissions -h --time-style='+%Y-%m-%d %H:%M:%S'"
-    alias ll="eza --color=always --long -b --icons  --no-user --no-permissions -h --time-style='+%Y-%m-%d %H:%M:%S' --sort=time --reverse | bat"
-fi
-
-# proxy functions
-proxon () {
-    source ~/bin/set-proxy
-}
-
-proxoff () {
-    source ~/bin/set-proxy
-}
 
 proxy () {
     source ~/bin/set-proxy
 }
 
-move-to-bookmark () {
-    source "$HOME/bin/fcd-script"
-}
-
-
-bind -x '"\C-f":"source $HOME/bin/fzfm"'   # Ctrl+F - "file manager"
-bind -x '"\ez":"cd -"'                      # Alt+Z: cd to previous directory
-bind -x '"\em":"_cd_to_mark"'               # Alt+M: cd to bookmark
-bind -x '"\ef":"_cd_to_feature"'            # Alt+F: cd to feature
 
 
 # nvm a node.js
@@ -228,86 +114,5 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-
-__config__ () {
-    local CWD=$(pwd)
-    cd ~/dotfiles 
-    nvim .bashrc_addons 
-    cd $CWD  
-}
-
-# # lf icons
-# export LF_ICONS=$(cat $HOME/.config/lf/icons)
-
-# aliases
-alias vim="nvim"
-alias gac="git add --all && git commit"
-alias ga="git add --all"
-alias gp="git pull --rebase && git push"
-alias gs="git status"
-alias ..="cd .."
-alias ...="cd .. && cd .."
-alias ....="cd .. && cd .. && cd .."
-alias src="source ~/.bashrc"
-alias nom="$HOME/bin/netmount"
-alias num="$HOME/bin/netumount"
-alias config="__config__"
-alias _cd_to_feature="source $HOME/bin/fcd-feature-script"
-alias _cd_to_mark="source $HOME/bin/fcd-script"
-
-# clipboard operations
-alias wcl="wl-copy"
-alias xcl="xclip -selection clipboard"
-alias escape="sed -e 's/\x00/<NUL#00>/g' \
-    -e 's/\x01/<SOH#01>/g' \
-    -e 's/\x02/<STX#02>/g' \
-    -e 's/\x03/<ETX#03>/g' \
-    -e 's/\x04/<EOT#04>/g' \
-    -e 's/\x05/<ENQ#05>/g' \
-    -e 's/\x06/<ACK#06>/g' \
-    -e 's/\x07/<BEL#07>/g' \
-    -e 's/\x08/<BS#08>/g'  \
-    -e 's/\x09/<HT#09>/g'  \
-    -e 's/\x0A/<LF#0A>/g'  \
-    -e 's/\x0B/<VT#0B>/g'  \
-    -e 's/\x0C/<FF#0C>/g'  \
-    -e 's/\x0D/<CR#0D>/g'  \
-    -e 's/\x0E/<SO#0E>/g'  \
-    -e 's/\x0F/<SI#0F>/g'  \
-    -e 's/\x10/<DLE#10>/g' \
-    -e 's/\x11/<DC1#11>/g' \
-    -e 's/\x12/<DC2#12>/g' \
-    -e 's/\x13/<DC3#13>/g' \
-    -e 's/\x14/<DC4#14>/g' \
-    -e 's/\x15/<NAK#15>/g' \
-    -e 's/\x16/<SYN#16>/g' \
-    -e 's/\x17/<ETB#17>/g' \
-    -e 's/\x18/<CAN#18>/g' \
-    -e 's/\x19/<EM#19>/g'  \
-    -e 's/\x1A/<SUB#1A>/g' \
-    -e 's/\x1B/<ESC#1B>/g' \
-    -e 's/\x1C/<FS#1C>/g'  \
-    -e 's/\x1D/<GS#1D>/g'  \
-    -e 's/\x1E/<RS#1E>/g'  \
-    -e 's/\x1F/<US#1F>/g'"
-
-# perlbrew: https://perlbrew.pl/
-#source $HOME/perl5/perlbrew/etc/bashrc
-#export PERL5LIB=$HOME/o2/bimain/mstr/SRC/Shared_Libs/Perl.O2
-#perlbrew use perl-5.24.4
-alias pb="perlbrew use perl-5.24.4"
-
-# alsamixer
-alias unmute="amixer -c 1 set Headphone unmute"
-
 # azure
 export ACR_REGISTRY="o2czbidevacr"
-alias ch="$HOME/bin/code-here.sh"
-alias f="source fzfm"
-
-# basic functions
-if [[ -f $HOME/bin/basic-func.sh ]]; then
-    source $HOME/bin/basic-func.sh
-else
-    echo "nemam funkce"
-fi

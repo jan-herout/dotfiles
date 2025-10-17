@@ -5,4 +5,3 @@ case $- in
 esac
 
 source ~/.bashrc_addons
-source ~/bin/lib/history.sh

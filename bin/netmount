@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 # doc: Připojí VPN a namountuje síťové disky s možností git fetch
 source $HOME/bin/basic-func.sh
+
+# tohle sice nesouvisí se sítí ale fakt mě to štve
+amixer -c 1 set Headphone unmute
+
 if [[ $? -eq 0 ]]; then
   flog "Sourcing succeeded"
 else
@@ -66,7 +70,8 @@ if [[ -z "$is_on_vpn" ]]; then
         else
             break
         fi
-    done    
+    done 
+    [[ -f $HOME/Vaults/o2/after-connect.sh ]] && $HOME/Vaults/o2/after-connect.sh
 else
     flog "VPN is already connected" info
 fi
