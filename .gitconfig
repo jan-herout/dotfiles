@@ -62,18 +62,11 @@
 [include]
     path = ~/.gitproxy
 
-[includeIf "gitdir:~/o2/"]
+# defaults
+[include]
     path = ~/.config/git/.gitconfig-o2
 
-[includeIf "gitdir:~/o2-feature/"]
-    path = ~/.config/git/.gitconfig-o2
-
-[includeIf "gitdir:~/o2-repoconfig/"]
-    path = ~/.config/git/.gitconfig-o2
-
-[includeIf "gitdir:~/o2-archiv/"]
-    path = ~/.config/git/.gitconfig-o2
-
+# exceptions
 [includeIf "gitdir:~/d-blocks/"]
     path = ~/.config/git/.gitconfig-dblocks
 
@@ -85,9 +78,11 @@
 
 [includeIf "gitdir:~/logseq/"]
     path = ~/.config/git/.gitconfig-personal
+
 [credential "https://github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+    
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential

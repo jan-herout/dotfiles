@@ -51,6 +51,6 @@ fi
 LOG_FILE=$(find "$_MNT_/EDW/$PMWORKFLOWLOGDIR" -maxdepth 1 -type f -name "*CONDUCTOR*" | head -n 1 )
 echo -e "$MM_TRY: checking: $LOG_FILE"
 
-cat $LOG_FILE | grep $MART | grep -E 'next_run_dttm|missing|_restart_mart_starter_job|schedule' | less
+cat $LOG_FILE | grep $MART | grep -E 'next_run_dttm|missing|_restart_mart_starter_job|schedule'
 
 #  grep "critical" | grep $MART | tail
