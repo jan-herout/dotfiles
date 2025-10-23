@@ -1,27 +1,19 @@
 #!/usr/bin/env bash
-# doc: show a menu using rofi (on a primary display) and return the selected item
+# doc: show a menu using rofi (when X server is running) or fzf (when not) and return the selected item
+source $HOME/bin/lib/rofi.sh
 
 theme="Arc-Dark"
 
-_primary_monitor_id() {    
-    # Get list of connected monitors with their names and positions
-    local monitors=($(xrandr --query | grep " connected" | cut -d ' ' -f1))
-    echo $local_monitors
-
-    # Get primary monitor name
-    local primary_monitor=$(xrandr --query | grep " primary" | cut -d ' ' -f1)
-    echo $local_primary_monitor
-
-    # Find the index (number) of the primary monitor
-    for i in "${!monitors[@]}"; do
-        if [[ "${monitors[$i]}" == "$primary_monitor" ]]; then
-            echo "$i"
-            exit 0
-        fi
-    done
-    # If no primary monitor is found, return 0 by default
-    echo 0
-}
-
-primary=$(_primary_monitor_id)
-rofi -dmenu -m $primary -i -theme "$theme"
+# Main logic: choose between rofi and fzf
+if _rofi_is_x_server_running && _rofi_command_exists rofi; then
+    # Use rofi when X server is running and rofi is available
+    primary=$(_rofi_primary_monitor_id)
+    rofi -dmenu -m $primary -i -theme "$theme"
+elif _rofi_command_exists fzf; then
+    # Fallback to fzf when X server is not running or rofi is not available
+    fzf --prompt="Select: " --height=40% --reverse --border
+else
+    # Ultimate fallback to basic select if neither rofi nor fzf is available
+    echo "Error: Neither rofi nor fzf is available" >&2
+    exit 1
+fi

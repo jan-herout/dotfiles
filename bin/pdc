@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+source $HOME/bin/lib/rofi.sh
+source $HOME/bin/basic-func.sh
+
+
+
+act_deploy="deploy"
+act_frequency="restart frequency"
+act_concurrency="concurrency"
+
+# varibles ...
+file_to_deploy=""
+numerical_value=""
+
+action=$(
+    printf "%s\n%s\n%s" "$act_deploy" "$act_frequency" "$act_concurrency" | rofi-menu
+)
+[[ -z "$action" ]] && echo "No action selected, aborting." && exit 1
+
+# If deploy action is selected, use _rofi_select_file to choose the SQL file
+if [[ "$action" == "$act_deploy" ]]; then
+    file_to_deploy=$(_rofi_select_file "*.sql")
+    if [[ $? -ne 0 ]]; then
+        echo "No file selected or error occurred, aborting deployment." >&2
+        exit 1
+    fi
+    echo "Selected file for deployment: $file_to_deploy"
+fi
+
+# If frequency or concurrency action is selected, ask for numerical input
+if [[ "$action" == "$act_frequency" ]] || [[ "$action" == "$act_concurrency" ]]; then    
+    numerical_value=$(seq 0 20 | rofi-menu)
+    if [[ -z "$numerical_value" ]]; then
+        echo "No value entered, aborting." >&2
+        exit 1
+    fi    
+fi
+
+# If set concurrency, create a temp file
+if [[ "$action" == "$act_concurrency" ]]; then    
+    temp_sql_file=$(mktemp /tmp/set_concurrency_XXXX.sql)
+    cat << EOF > "$temp_sql_file"
+UPDATE ctrl_parameters
+SET param_val_int = ${numerical_value}
+WHERE param_name = 'MAX_CONCURRENT_JOBS'
+;
+EOF
+    file_to_deploy="$temp_sql_file"
+    flog "Setting concurrency to ${numerical_value} in file $file_to_deploy"
+fi
+
+# If set frequency, create a temp file
+if [[ "$action" == "$act_frequency" ]]; then    
+    temp_sql_file=$(mktemp /tmp/set_frequency_XXXX.sql)
+    cat << EOF > "$temp_sql_file"
+update ctrl_job_status 
+set delay_minutes = ${numerical_value} where status in (3,9)
+;
+EOF
+    file_to_deploy="$temp_sql_file"
+    flog "Setting restart frequency ${numerical_value} in file $file_to_deploy"
+fi
+
+[[ -z "$file_to_deploy" ]] && fdie "No file selected for deployment, aborting."
+
+
+PDC="PDC_X0548834"
+PASSWORD="x$PDC"
+TNSNAME="BIDEVELOP"
+
+echo exit | sqlplus "$PDC/$PASSWORD@$TNSNAME" @"$file_to_deploy"
+[[ -f "$file_to_deploy" ]] && rm -f "$file_to_deploy"
