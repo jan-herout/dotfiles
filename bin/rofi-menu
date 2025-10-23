@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# doc: show a menu using rofi (on a primary display) and return the selected item
+
+theme="Arc-Dark"
+
+_primary_monitor_id() {    
+    # Get list of connected monitors with their names and positions
+    local monitors=($(xrandr --query | grep " connected" | cut -d ' ' -f1))
+    echo $local_monitors
+
+    # Get primary monitor name
+    local primary_monitor=$(xrandr --query | grep " primary" | cut -d ' ' -f1)
+    echo $local_primary_monitor
+
+    # Find the index (number) of the primary monitor
+    for i in "${!monitors[@]}"; do
+        if [[ "${monitors[$i]}" == "$primary_monitor" ]]; then
+            echo "$i"
+            exit 0
+        fi
+    done
+    # If no primary monitor is found, return 0 by default
+    echo 0
+}
+
+primary=$(_primary_monitor_id)
+rofi -dmenu -m $primary -i -theme "$theme"
