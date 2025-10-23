@@ -3,9 +3,15 @@
 
 # Script to convert end-of-line characters in files
 # Usage: convert-eol <filename> [--eol <cr|lf|crlf>]
+set -e
+set -o pipefail
 
 show_usage() {
-    echo "Usage: $0 <filename> [--eol <cr|lf|crlf>]"
+    echo "Synopsis: converts EOL characters in a file via sed"
+    echo "Usage: "
+    echo "  $0 <filename> [<cr|lf|crlf>]"
+    echo "  $0 <filename> [-e <cr|lf|crlf>]"
+    echo "  $0 <filename> [--eol <cr|lf|crlf>]"    
     echo ""
     echo "Arguments:"
     echo "  filename    File to convert"
@@ -15,55 +21,10 @@ show_usage() {
     exit 1
 }
 
-# Check if filename is provided
-if [ -z "$1" ]; then
-    echo "Error: Filename is required"
-    show_usage
-fi
-
-filename="$1"
-
-# Check if file exists
-if [ ! -f "$filename" ]; then
-    echo "Error: File '$filename' does not exist"
-    exit 1
-fi
-
-# Parse EOL argument
-eol=""
-if [ "$2" = "--eol" ] && [ -n "$3" ]; then
-    case "$3" in
-        cr|lf|crlf)
-            eol="$3"
-            ;;
-        *)
-            echo "Error: Invalid EOL format '$3'. Must be cr, lf, or crlf"
-            show_usage
-            ;;
-    esac
-fi
-
-# If EOL not provided, use fzf to select
-if [ -z "$eol" ]; then
-    # Check if fzf is available
-    if ! command -v fzf &> /dev/null; then
-        echo "Error: fzf is required but not installed"
-        exit 1
-    fi
-    
-    echo "Select EOL format:"
-    eol=$(echo -e "lf\ncrlf\ncr" | fzf --prompt="EOL format: " --height=5)
-    
-    if [ -z "$eol" ]; then
-        echo "Error: No EOL format selected"
-        show_usage
-    fi
-fi
-
-# Detect current EOL format efficiently (only scan first 1MB)
+# Detect current EOL format efficiently
 detect_eol() {
     local file="$1"
-    local sample_size=1048576  # 1MB sample
+    local sample_size=10000 # 10kB sample
     
     # Get file size for optimization
     local file_size=$(stat -c%s "$file" 2>/dev/null || echo 0)
@@ -97,10 +58,70 @@ detect_eol() {
     echo "lf"
 }
 
+
+# Check if filename is provided
+if [ -z "$1" ]; then
+    echo "Error: Filename is required"
+    show_usage
+fi
+
+filename="$1"
+
+# Check if file exists
+if [ ! -f "$filename" ]; then
+    echo "Error: File '$filename' does not exist"
+    exit 1
+fi
+
+# Parse EOL argument
+eol=""
+if [[ "$2" = "--eol" ]] || [[ "$2" == "-e" ]] && [ -n "$3" ]; then
+    case "$3" in
+        cr|lf|crlf)
+            eol="$3"
+            ;;
+        *)
+            echo "Error: Invalid EOL format '$3'. Must be cr, lf, or crlf"
+            show_usage
+            ;;
+    esac
+fi
+
+case "$2" in
+    CR|cr)
+        eol="cr"
+        ;;
+    LF|lf)
+        eol="lf"
+        ;;
+    CRLF|crlf)
+        eol="crlf"
+        ;;
+esac
+
 # Detect current EOL format
 current_eol=$(detect_eol "$filename")
-
 echo "Current EOL format: $current_eol"
+
+
+# If EOL not provided, use fzf to select
+if [ -z "$eol" ]; then
+    # Check if fzf is available
+    if ! command -v fzf  &> /dev/null; then
+        echo "Error: fzf is required but not installed"
+        exit 1
+    fi
+    
+    echo "New format?"
+    eol=$(echo -e "lf\ncrlf\ncr" | fzf --height=5)    
+fi
+
+if [ -z "$eol" ]; then
+        echo "Error: No EOL format selected"
+        show_usage
+        exit 1
+fi
+
 echo "Target EOL format: $eol"
 
 # Check if conversion is needed
