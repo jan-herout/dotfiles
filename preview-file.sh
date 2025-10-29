@@ -1,1 +1,0 @@
-bin/preview-file.sh

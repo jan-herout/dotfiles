@@ -5,6 +5,7 @@ Synopsis: Search my wiki for cheats
 Usage:
     $ME ask <tag> - display list of all cheats and let me select a cheat, then echo the cheat
     $ME add - diplay list of all cheats under the WIKI_ROOT, select one, open it in vim
+    $ME new - create a new cheatsheet  under the WIKI_ROOT, ask mne for the name of the file and open it in vim
 
 EOF
 )
@@ -65,7 +66,7 @@ function ask_cheats() {
                     exit
                 }
             }
-        " "$file"
+        " "$file" | batcat --language=markdown
     ')
     
     # Check if user made a selection
@@ -90,10 +91,111 @@ function ask_cheats() {
     ' "$filename"
 }
 
+function add_cheat() {
+    # Check if wiki root exists
+    if [[ ! -d "$WIKI_ROOT" ]]; then
+        echo "Error: Wiki root directory '$WIKI_ROOT' does not exist"
+        exit 1
+    fi
+    
+    # Check if fzf is available
+    if ! command -v fzf &> /dev/null; then
+        echo "Error: fzf is required but not installed"
+        exit 1
+    fi
+    
+    # Check if vim is available
+    if ! command -v vim &> /dev/null; then
+        echo "Error: vim is required but not installed"
+        exit 1
+    fi
+    
+    # Find all files under WIKI_ROOT
+    local selected_file
+    selected_file=$(find "$WIKI_ROOT" -type f -name "*.wiki" | fzf --preview='cat {}' --preview-window=right:70%:wrap)
+    
+    # Check if user made a selection
+    if [[ -z "$selected_file" ]]; then
+        echo "No file selected"
+        exit 0
+    fi
+    
+    # Open the selected file in vim
+    vim "$selected_file"
+}
+
+function new_cheat() {
+    # Check if wiki root exists
+    if [[ ! -d "$WIKI_ROOT" ]]; then
+        echo "Error: Wiki root directory '$WIKI_ROOT' does not exist"
+        exit 1
+    fi
+    
+    # Check if vim is available
+    if ! command -v vim &> /dev/null; then
+        echo "Error: vim is required but not installed"
+        exit 1
+    fi
+    
+    # Ask for the filename
+    echo -n "Enter the name for the new cheatsheet (without .wiki extension): "
+    read -r filename
+    
+    # Check if filename was provided
+    if [[ -z "$filename" ]]; then
+        echo "Error: Filename cannot be empty"
+        exit 1
+    fi
+    
+    # Sanitize filename (remove special characters, replace spaces with underscores)
+    filename=$(echo "$filename" | sed 's/[^a-zA-Z0-9_-]/_/g')
+    
+    # Add .wiki extension if not present
+    if [[ ! "$filename" =~ \.wiki$ ]]; then
+        filename="${filename}.wiki"
+    fi
+    
+    # Create the full path
+    local new_file_path="$WIKI_ROOT/$filename"
+    
+    # Check if file already exists
+    if [[ -f "$new_file_path" ]]; then
+        echo -n "File '$filename' already exists. Do you want to open it anyway? (y/N): "
+        read -r response
+        if [[ ! "$response" =~ ^[Yy]$ ]]; then
+            echo "Operation cancelled"
+            exit 0
+        fi
+    fi
+    
+    # Create the file with a basic template if it doesn't exist
+    if [[ ! -f "$new_file_path" ]]; then
+        cat > "$new_file_path" << 'EOF'
+-   #tag #example
+    Description of the cheat goes here
+    ```bash
+    # Example command
+    echo "Hello World"
+    ```
+
+EOF
+        echo "Created new cheatsheet: $filename"
+    fi
+    
+    # Open the file in vim
+    vim "$new_file_path"
+}
+
 # Main script logic
 case "$1" in
     ask)
         ask_cheats "$2"
+        ;;
+    add)
+        add_cheat
+        ;;
+    new)
+        new_cheat
         ;;
     -h|--help|help)
         show_usage
