@@ -1,0 +1,162 @@
+#!/bin/bash
+
+# Job ID converter script
+# Converts between timestamps and job_ids using the correct Python logic
+
+# Function to validate timestamp format
+validate_timestamp() {
+    local ts="$1"
+    if [[ $ts =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}\ [0-9]{2}:[0-9]{2}:[0-9]{2}$ ]]; then
+        # Check if date is valid using date command
+        if date -d "$ts" &>/dev/null; then
+            return 0
+        fi
+    fi
+    return 1
+}
+
+# Function to convert timestamp to job_id
+timestamp_to_job_id() {
+    echo "Converting timestamp to job_id..."
+    echo
+    
+    while true; do
+        echo "Enter timestamp in format YYYY-MM-DD hh:mi:ss (or press Enter for current time):"
+        read -r input_timestamp
+        
+        if [[ -z "$input_timestamp" ]]; then
+            # Use current timestamp
+            input_timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+            echo "Using current time: $input_timestamp"
+        fi
+        
+        if validate_timestamp "$input_timestamp"; then
+            break
+        else
+            echo "Invalid timestamp format. Please use YYYY-MM-DD hh:mi:ss format."
+            echo
+        fi
+    done
+    
+    # Python implementation:
+    # shifted_dttm = dttm - timedelta(days=19000)
+    # float_id = time.mktime(shifted_dttm.timetuple())
+    # job_id = int(float_id)
+    
+    # Calculate the shifted timestamp (subtract 19000 days)
+    days_to_subtract=19000
+    seconds_to_subtract=$((days_to_subtract * 86400))
+    
+    # Get epoch time of input timestamp
+    epoch_time=$(date -d "$input_timestamp" +%s)
+    
+    # Subtract 19000 days worth of seconds
+    shifted_epoch=$((epoch_time - seconds_to_subtract))
+    
+    # This is the job_id (already in integer seconds)
+    job_id=$shifted_epoch    
+    echo "Input timestamp: $input_timestamp"
+    echo "Epoch time: $epoch_time"
+    echo "Shifted epoch (after subtracting 19000 days): $shifted_epoch"
+    echo "Job ID: $job_id"        
+    result="$job_id"
+}
+
+# Function to convert job_id to timestamp
+job_id_to_timestamp() {
+    echo "Converting job_id to timestamp..."
+    echo
+    
+    while true; do
+        echo "Enter job_id (numerical value):"
+        read -r input_job_id
+        
+        if [[ "$input_job_id" =~ ^-?[0-9]+$ ]]; then
+            break
+        else
+            echo "Invalid job_id. Please enter a numerical value."
+            echo
+        fi
+    done
+    
+    # Reverse the process:
+    # job_id is the shifted epoch time (after subtracting 19000 days)
+    # To get original timestamp: add back 19000 days
+    days_to_add=19000
+    seconds_to_add=$((days_to_add * 86400))
+    
+    # Add back the 19000 days to get original epoch time
+    original_epoch=$((input_job_id + seconds_to_add))
+    
+    # Convert to timestamp
+    timestamp=$(date -d "@$original_epoch" '+%Y-%m-%d %H:%M:%S')
+    
+    echo "Input job_id: $input_job_id"
+    echo "Original epoch (after adding back 19000 days): $original_epoch"
+    echo "Timestamp: $timestamp"
+    result="$timestamp"
+}
+
+# Function to copy to clipboard
+copy_to_clipboard() {
+    local text="$1"
+    
+    # Check which clipboard utility is available
+    if command -v xclip &> /dev/null; then
+        echo "$text" | xclip -selection clipboard
+        echo "Result copied to clipboard using xclip."
+    elif command -v xsel &> /dev/null; then
+        echo "$text" | xsel --clipboard --input
+        echo "Result copied to clipboard using xsel."
+    elif command -v pbcopy &> /dev/null; then
+        echo "$text" | pbcopy
+        echo "Result copied to clipboard using pbcopy."
+    else
+        echo "No clipboard utility found (xclip, xsel, or pbcopy)."
+        echo "Result: $text"
+    fi
+}
+
+# Main script
+echo "Job ID Converter"
+echo "================"
+echo
+
+# Check if fzf is available
+if ! command -v fzf &> /dev/null; then
+    echo "Error: fzf is not installed or not in PATH."
+    echo "Please install fzf first: sudo apt install fzf"
+    exit 1
+fi
+
+# Main menu
+choice=$(echo -e "Convert timestamp to job_id\nConvert job_id to timestamp" | fzf --prompt="Select conversion type: " --height=40% --border)
+
+case "$choice" in
+    "Convert timestamp to job_id")
+        timestamp_to_job_id
+        ;;
+    "Convert job_id to timestamp")
+        job_id_to_timestamp
+        ;;
+    *)
+        echo "No selection made. Exiting."
+        exit 0
+        ;;
+esac
+
+# Ask if user wants to copy result to clipboard
+echo
+clipboard_choice=$(echo -e "Yes\nNo" | fzf --prompt="Copy result to clipboard? " --height=40% --border)
+
+case "$clipboard_choice" in
+    "Yes")
+        copy_to_clipboard "$result"
+        ;;
+    "No")
+        echo "Result not copied to clipboard."
+        ;;
+    *)
+        echo "No selection made. Result not copied."
+        ;;
+esac

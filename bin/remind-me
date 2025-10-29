@@ -1,0 +1,21 @@
+#!/bin/bash
+# doc: remind me about something after X minutes
+
+# Usage check
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 <minutes> <message>"
+  exit 1
+fi
+
+minutes=$1
+message=$2
+sound="/usr/share/sounds/oxygen/stereo/camera-shutter.wav"
+
+# Background process: sleep, then notify and play sound
+(
+  sleep "$((minutes * 60))"
+  notify-send "$message"
+  cvlc --play-and-exit "$sound" >/dev/null 2>&1 &
+) &
+
+exit 0

@@ -13,6 +13,9 @@ alias ..="cd .."
 alias ...="cd .. && cd .."
 alias ....="cd .. && cd .. && cd .."
 
+# yazi
+alias yazi="flatpak run io.github.sxyazi.yazi"
+
 # dev
 alias flake8="flake8 --max-line-length=88"
 alias fkill='fzf_kill'
@@ -46,3 +49,9 @@ alias config="__config__"
 alias _cd_to_feature="source $HOME/bin/fcd-feature-script"
 alias _cd_to_mark="source $HOME/bin/fcd-script"
 alias unmute="amixer -c 1 set Headphone unmute"
+alias rg="rg -i"
+
+# fix common typos
+alias cmod="chmod"
+alias kess="less"
+alias qq="cheats ask"

@@ -2,6 +2,10 @@
 _rofi_select_file() {
     # Get extension from positional parameter, die if none provided
     local mask="$1"
+    local pwd="$2"
+
+    [[ -z "pwd" ]] && pwd="."
+
     if [[ -z "$mask" ]]; then
         echo "Error: No file extension provided" >&2
         echo ""
@@ -10,7 +14,7 @@ _rofi_select_file() {
 
     # Find all SQL files (case-insensitive) under current directory
     local sql_files
-    sql_files=$(find . -type f -iname "$mask" 2>/dev/null)
+    sql_files=$(find "$pwd" -type f -iname "$mask" 2>/dev/null)
     
     # Check if any SQL files were found
     if [[ -z "$sql_files" ]]; then

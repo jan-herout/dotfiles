@@ -16,7 +16,7 @@ fi
 
 
 
-PROMPT="Select files to copy (use Shift+Tab to select multiple files): ESC to finish! >"
+PROMPT="Copy (Shift+Tab=select, ESC=finish): "
 # sestavíme seznam souborů do proměnné, oddělovačem je středník
 
 SELECTION=$(\

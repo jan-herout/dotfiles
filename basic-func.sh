@@ -1,0 +1,1 @@
+bin/basic-func.sh

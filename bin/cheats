@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+ME=$(basename "$0")
+USAGE=$(cat <<EOF
+Synopsis: Search my wiki for cheats
+Usage:
+    $ME ask <tag> - display list of all cheats and let me select a cheat, then echo the cheat
+    $ME add - diplay list of all cheats under the WIKI_ROOT, select one, open it in vim
+
+EOF
+)
+
+WIKI_ROOT=$HOME/dotfiles/cheat.sheet
+
+
+
+function show_usage() {
+    echo "$USAGE"
+}
+
+
+# Rules:
+# - list all files under the WIKI_ROOT_HOME
+# - use ripgrep to find all lines that start with "minus" sign and that contain the tag
+# - pipe the list of files and lines to the fzf to select one
+# - get filename and the line from this selection
+# - from the filename, read everything starting with the line obtained from fzf until the next line that starts with minus
+# - print out the content
+function ask_cheats() {
+    local tag="$1"
+    
+    # Check if tag is provided
+    if [[ -z "$tag" ]]; then
+        echo "Error: Please provide a tag to search for"
+        show_usage
+        exit 1
+    fi
+    
+    # Check if wiki root exists
+    if [[ ! -d "$WIKI_ROOT" ]]; then
+        echo "Error: Wiki root directory '$WIKI_ROOT' does not exist"
+        exit 1
+    fi
+    
+    # Check if ripgrep and fzf are available
+    if ! command -v rg &> /dev/null; then
+        echo "Error: ripgrep (rg) is required but not installed"
+        exit 1
+    fi
+    
+    if ! command -v fzf &> /dev/null; then
+        echo "Error: fzf is required but not installed"
+        exit 1
+    fi
+    
+    # Find all lines that start with "-" and contain the tag
+    local selection
+    selection=$(rg "^-.*$tag" "$WIKI_ROOT" --line-number --with-filename | fzf --delimiter=':' --preview='
+        file={1}
+        line={2}
+        awk -v start="$line" "
+            NR >= start {
+                if (NR == start || !/^-/) {
+                    print
+                } else {
+                    exit
+                }
+            }
+        " "$file"
+    ')
+    
+    # Check if user made a selection
+    if [[ -z "$selection" ]]; then
+        echo "No selection made"
+        exit 0
+    fi
+    
+    # Extract filename and line number
+    local filename=$(echo "$selection" | cut -d':' -f1)
+    local line_number=$(echo "$selection" | cut -d':' -f2)
+    
+    # Extract and display the cheat
+    awk -v start="$line_number" '
+        NR >= start {
+            if (NR == start || !/^-/) {
+                print
+            } else {
+                exit
+            }
+        }
+    ' "$filename"
+}
+
+# Main script logic
+case "$1" in
+    ask)
+        ask_cheats "$2"
+        ;;
+    -h|--help|help)
+        show_usage
+        ;;
+    *)
+        echo "Error: Unknown command '$1'"
+        show_usage
+        exit 1
+        ;;
+esac

@@ -94,8 +94,8 @@ BEGIN {
     # Initialize output file paths
     for (i = 1; i <= parts; i++) {
         output_files[i] = base_dir "/" base_name "_part" i
-        # Clear output files
-        print "" > output_files[i]
+        # Clear output files (without writing empty line)
+        printf "" > output_files[i]
         close(output_files[i])
     }
 }

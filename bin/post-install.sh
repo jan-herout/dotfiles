@@ -115,3 +115,16 @@ fi
 az extension add --name azure-devops
 
 
+# virtual machines, via virt-manager + KVM
+kvm_compat=$(lscpu | grep Virtualization | awk '{print $2}')
+if [[ "$kvm_compat" == "VT-x" ]] || [[ "$kvm_compat" == "AMD-V" ]]; then
+    sudo apt install -y qemu-kvm libvirt-daemon-system libvirt-clients bridge-utils virt-manager
+    sudo systemctl enable --now libvirtd
+    sudo systemctl status libvirtd
+    read -p " >>> CHECK THE STATUS of libvirtd"
+    sudo usermod -aG libvirt,kvm "$USER"
+else
+    echo "."
+    echo "non-compatible hardware for KVM, ebable virtualization in BIOS (one of: Intel VT-x, AMD-C, SDM Mode)"
+    read -p "Press enter"
+fi

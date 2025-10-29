@@ -1,25 +1,37 @@
 #!/usr/bin/env bash
+set -e
+
 source $HOME/bin/lib/rofi.sh
 source $HOME/bin/basic-func.sh
+source $HOME/bin/init/exports.sh
 
-
+sqlplus=/home/jan/sbin/instantclient_23_6/sqlplus
+pdc_log="/tmp/pdc.log"
 
 act_deploy="deploy"
-act_frequency="restart frequency"
-act_concurrency="concurrency"
+act_frequency="settings: restart frequency"
+act_concurrency="settings: concurrency"
+act_delete="ctrl_key_val_store: delete last_extract_dttm records"
 
 # varibles ...
 file_to_deploy=""
 numerical_value=""
 
 action=$(
-    printf "%s\n%s\n%s" "$act_deploy" "$act_frequency" "$act_concurrency" | rofi-menu
+    printf "%s\n%s\n%s\n%s" "$act_deploy" "$act_frequency" "$act_concurrency" "$act_delete"| rofi-menu
 )
 [[ -z "$action" ]] && echo "No action selected, aborting." && exit 1
 
+if ! command -v "$sqlplus"  &> /dev/null; then
+    notify-send "sqlplus not found!"
+    exit 1 
+fi
+
+flog "$action"
+
 # If deploy action is selected, use _rofi_select_file to choose the SQL file
 if [[ "$action" == "$act_deploy" ]]; then
-    file_to_deploy=$(_rofi_select_file "*.sql")
+    file_to_deploy=$(_rofi_select_file "*.sql" "$HOME/o2-feature")
     if [[ $? -ne 0 ]]; then
         echo "No file selected or error occurred, aborting deployment." >&2
         exit 1
@@ -44,6 +56,21 @@ UPDATE ctrl_parameters
 SET param_val_int = ${numerical_value}
 WHERE param_name = 'MAX_CONCURRENT_JOBS'
 ;
+
+commit;
+EOF
+    file_to_deploy="$temp_sql_file"
+    flog "Setting concurrency to ${numerical_value} in file $file_to_deploy"
+fi
+
+# If delete ctrl_key_val_store, create a temp file
+if [[ "$action" == "$act_delete" ]]; then    
+    temp_sql_file=$(mktemp /tmp/set_delete_ctrl_kvs_XXXX.sql)
+    cat << EOF > "$temp_sql_file"
+        delete FROM ctrl_key_val_store WHERE store_key_name LIKE '%last_extract_dttm'
+        ;
+        commit
+        ;
 EOF
     file_to_deploy="$temp_sql_file"
     flog "Setting concurrency to ${numerical_value} in file $file_to_deploy"
@@ -63,10 +90,31 @@ fi
 
 [[ -z "$file_to_deploy" ]] && fdie "No file selected for deployment, aborting."
 
+flog "add exit to '$file_to_deploy'"
+echo "
+exit;
+" >> "$file_to_deploy"
+
+[[ -z "$file_to_deploy" ]] && fdie "No file selected for deployment, aborting."
+
 
 PDC="PDC_X0548834"
 PASSWORD="x$PDC"
 TNSNAME="BIDEVELOP"
 
-echo exit | sqlplus "$PDC/$PASSWORD@$TNSNAME" @"$file_to_deploy"
+touch "$pdc_log"
+echo "$file_to_deploy" >"$pdc_log" 
+cat "$file_to_deploy" >>"$pdc_log"
+echo $sqlplus "$PDC/$PASSWORD@$TNSNAME" @"$file_to_deploy" >> "$pdc_log" 2>&1
+$sqlplus "$PDC/$PASSWORD@$TNSNAME" @"$file_to_deploy" >> "$pdc_log" 2>&1
+
+if [[ $? -ne 0 ]]; then    
+    log_content=$(cat "$pdc_log")
+    notify-send "Failed to deploy to PDC"
+
+else
+    notify-send "SUCCESS"
+    rm "$pdc_log"
+fi
+
 [[ -f "$file_to_deploy" ]] && rm -f "$file_to_deploy"
