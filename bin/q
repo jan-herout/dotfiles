@@ -7,6 +7,7 @@ Usage:
     $ME -a [filename] - add a new content to a cheat sheet; uses fzf to selected a file if not povided
     $ME -n [filename] - create a new cheatsheet under the WIKI_ROOT
     $ME -d - open today's daily note (YYYY-MM-DD.md in journal/)
+    $ME -b - build hashtag backlinks (create tag files with links to all files containing each hashtag)
 
 EOF
 )
@@ -14,7 +15,8 @@ EOF
 ARG_ADD="" # -a
 ARG_NEW="" # -n
 ARG_DAILY="" # -d
-while getopts "hand" opt; do
+ARG_BACKLINKS="" # -b
+while getopts "handb" opt; do
    case "${opt}" in
        h)
            echo $USAGE
@@ -31,6 +33,9 @@ while getopts "hand" opt; do
             ;;
         d)
             ARG_DAILY="true"
+            ;;
+        b)
+            ARG_BACKLINKS="true"
             ;;
         ?)
             echo $USAGE
@@ -227,6 +232,80 @@ EOF
     nvim "$daily_file"
 }
 
+function build_backlinks() {
+    local tags_dir="$WIKI_ROOT/tags"
+    
+    # Create tags directory if it doesn't exist
+    if [[ ! -d "$tags_dir" ]]; then
+        mkdir -p "$tags_dir"
+    fi
+    
+    echo "Building hashtag backlinks..."
+    
+    # Find all .md files under WIKI_ROOT
+    local md_files
+    md_files=$(find "$WIKI_ROOT" -name "*.md" -type f)
+    
+    # Collect all unique hashtags
+    local all_hashtags
+    all_hashtags=$(echo "$md_files" | xargs grep -h '#[a-zA-Z0-9_-]\+' -o | sort -u)
+    
+    # Process each hashtag
+    while IFS= read -r hashtag; do
+        [[ -z "$hashtag" ]] && continue
+        
+        # Remove the # sign from hashtag for filename
+        local tag_name="${hashtag#\#}"
+        local hashtag_file="$tags_dir/$tag_name.md"
+        
+        echo "Processing hashtag: $hashtag"
+        
+        # Create/overwrite the hashtag file
+        cat > "$hashtag_file" << EOF
+# Tag: $hashtag
+
+Backlinks to files containing this hashtag:
+
+EOF
+        
+        # Find all files containing this hashtag and create backlinks
+        local found_files
+        found_files=$(echo "$md_files" | xargs grep -l "$hashtag")
+        
+        while IFS= read -r file; do
+            [[ -z "$file" ]] && continue
+            
+            # Get relative path from WIKI_ROOT
+            local rel_path="${file#$WIKI_ROOT/}"
+            
+            # Find lines containing the hashtag and get first 60 chars as link text
+            local hashtag_lines
+            hashtag_lines=$(grep -n "$hashtag" "$file")
+            
+            while IFS= read -r line_info; do
+                [[ -z "$line_info" ]] && continue
+                
+                local line_number=$(echo "$line_info" | cut -d':' -f1)
+                local line_content=$(echo "$line_info" | cut -d':' -f2-)
+                
+                # Get first 60 characters of the line for link text
+                local link_text="${line_content:0:60}"
+                [[ ${#line_content} -gt 60 ]] && link_text="${link_text}..."
+                
+                # Write the backlink in markdown format
+                echo "- [$link_text]($rel_path) (line $line_number)" >> "$hashtag_file"
+                
+            done <<< "$hashtag_lines"
+            
+        done <<< "$found_files"
+        
+        echo "" >> "$hashtag_file"
+        
+    done <<< "$all_hashtags"
+    
+    echo "Hashtag backlinks built successfully in $tags_dir"
+}
+
 
 # Main script logic
 if [[ ! -z "$ARG_ADD" ]]; then
@@ -241,6 +320,11 @@ fi
 
 if [[ ! -z "$ARG_DAILY" ]]; then
     daily_note
+    exit 0
+fi
+
+if [[ ! -z "$ARG_BACKLINKS" ]]; then
+    build_backlinks
     exit 0
 fi
 
