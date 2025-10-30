@@ -83,7 +83,7 @@ function ask_cheats() {
     
     # Find all lines that start with "-" and contain the tag
     local selection
-    selection=$(rg "^-.*$tag" "$WIKI_ROOT" --line-number --with-filename | fzf --prompt "tag: $tag" --delimiter=':' --preview='
+    selection=$(rg "^-.*$tag" "$WIKI_ROOT" --line-number --with-filename -g '!tags/'| fzf --prompt "tag: $tag" --delimiter=':' --preview='
         file={1}
         line={2}
         awk -v start="$line" "
@@ -108,7 +108,7 @@ function ask_cheats() {
     local line_number=$(echo "$selection" | cut -d':' -f2)
     
     # Extract and display the cheat
-    $cheat=$(awk -v start="$line_number" '
+    cheat=$(awk -v start="$line_number" '
         NR >= start {
             if (NR == start || !/^-/) {
                 print
@@ -120,7 +120,7 @@ function ask_cheats() {
 
     to_clipboard=$(printf "yes\nno" | fzf --prompt "Odložit do clipboardu?")
     [[ $to_clipboard == "yes" ]] && echo "$cheat" | $TO_CLIPBOARD
-    echo $TO_CLIPBOARD
+    echo $cheat
 
 }
 
