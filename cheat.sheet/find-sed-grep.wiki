@@ -1,56 +1,56 @@
 -   #find --exec
-    ```bash
-    find . --exec <command> <options> {} ; - provolá <command> pro každý soubor
-    find . --exec <command> <options> {} + - zřetězí soubory do jednoho stringu a provolá command
-    ```
+```bash
+find . --exec <command> <options> {} ; - provolá <command> pro každý soubor
+find . --exec <command> <options> {} + - zřetězí soubory do jednoho stringu a provolá command
+```
 
 -   #find -mindepth -maxdepth
-    ```bash
-    find . -mindepth 1 -maxdepth 1 -type d
-    ```
+```bash
+find . -mindepth 1 -maxdepth 1 -type d
+```
 
 -   #find modification time mtime
-    ```bash
-    find . -type f -mtime +2                # soubury starší než dva dny, mtime
-    ```    
+```bash
+find . -type f -mtime +2                # soubury starší než dva dny, mtime
+```    
 
 -   #find #rmdir - remove all subdirs
-    ```bash
-    find . -mindepth 1 -type d -exec rmdir {} \;
-    ```
+```bash
+find . -mindepth 1 -type d -exec rmdir {} \;
+```
 
 -   #find přejmenování na lowercase v extenzi
-    ```bash
-    find . -type f -name "*.tab" -exec bash -c 'mv "$1" "${1%.tab}.sql"' _ {} \; # *.tab => *.sql
-    ```
+```bash
+find . -type f -name "*.tab" -exec bash -c 'mv "$1" "${1%.tab}.sql"' _ {} \; # *.tab => *.sql
+```
 
 - #grep examples
-    ```bash    
-    # najdi všechny markdowny, které NEOBSAHUJÍ zadanou frázi
-    grep -rL --include="*.md" "identifikace inkrementu" . 
-    ```
+```bash    
+# najdi všechny markdowny, které NEOBSAHUJÍ zadanou frázi
+grep -rL --include="*.md" "identifikace inkrementu" . 
+```
 
 - #grep switches
-    ```bash
-    # grep 
-    #  -l - list - napiš jen názvy souborů
-    #  -n - numbers - dej mi čísla řádek
-    #  -r - recursive
-    #  -i - case insensitive
-    #  -s - supress, nestěžuj si na práva a podobné věci
-    #  -E - to co hledáš je regex
-    #  -v - invert, jen to co se nechytilo
-    # --exclude="*.pattern", --include="*.pattern"    
-    grep -rlis -E 'tb_bndle_id\s+SMALLINT' . | xargs cp --parents -t ../mrep-fix
-    ```
+```bash
+# grep 
+#  -l - list - napiš jen názvy souborů
+#  -n - numbers - dej mi čísla řádek
+#  -r - recursive
+#  -i - case insensitive
+#  -s - supress, nestěžuj si na práva a podobné věci
+#  -E - to co hledáš je regex
+#  -v - invert, jen to co se nechytilo
+# --exclude="*.pattern", --include="*.pattern"    
+grep -rlis -E 'tb_bndle_id\s+SMALLINT' . | xargs cp --parents -t ../mrep-fix
+```
 
 
 - #grep #if line exists in file
-    ```bash
-    # Check if the line exists in the file
-    if grep -qF "$line_to_check" "$file"; then
-        echo "The line exists in the file."
-    else
-        echo "The line does not exist in the file."
-    fi
-    ```
+```bash
+# Check if the line exists in the file
+if grep -qF "$line_to_check" "$file"; then
+    echo "The line exists in the file."
+else
+    echo "The line does not exist in the file."
+fi
+```

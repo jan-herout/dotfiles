@@ -1,17 +1,16 @@
 - #bash #if testy
-    ```bash
-    [[ -z "$VAR" ]] && echo "Prázdná proměnná"
-    [[ -d "$dir" ]] && echo "Adresář existuje"
-    [[ -f "$file" ]] && echo "Soubor existuje"
-
-    ```
+```bash
+[[ -z "$VAR" ]] && echo "Prázdná proměnná"
+[[ -d "$dir" ]] && echo "Adresář existuje"
+[[ -f "$file" ]] && echo "Soubor existuje"
+```
 
 
 - #bash #if test jestli je uživatel root
-    ```bash
-    SUID=$(id | cut -d " " -f 1 | cut -d "=" -f 2 | cut -d "(" -f 1)
-    if [ ! "$SUID" == "0" ]; then
-        echo "Must run this as root!"
-        exit 1
-    fi
-    ```
+```bash
+SUID=$(id | cut -d " " -f 1 | cut -d "=" -f 2 | cut -d "(" -f 1)
+if [ ! "$SUID" == "0" ]; then
+    echo "Must run this as root!"
+    exit 1
+fi
+```

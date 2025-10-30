@@ -1,9 +1,9 @@
 - #vpn #certificate zobrazení a/nebo konverze certifikátu
-    ```bash
-    openssl x509 -in ca.cer -text -noout | less                          # obsah certifikátu
+```bash
+openssl x509 -in ca.cer -text -noout | less                          # obsah certifikátu
 
-    # konverze pro VPN; P12 => pem    
-    openssl pkcs12 -in 228311356.p12 -nokeys -out certificate.pem        # získám samotný certifkát    
-    openssl pkcs12 -in yourfile.p12 -nocerts -out certificate-pass.key   # potom získám privátní klíč    
-    openssl rsa -in certificate-pass.key -out certificate.key            # potom odstraním heslo z privátního klíče
+# konverze pro VPN; P12 => pem    
+openssl pkcs12 -in 228311356.p12 -nokeys -out certificate.pem        # získám samotný certifkát    
+openssl pkcs12 -in yourfile.p12 -nocerts -out certificate-pass.key   # potom získám privátní klíč    
+openssl rsa -in certificate-pass.key -out certificate.key            # potom odstraním heslo z privátního klíče
 ```
