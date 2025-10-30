@@ -6,13 +6,15 @@ Usage:
     $ME <tag> - display list of all cheats and let me select a cheat, then echo the cheat
     $ME -a [filename] - add a new content to a cheat sheet; uses fzf to selected a file if not povided
     $ME -n [filename] - create a new cheatsheet under the WIKI_ROOT
+    $ME -d - open today's daily note (YYYY-MM-DD.md in journal/)
 
 EOF
 )
 
 ARG_ADD="" # -a
 ARG_NEW="" # -n
-while getopts "han" opt; do
+ARG_DAILY="" # -d
+while getopts "hand" opt; do
    case "${opt}" in
        h)
            echo $USAGE
@@ -26,6 +28,9 @@ while getopts "han" opt; do
 
             ARG_NEW="${OPTARG}"
             [[ -z "$ARG_NEW" ]] && ARG_ADD="."
+            ;;
+        d)
+            ARG_DAILY="true"
             ;;
         ?)
             echo $USAGE
@@ -198,6 +203,30 @@ EOF
     nvim "$new_file_path"
 }
 
+function daily_note() {
+    # Get current date in YYYY-MM-DD format
+    local today=$(date +%Y-%m-%d)
+    local journal_dir="$WIKI_ROOT/journal"
+    local daily_file="$journal_dir/$today.md"
+    
+    # Create journal directory if it doesn't exist
+    if [[ ! -d "$journal_dir" ]]; then
+        mkdir -p "$journal_dir"
+    fi
+    
+    # Create the daily note file if it doesn't exist
+    if [[ ! -f "$daily_file" ]]; then
+        cat > "$daily_file" << EOF
+# Daily Note - $today
+
+EOF
+        echo "Created daily note: $today.md"
+    fi
+    
+    # Open the file in nvim
+    nvim "$daily_file"
+}
+
 
 # Main script logic
 if [[ ! -z "$ARG_ADD" ]]; then
@@ -207,6 +236,11 @@ fi
 
 if [[ ! -z "$ARG_NEW" ]]; then
     new_chet "$ARG_NEW"
+    exit 0
+fi
+
+if [[ ! -z "$ARG_DAILY" ]]; then
+    daily_note
     exit 0
 fi
 
