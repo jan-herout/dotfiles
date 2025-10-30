@@ -307,7 +307,7 @@ EOF
                 
                 # Write the backlink in markdown format
                 # Calculate relative path from hashtag file to target file
-                local hashtag_rel_path="$rel_path"
+                local hashtag_rel_path="../$rel_path"
                 echo "- [$link_text]($hashtag_rel_path) (line $line_number)" >> "$hashtag_file"
                 
             done <<< "$hashtag_lines"

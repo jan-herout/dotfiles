@@ -2,5 +2,5 @@
 
 Backlinks to files containing this hashtag:
 
-- [- #fzf ](fzf.wiki) (line 1)
+- [- #fzf ](../fzf.wiki) (line 1)
 

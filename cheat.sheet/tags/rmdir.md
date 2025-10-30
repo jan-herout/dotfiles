@@ -2,5 +2,5 @@
 
 Backlinks to files containing this hashtag:
 
-- [-   #find #rmdir - remove all subdirs](find-sed-grep.wiki) (line 17)
+- [-   #find #rmdir - remove all subdirs](../find-sed-grep.wiki) (line 17)
 
