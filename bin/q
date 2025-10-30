@@ -3,21 +3,56 @@ ME=$(basename "$0")
 USAGE=$(cat <<EOF
 Synopsis: Search my wiki for cheats
 Usage:
-    $ME ask <tag> - display list of all cheats and let me select a cheat, then echo the cheat
-    $ME add - diplay list of all cheats under the WIKI_ROOT, select one, open it in vim
-    $ME new - create a new cheatsheet  under the WIKI_ROOT, ask mne for the name of the file and open it in vim
+    $ME <tag> - display list of all cheats and let me select a cheat, then echo the cheat
+    $ME -a [filename] - add a new content to a cheat sheet; uses fzf to selected a file if not povided
+    $ME -n [filename] - create a new cheatsheet under the WIKI_ROOT
 
 EOF
 )
 
+ARG_ADD="" # -a
+ARG_NEW="" # -n
+while getopts "han" opt; do
+   case "${opt}" in
+       h)
+           echo $USAGE
+           exit 0
+           ;;
+        a)
+            ARG_ADD="${OPTARG}"
+            [[ -z "$ARG_ADD" ]] && ARG_ADD="."
+            ;;
+        n)
+
+            ARG_NEW="${OPTARG}"
+            [[ -z "$ARG_NEW" ]] && ARG_ADD="."
+            ;;
+        ?)
+            echo $USAGE
+            exit 0
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+
+
+DEPENDENCIES=(
+    rg
+    fzf
+    nvim
+    xclip
+)
+for cmd in "${DEPENDENCIES[@]}"; do
+    if ! command -v "$cmd" &> /dev/null; then
+        echo "Error: $cmd is required but not installed"
+        exit 1
+    fi
+done
+
+
 WIKI_ROOT=$HOME/dotfiles/cheat.sheet
-
-
-
-function show_usage() {
-    echo "$USAGE"
-}
-
+TO_CLIPBOARD="xclip -selection clipboard"
 
 # Rules:
 # - list all files under the WIKI_ROOT_HOME
@@ -32,30 +67,13 @@ function ask_cheats() {
     # Check if tag is provided
     if [[ -z "$tag" ]]; then
         echo "Error: Please provide a tag to search for"
-        show_usage
-        exit 1
-    fi
-    
-    # Check if wiki root exists
-    if [[ ! -d "$WIKI_ROOT" ]]; then
-        echo "Error: Wiki root directory '$WIKI_ROOT' does not exist"
-        exit 1
-    fi
-    
-    # Check if ripgrep and fzf are available
-    if ! command -v rg &> /dev/null; then
-        echo "Error: ripgrep (rg) is required but not installed"
-        exit 1
-    fi
-    
-    if ! command -v fzf &> /dev/null; then
-        echo "Error: fzf is required but not installed"
+        echo "$USAGE" 
         exit 1
     fi
     
     # Find all lines that start with "-" and contain the tag
     local selection
-    selection=$(rg "^-.*$tag" "$WIKI_ROOT" --line-number --with-filename | fzf --delimiter=':' --preview='
+    selection=$(rg "^-.*$tag" "$WIKI_ROOT" --line-number --with-filename | fzf --prompt "tag: $tag" --delimiter=':' --preview='
         file={1}
         line={2}
         awk -v start="$line" "
@@ -80,7 +98,7 @@ function ask_cheats() {
     local line_number=$(echo "$selection" | cut -d':' -f2)
     
     # Extract and display the cheat
-    awk -v start="$line_number" '
+    $cheat=$(awk -v start="$line_number" '
         NR >= start {
             if (NR == start || !/^-/) {
                 print
@@ -88,58 +106,52 @@ function ask_cheats() {
                 exit
             }
         }
-    ' "$filename"
+    ' "$filename")
+
+    to_clipboard=$(printf "yes\nno" | fzf --prompt "Odložit do clipboardu?")
+    [[ $to_clipboard == "yes" ]] && echo "$cheat" | $TO_CLIPBOARD
+    echo $TO_CLIPBOARD
+
 }
 
 function add_cheat() {
-    # Check if wiki root exists
-    if [[ ! -d "$WIKI_ROOT" ]]; then
-        echo "Error: Wiki root directory '$WIKI_ROOT' does not exist"
-        exit 1
+    local filename="$1"
+    
+    if [[ "$filename" == "." ]]; then 
+        # Find all files under WIKI_ROOT
+        local selected_file
+        selected_file=$(find "$WIKI_ROOT" -type f -name "*.wiki" | fzf --preview='cat {}' --preview-window=right:70%:wrap)
+        
+        # Check if user made a selection
+        if [[ -z "$selected_file" ]]; then
+            echo "No file selected"
+            exit 0
+        fi
+    else
+        selected_file="$WIKI_ROOT/$filename"
     fi
-    
-    # Check if fzf is available
-    if ! command -v fzf &> /dev/null; then
-        echo "Error: fzf is required but not installed"
+
+    if [[ ! -f "$selected_file" ]]; then
+        echo "file does not exist: $selected_file"
         exit 1
-    fi
-    
-    # Check if vim is available
-    if ! command -v vim &> /dev/null; then
-        echo "Error: vim is required but not installed"
-        exit 1
-    fi
-    
-    # Find all files under WIKI_ROOT
-    local selected_file
-    selected_file=$(find "$WIKI_ROOT" -type f -name "*.wiki" | fzf --preview='cat {}' --preview-window=right:70%:wrap)
-    
-    # Check if user made a selection
-    if [[ -z "$selected_file" ]]; then
-        echo "No file selected"
-        exit 0
     fi
     
     # Open the selected file in vim
-    vim "$selected_file"
+    #
+    nvim "$selected_file"
 }
 
 function new_cheat() {
-    # Check if wiki root exists
-    if [[ ! -d "$WIKI_ROOT" ]]; then
-        echo "Error: Wiki root directory '$WIKI_ROOT' does not exist"
-        exit 1
+    local arg_filename="$1"
+    local filename=""
+
+    if [[ "$arg_filename" == "." ]]; then
+        # Ask for the filename
+        echo -n "Enter the name for the new cheatsheet (without .wiki extension): "
+        read -r filename
+    else
+        filename="$arg_filename"
     fi
-    
-    # Check if vim is available
-    if ! command -v vim &> /dev/null; then
-        echo "Error: vim is required but not installed"
-        exit 1
-    fi
-    
-    # Ask for the filename
-    echo -n "Enter the name for the new cheatsheet (without .wiki extension): "
-    read -r filename
     
     # Check if filename was provided
     if [[ -z "$filename" ]]; then
@@ -183,26 +195,20 @@ EOF
     fi
     
     # Open the file in vim
-    vim "$new_file_path"
+    nvim "$new_file_path"
 }
 
+
 # Main script logic
-case "$1" in
-    ask)
-        ask_cheats "$2"
-        ;;
-    add)
-        add_cheat
-        ;;
-    new)
-        new_cheat
-        ;;
-    -h|--help|help)
-        show_usage
-        ;;
-    *)
-        echo "Error: Unknown command '$1'"
-        show_usage
-        exit 1
-        ;;
-esac
+if [[ ! -z "$ARG_ADD" ]]; then
+    add_cheat "$ARG_ADD"
+    exit 0
+fi
+
+if [[ ! -z "$ARG_NEW" ]]; then
+    new_chet "$ARG_NEW"
+    exit 0
+fi
+
+# default command
+ask_cheats "$1"

@@ -54,4 +54,3 @@ alias rg="rg -i"
 # fix common typos
 alias cmod="chmod"
 alias kess="less"
-alias qq="cheats ask"
