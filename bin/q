@@ -130,7 +130,7 @@ function add_cheat() {
     if [[ "$filename" == "." ]]; then 
         # Find all files under WIKI_ROOT
         local selected_file
-        selected_file=$(find "$WIKI_ROOT" -type f -name "*.wiki" | fzf --preview='cat {}' --preview-window=right:70%:wrap)
+        selected_file=$(find "$WIKI_ROOT" -type f \( -name "*.wiki" -o -name "*.md" \) | fzf --preview='cat {}' --preview-window=right:70%:wrap)
         
         # Check if user made a selection
         if [[ -z "$selected_file" ]]; then
@@ -242,10 +242,22 @@ function build_backlinks() {
     
     echo "Building hashtag backlinks..."
     
-    # Find all .md files under WIKI_ROOT
+    # Find all .md and .wiki files under WIKI_ROOT, excluding the tags directory
     local md_files
-    md_files=$(find "$WIKI_ROOT" -name "*.md" -type f)
+    md_files=$(find "$WIKI_ROOT" -type f \( -name "*.md" -o -name "*.wiki" \) -not -path "$tags_dir/*")
     
+    # Check if any files were found
+    if [[ -z "$md_files" ]]; then
+        echo "No .md or .wiki files found in $WIKI_ROOT"
+        return 1
+    fi
+    
+    # Count and print all found files for debugging
+    local file_count=$(echo "$md_files" | wc -l)
+    echo "Found $file_count files:"
+    echo "$md_files"
+    echo ""
+ 
     # Collect all unique hashtags
     local all_hashtags
     all_hashtags=$(echo "$md_files" | xargs grep -h '#[a-zA-Z0-9_-]\+' -o | sort -u)
@@ -261,6 +273,7 @@ function build_backlinks() {
         echo "Processing hashtag: $hashtag"
         
         # Create/overwrite the hashtag file
+        [[ -f "$hashtag_file" ]] && rm "$hashtag_file"
         cat > "$hashtag_file" << EOF
 # Tag: $hashtag
 
@@ -293,12 +306,13 @@ EOF
                 [[ ${#line_content} -gt 60 ]] && link_text="${link_text}..."
                 
                 # Write the backlink in markdown format
-                echo "- [$link_text]($rel_path) (line $line_number)" >> "$hashtag_file"
+                # Calculate relative path from hashtag file to target file
+                local hashtag_rel_path="$rel_path"
+                echo "- [$link_text]($hashtag_rel_path) (line $line_number)" >> "$hashtag_file"
                 
             done <<< "$hashtag_lines"
             
         done <<< "$found_files"
-        
         echo "" >> "$hashtag_file"
         
     done <<< "$all_hashtags"
