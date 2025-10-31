@@ -1,0 +1,30 @@
+ - #console #font a jeho velikost na Ubuntu
+
+```bash
+man 5 console-setup
+
+# edituj soubor /etc/default/console-setup - ale v souladu s docs
+
+# ACTIVE_CONSOLES="/dev/tty[1-6]"
+# CHARMAP="UTF-8"
+# CODESET="guess"
+# FONTFACE="Terminus" # was: Fixed
+# FONTSIZE="32x16" # was: 8x16
+# VIDEOMODE=
+
+# potom spustit
+sudo dpkg-reconfigure console-setup
+```
+
+- #console #font na #archlinux
+```bash
+# temporary change
+ls /usr/lib/kbd/consolefonts/
+sudo setfont Lat15-Terminus16
+
+# permanent change
+# Edit or create the /etc/vconsole.conf file to specify a font permanently. For example:
+FONT="Lat15-Terminus16x32"
+
+
+```
