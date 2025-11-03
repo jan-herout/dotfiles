@@ -11,6 +11,10 @@ Zkrácený cheat sheet k btrfs
 
 - <https://christitus.com/btrfs-guide/>
 
+Hyprland
+
+- <https://github.com/gaurav23b/simple-hyprland?tab=readme-ov-file>
+
 ## Příprava instalačního média
 
 Viz [archwiki](https://wiki.archlinux.org/title/Installation_guide#Prepare_an_installation_medium).
@@ -212,6 +216,7 @@ Následně provedu instalaci nezbytných balíčků, a některých doplňující
 pacman -Syy 
 pacstrap -K /mnt base linux linux-firmware 
 pacstrap -K /mnt zram-generator nvim                # protože chci řešit swap a TMP jako zram
+pacstrap -K /mnt tree
 
 arch-chroot /mnt
 ```
@@ -275,6 +280,7 @@ pacman -S [amd|intel]-ucode # zvol si kterou architekturu
 # před tím než tohle provedeš musíš být "uvnitř" arch-chroot /mnt!
 # předpokládám že tam jsi
 # timedatectl list-timezones | grep Prague
+# TODO: tohle nevypadá komplet, podle archwiki se tam zakládá symlink...
 timedatectl set-timezone Europe/Prague
 hwclock --systohc
 timedatectl set-ntp true
@@ -334,10 +340,104 @@ umount -A --recursive /mnt          # recursive umount
 reboot now
 ```
 
+## Other software
+
+### yay
+
+```bash
+cd $HOME
+mkdir git && cd git
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si
+
+yay --version
+
+cd $HOME
+rm -rg git/yay
+```
+
+Synopsis:
+
+```bash
+yay -S package          # install a package
+yay -R package          # remove a package
+yay -Rns package_name   # remove with all dependencies
+yay -Syu                # update all
+yay -Sua                # update AUR only
+```
+
+### hyprland
+
+```bash
+sudo pacman -S \
+  pipewire wireplumber pipewire-audio pipewire-pulse \
+  firefox alacritty wezterm dolphin \
+  dunst xdg-desktop-portal-hyprland hyprpolkitagent hyprpaper hyprlock hypridle \
+  wl-clipboard sddm \
+  rofi feh nwg-look \
+  qt5-wayland qt6-wayland waybar kvantum qt5ct qt6ct \
+  bluez bluez-utils blueman sof-firmware \
+  podman distrobox flatpak
+
+# yay -s vda=agent # pokud jsi na virtuálce! pak půjde sdílet clipboard z jednoho na druhý
+# alternativně SSH přístup s pomocí sshd - sudo systemctl start sshd
+sudo systemctl enable sddm
+sudo systemctl enable bluetooth
+
+# xorg se instaluje protože chceme být schopní pdovozovati X aplikace!
+sudo pacman -S hyprland xorg
+sudo reboot now
+```
+
+```bash
+yay -S grimblast-git visual-studio-code-bin microsoft-edge-dev-bin
+flatpak install flathub io.dbeaver.DBeaverCommunity
+```
+
+Hyperland se pak dá spustit pomocí `Hyprland`, exit je `Super+M` a terminál `Super+Q` (defaultní zkratky).
+
 # Tips, tricks
+
+### Site-based konfigurace?
+
+```bash
+hyprland --config ~/.config/hypr.config.home
+hyprland --config ~/.config/hypr.config.work
+```
+
+Z toho plyne, že je možné navázat kompletně konfiguraci na proměnné (monitory), předpokládám dva, můžu monitor 1 a monitor 2 nasměrovat na stejný displej (built in);
+můžu mít master konfigurák který jen provede include těch správných částí, a zbytek konfigurace mít zvlášť.
 
 ### Zamčený účet?
 
-````bash
+```bash
 sudo faillock --user your_username --reset
 ```
+
+### Pacman/yay nadává na timeouty a pomalou linku?
+
+```bash
+sudo pacman --disable-download-timeout -S <packages>
+```
+
+### SSHD
+
+Pokud jde o virtual PC, může se hodit tohle:
+
+```bash
+sudo pacman -S openssh
+sudo systemctl start sshd
+sudo systemctl enable sshd
+```
+
+Následně na host počítači:
+
+```bash
+find-virtual-ip       # napsal jsem si na to skript
+ssh <user>@<ip>
+```
+
+### Waybar
+
+<https://github.com/ashish-kus/waybar-minimal/blob/main/src/config>

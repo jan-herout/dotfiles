@@ -244,7 +244,7 @@ function build_backlinks() {
     
     # Find all .md and .wiki files under WIKI_ROOT, excluding the tags directory
     local md_files
-    md_files=$(find "$WIKI_ROOT" -type f \( -name "*.md" -o -name "*.wiki" \) -not -path "$tags_dir/*")
+    md_files=$(find "$WIKI_ROOT" -type f \( -name "*.wiki" -o -name "*.wiki" \) -not -path "$tags_dir/*")
     
     # Check if any files were found
     if [[ -z "$md_files" ]]; then
