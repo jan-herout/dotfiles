@@ -54,3 +54,14 @@ else
     echo "The line does not exist in the file."
 fi
 ```
+
+- #tr převod na lowercase
+```bash
+tr '[:upper:]' '[:lower:]'
+
+# například: podej mi všechny hist skripty SCD25v2
+cd /home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/
+find . -type f  | grep -iE "historize_.*25(0|1)2"  | cut -d'/' -f7 | cut -d. -f3 | sed 's/_[0-9]\{9\}//' |  tr '[:upper:]' '[:lower:]' | sort | uniq | sed 's/historize_//'
+
+# zavedl jsem si dva skripty, to-lower a to-upper, abych si to nemusel pamatovat; provolají tr...
+```
