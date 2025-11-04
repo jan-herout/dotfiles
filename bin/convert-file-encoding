@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+# doc: convert a file or bunch of files from source encoding to UTF-8
+# Source basic functions
+source "$HOME/bin/basic-func.sh" || { echo "Failed to source basic-func.sh"; exit 1; }
+read -r -d '' USAGE <<'EOF'
+convert-file: convert a file or bunch of files from source encoding to UTF-8
+convert-file <input_file_or_folder> -i <input_encoding> -o <output encoding>
+EOF
+
+# parse options
+ARG_INPUT_ENCODING=""
+ARG_OUTPUT_ENCODING=""
+ARG_PATH=""
+while getopts "hio" opt; do
+   case "${opt}" in
+        h)
+           echo $USAGE
+           exit 0
+           ;;
+        i)
+            ARG_INPUT_ENCODING="${OPTARG}"
+            ;;
+        o)
+
+            ARG_OUTPUT_ENCODING="${OPTARG}"
+            [[ -z "$ARG_NEW" ]] && ARG_ADD="."
+            ;;
+        ?)
+            echo $USAGE
+            exit 0
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
+ARG_PATH="$1"
+
+[[ -z "$ARG_PATH" ]] && fdie "$USAGE"
+
+ENCODINGS="utf-8
+iso-8859-2
+windows-1250    
+utf-16
+utf-32
+"
+
+if [[ -z "$ARG_INPUT_ENCODING" ]]; then
+    ARG_INPUT_ENCODING=$(echo "$ENCODINGS" | fzf --prompt "Input encoding?")
+    [[ -z "$ARG_INPUT_ENCODING" ]] && fdie "No input encoding selected."
+fi
+
+if [[ -z "$ARG_OUTPUT_ENCODING" ]]; then
+    ARG_OUTPUT_ENCODING=$(echo "$ENCODINGS" | fzf --prompt "Output encoding?")
+    [[ -z "$ARG_OUTPUT_ENCODING" ]] && fdie "No output encoding selected."
+fi
+
+function convert_file() {
+    local file="$1"
+    local ie="$2"
+    local oe="$3"
+
+    local tempfile="$file~converted~"
+    local original="$file~original~"        
+    iconv --from="$ie" --to="$oe" "$file" >"$tempfile"
+
+    if [[ ! $? -eq 0 ]]; then
+        exit 1
+    fi
+
+    mv "$file" "$original" || fdie "failed to move $file to $original"
+    mv "$tempfile" "$file" || fdie "failed to move $tempfile to $file"
+    rm "$original" || fdie "failed to delete $original"    
+}
+
+if [[ -f "$ARG_PATH" ]]; then
+    convert_file "$ARG_PATH" "$ARG_INPUT_ENCODING" "$ARG_OUTPUT_ENCODING"
+    exit $?
+fi
+
+flog "Diving into $ARG_PATH"
+find "$ARG_PATH" -type f | while read -r file; do
+    flog "$ARG_INPUT_ENCODING=>$ARG_OUTPUT_ENCODING $file" info
+    convert_file "$file" "$ARG_INPUT_ENCODING" "$ARG_OUTPUT_ENCODING" || flog "Failed to convert $file" error
+    
+done
