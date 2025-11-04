@@ -4,22 +4,18 @@
 source "$HOME/bin/basic-func.sh" || { echo "Failed to source basic-func.sh"; exit 1; }
 read -r -d '' USAGE <<'EOF'
 convert-file: convert a file or bunch of files from source encoding to UTF-8
-convert-file <input_file_or_folder> -i <input_encoding> -o <output encoding>
+convert-file <input_file_or_folder> -o <output encoding>
 EOF
 
 # parse options
-ARG_INPUT_ENCODING=""
 ARG_OUTPUT_ENCODING=""
 ARG_PATH=""
-while getopts "hio" opt; do
+while getopts "ho" opt; do
    case "${opt}" in
         h)
            echo $USAGE
            exit 0
            ;;
-        i)
-            ARG_INPUT_ENCODING="${OPTARG}"
-            ;;
         o)
 
             ARG_OUTPUT_ENCODING="${OPTARG}"
@@ -43,42 +39,91 @@ utf-16
 utf-32
 "
 
-if [[ -z "$ARG_INPUT_ENCODING" ]]; then
-    ARG_INPUT_ENCODING=$(echo "$ENCODINGS" | fzf --prompt "Input encoding?")
-    [[ -z "$ARG_INPUT_ENCODING" ]] && fdie "No input encoding selected."
-fi
-
 if [[ -z "$ARG_OUTPUT_ENCODING" ]]; then
     ARG_OUTPUT_ENCODING=$(echo "$ENCODINGS" | fzf --prompt "Output encoding?")
     [[ -z "$ARG_OUTPUT_ENCODING" ]] && fdie "No output encoding selected."
 fi
 
-function convert_file() {
-    local file="$1"
-    local ie="$2"
-    local oe="$3"
 
-    local tempfile="$file~converted~"
-    local original="$file~original~"        
-    iconv --from="$ie" --to="$oe" "$file" >"$tempfile"
+function get-encoding() {    
+    local file_output
+    file_output=$(file -i "$1" 2>/dev/null)
 
-    if [[ ! $? -eq 0 ]]; then
+    if [[ $? -ne 0 ]]; then
+        echo ""
+        exit 1
+    fi
+    
+    echo "$file_output" | grep -iq 'charset=[a-z0-9-]*ascii'
+    if [[ $? -eq 0 ]]; then
+        echo "utf-8"
+        exit 0
+    fi
+
+    echo "$file_output" | grep -iq UTF-16
+    if [[ $? -eq 0 ]]; then
+        echo "utf-16"
+        exit 0
+    fi
+
+    echo "$file_output" | grep -iq UTF-8
+    if [[ $? -eq 0 ]]; then
+        echo "utf-8"
+        exit 0
+    fi
+
+    echo "$file_output" | grep -iq ISO-8859-2
+    if [[ $? -eq 0 ]]; then
+        echo "iso-8859-2"
+        exit 0
+    fi
+
+    echo "$file_output" | grep -iq ISO-8859
+    if [[ $? -eq 0 ]]; then
+        echo "windows-1250"
+        exit 0
+    fi
+    echo ""
+    exit 1
+}
+
+function _convert_file() {
+    local file="$1"    
+    local oe="$2"
+    local ie=$(get-encoding "$file")
+    if [[ -z "$ie" ]]; then 
+        echo "unknown encoding: $file" 
         exit 1
     fi
 
-    mv "$file" "$original" || fdie "failed to move $file to $original"
-    mv "$tempfile" "$file" || fdie "failed to move $tempfile to $file"
-    rm "$original" || fdie "failed to delete $original"    
+    if [[ "$ie" == "$oe" ]]; then
+        echo "file already in target encoding"
+        exit 0
+    fi
+    
+
+    local tempfile="$file~converted~"
+    local original="$file~original~"        
+    iconv --from="$ie" --to="$oe" "$file" >"$tempfile" 2>/dev/null
+    [[ ! $? -eq 0 ]] && exit 1
+    
+    mv "$file" "$original" || exit 1    
+    mv "$tempfile" "$file" || exit 1    
+    rm "$original" || exit 1
+    echo "$ie=>$oe: $file"    
+    exit 0
 }
 
 if [[ -f "$ARG_PATH" ]]; then
-    convert_file "$ARG_PATH" "$ARG_INPUT_ENCODING" "$ARG_OUTPUT_ENCODING"
-    exit $?
+    msg=$(_convert_file "$ARG_PATH" "$ARG_OUTPUT_ENCODING")
+    if [[ $? -ne 0 ]]; then
+        flog "$ARG_PATH to $ARG_OUTPUT_ENCODING: $msg" error
+    fi
 fi
 
 flog "Diving into $ARG_PATH"
-find "$ARG_PATH" -type f | while read -r file; do
-    flog "$ARG_INPUT_ENCODING=>$ARG_OUTPUT_ENCODING $file" info
-    convert_file "$file" "$ARG_INPUT_ENCODING" "$ARG_OUTPUT_ENCODING" || flog "Failed to convert $file" error
-    
+find "$ARG_PATH" -type f | while read -r file; do 
+    flog "converting $file"
+    msg=$(_convert_file "$file" "$ARG_OUTPUT_ENCODING")
+    [[ ! $? -eq 0 ]] && flog "Failed to convert $file: $msg" error
 done
