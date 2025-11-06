@@ -2,7 +2,6 @@
 
 # source all libs
 source_dirs=(
-    "$HOME/bin/lib"
     "$HOME/bin/init"
     "$HOME/bin/init/completions"
 )

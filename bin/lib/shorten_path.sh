@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# ORIGINAL REPO: https://github.com/andresgongora/bash-tools    
 
 ##  +-----------------------------------+-----------------------------------+
 ##  |                                                                       |

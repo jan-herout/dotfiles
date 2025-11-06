@@ -39,15 +39,12 @@
 ##==============================================================================
 ##	EXTERNAL DEPENDENCIES
 ##==============================================================================
+# see also: ../lib/assemble_script.sh
 [ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
 
-include './bash-tools/color.sh'
-include './bash-tools/shorten_path.sh'
-include './synth-shell/config/synth-shell-prompt.config.default'
-
-
-
-
+include '../lib/color.sh'
+include '../lib/shorten_path.sh'
+include 'synth-shell/config/synth-shell-prompt.config.default'
 
 
 synth_shell_prompt()
