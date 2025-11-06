@@ -511,7 +511,11 @@ if [ "${BASH_SOURCE[0]}" == "${0}" ]; then
 
 elif [ -n "$( echo $- | grep i )" ]; then
 	if command -v tput >/dev/null 2>&1 && tput setaf 1 >&/dev/null; then
-		synth_shell_prompt
+        # guard to only execute this if we are on a terminal emulator
+        # text console has issues with the prompt style, use default
+        if [[ ! -z "$DISPLAY" ]]; then
+    		synth_shell_prompt
+        fi
 	fi
 	unset synth_shell_prompt
 	unset include
