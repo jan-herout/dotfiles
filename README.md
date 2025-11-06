@@ -2,6 +2,16 @@
 
 This repository contains a collection of useful scripts, configurations, and tools that make daily development work more efficient. The repository is organized to help with various tasks including Git operations, file management, system administration, and project navigation.
 
+## Synth-Shell
+
+See the original repo: <https://github.com/andresgongora/synth-shell>
+
+Dependencies:
+
+- powerline-fonts - `sudo apt install fonts-powerline`, `yay -S powerline-fonts`
+- terminal font - recommended: [hack-ttf](https://sourcefoundry.org/hack/)
+
+
 ## What's Inside
 
 ### 📁 Repository Structure
