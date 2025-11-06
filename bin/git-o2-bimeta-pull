@@ -1,35 +1,16 @@
 #!/usr/bin/env bash
 # doc: Automatický pull bimeta repozitáře s time-based throttling
 
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
+include "lib/git.sh"
+
 # colors
-COLOR_ERR="\e[31mERR\e[0m"
-COLOR_TRY="\033[33mTRY\033[0m"
-COLOR_OK="\033[34mOK\033[0m "
 BIMETA_DIR=$HOME/o2/BIDEV-MAIN_bimeta
 PWD=$(pwd)
 last_update_file="/tmp/BIDEV-MAIN_bimeta-last-update.txt"
 pull_interval_minutes=15
-
-# create a bail out function that accepts a message and exists with an error code
-bail_out() {
-    echo -e "$COLOR_ERR: $1"
-    read -p "Press enter to continue..."
-    exit 1
-}
-
-check_repo_clean() {
-    # Check if we are inside a git repository
-    git rev-parse --is-inside-work-tree >/dev/null 2>&1 || bail_out "Not inside a git repository."
-
-    # Return 1 if there are any changes (staged, unstaged, untracked, deleted, renamed, etc.)
-    if [ -n "$(git status --porcelain)" ]; then
-        return 1
-    fi
-    return 0
-}
-
-
-
 
 # we are using the last_update file to avoid pulling too often
 # when the file is not there, we assume we need to pull
@@ -51,16 +32,16 @@ if [ -f "$last_update_file" ]; then
         
         # Check if enough time has passed
         if [ $time_diff -lt $pull_interval_seconds ]; then
-            echo -e "$COLOR_OK: Last update was $(($time_diff / 60)) minutes ago. Skipping pull (interval: ${pull_interval_minutes} minutes)."
+            printSuccess "Last update was $(($time_diff / 60)) minutes ago. Skipping pull (interval: ${pull_interval_minutes} minutes)."
             should_pull=false
         else
-            echo -e "$COLOR_TRY: Last update was $(($time_diff / 60)) minutes ago. Proceeding with pull."
+            printWarn "Last update was $(($time_diff / 60)) minutes ago. Proceeding with pull."
         fi
     else
-        echo -e "$COLOR_TRY: Could not read last update file. Proceeding with pull."
+        printWarn "Could not read last update file. Proceeding with pull."
     fi
 else
-    echo -e "$COLOR_TRY: No last update file found. Proceeding with pull."
+    printWarn "No last update file found. Proceeding with pull."
 fi
 
 # Exit early if we don't need to pull
@@ -68,24 +49,24 @@ if [ "$should_pull" = false ]; then
     exit 0
 fi
 
-echo -e "$COLOR_TRY: $BIMETA_DIR: checking the repo"
-cd $BIMETA_DIR || bail_out "Failed to change directory to BIMETA_DIR."
-check_repo_clean || bail_out "$BIMETA_DIR: repository is not clean."
+printInfo "$BIMETA_DIR: checking the repo"
+cd $BIMETA_DIR || fDie "Failed to change directory to BIMETA_DIR."
+check_repo_clean || fDie "$BIMETA_DIR: repository is not clean."
 
 
-echo -e "$COLOR_TRY: $BIMETA_DIR: switching to main, pulling latest changes"
-git switch main || bail_out "$BIMETA_DIR: Failed to switch to main branch."
-git fetch || bail_out "$BIMETA_DIR: Failed to fetch latest changes."
-git pull --rebase || bail_out "$BIMETA_DIR: Failed to pull latest changes."
+printInfo "$BIMETA_DIR: switching to main, pulling latest changes"
+git switch main || fDie "$BIMETA_DIR: Failed to switch to main branch."
+git fetch || fDie "$BIMETA_DIR: Failed to fetch latest changes."
+git pull --rebase || fDie "$BIMETA_DIR: Failed to pull latest changes."
 
 # Return to original directory
-cd "$PWD" || bail_out "Failed to return to original directory."
+cd "$PWD" || fDie "Failed to return to original directory."
 
 # Update the last update file timestamp
-echo -e "$COLOR_TRY: Updating last update timestamp"
-touch "$last_update_file" || bail_out "Failed to update last update file."
+printInfo "Updating last update timestamp"
+touch "$last_update_file" || fDie "Failed to update last update file."
 
-echo -e "$COLOR_OK: BIMETA repository updated successfully."
+printSuccess "BIMETA repository updated successfully."
 
 
 

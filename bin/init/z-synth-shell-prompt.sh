@@ -164,9 +164,11 @@ getGitBranch()
         local symbol=$SSP_GIT_SYNCED
     fi
 
-    ## Get commit tag (if any).
+    ## Get commit tag (if any).	
+	if [[ $git_show_tag -eq 1 ]]; then
     [[ -n "$(git tag --points-at HEAD)" ]] &&\
             local tag=" $(git tag --points-at HEAD)" || local tag=""
+	fi
 
     ## Get stash count (if any).
     local git_stash=""

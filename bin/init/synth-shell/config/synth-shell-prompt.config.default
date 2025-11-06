@@ -92,6 +92,7 @@ git_symbol_dirty_unpushed=' ◔ △'
 git_symbol_dirty_unpulled=' ◔ ▽'
 git_symbol_dirty_unpushedunpulled=' ◔ ◇'
 git_symbol_stash='🗎'
+git_show_tag=0                  # set this to 1 if you want to see git tag in the shell
 git_update_period_minutes=15	# Use -1 to disable automatic updates
 
 

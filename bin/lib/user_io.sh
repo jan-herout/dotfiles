@@ -107,7 +107,8 @@ printCrit()     { _printBase "$UIO_FC_CRIT" "$UIO_SIGN_CRIT" "$@"            ; }
 printError()    { _printBase "$UIO_FC_ERRO" "$UIO_SIGN_ERRO" "$@"            ; }
 
 
-
+# USAGE
+# promptUser "text" "options" "valid_options" "default_options"
 promptUser()
 {
 	local text="$1"
