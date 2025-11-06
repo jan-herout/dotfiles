@@ -86,6 +86,9 @@ today() {
 }
 
 extract() {
+    # Enable extended globbing
+    shopt -s extglob
+    
     local c e i
 
     (($#)) || return
