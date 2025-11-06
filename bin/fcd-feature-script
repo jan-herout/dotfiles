@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # doc: Rychlé přepínání do feature adresářů pomocí fzf
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
+
 FEAT_DIR="$HOME/o2-feature"
 SELECTED_DIR=$(find $HOME/o2-feature -maxdepth 1 -type d | grep -vE "o2-feature$" | fzf)
+[[ ! -n "$SELECTED_DIR" ]] && fDie "No directory selected."
+SELECTED_DIR="${SELECTED_DIR%%#*}" # get everything before the pound (strip comments)
+SELECTED_DIR=$(echo "$SELECTED_DIR" | sed 's/[[:space:]]*$//') # strip spaces at the end
+cd "$SELECTED_DIR"
+printSuccess "cd $SELECTED_DIR"
 
-# Check if a directory was selected
-if [[ ! -n "$SELECTED_DIR" ]]; then
-  echo "No directory selected."
-else
-    SELECTED_DIR="${SELECTED_DIR%%#*}" # get everything before the pound (strip comments)
-    SELECTED_DIR=$(echo "$SELECTED_DIR" | sed 's/[[:space:]]*$//') # strip spaces at the end
-    echo "go to $SELECTED_DIR"
-    cd "$SELECTED_DIR"
-fi

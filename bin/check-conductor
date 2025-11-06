@@ -1,56 +1,31 @@
 #!/usr/bin/env bash
 # doc: Kontroluje CONDUCTOR logy pro vybraný mart a engine
 
-# colors
-MM_ERR="\e[31mERR\e[0m"
-MM_TRY="\033[33mTRY\033[0m"
-MM_OK="\033[34mOK\033[0m "
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
 
 
 # produkce a mount point
-echo -e "$MM_TRY: checking mount point"
-
 MNT_FILE="$HOME/dotfiles/bin/net-mount-points/virt_node@prod"
-source $MNT_FILE
+source "$MNT_FILE" || fDie "Failed to source: $MNT_FILE"
 findmnt $_MNT_ >/dev/null 2>&1
-if [ $? -ne 0 ]; then
-    echo -e "$MM_ERR: not mounted: $_MNT_"
-    exit 1
-fi
-echo -e "$MM_OK: mounted"
+[ $? -ne 0 ] && fDie "not mounted: $_MNT_"
+
 
 # vyber engine
 PMROOTDIR=$(echo "PMRootDir_ASG
-PMRootDir_A29
-" | fzf)
-
-if [[ -z "$PMROOTDIR" ]] ; then
-    echo -e "$MM_ERR: Empty selection"
-    exit 1    
-else
-    echo -e "$MM_OK: Checking $PMROOTDIR"
-fi
-
+PMRootDir_A29" | fzf)
+[[ -z "$PMROOTDIR" ]] && fDie "Empty selection: PMROOTDIR='$PMROOTDIR'"
 PMWORKFLOWLOGDIR=$(echo $PMROOTDIR | sed s/PMRootDir/PMWorkflowLogDir/)
 
 # vyber jeden mart
 DEF_MASK="$_MNT_/EDW/$PMROOTDIR/py_mart_def/*.json"
-echo -e "$MM_TRY: get list of def files"
-MART=$(ls -1 $DEF_MASK | cut -d '/' -f 7  | sed  s/.json// | fzf)
-echo $MART
-
-# pokud nemáš mart, nic nedělej
-if [[ -z "$MART" ]] ; then
-    echo -e "$MM_ERR: Empty selection"
-    exit 1    
-else
-    echo -e "$MM_OK: Checking $MART"
-fi
+MART=$(ls -1 $DEF_MASK | cut -d '/' -f 7  | sed  s/.json// | fzf --prompt "Vyber datamart")
+[[ -z "$MART" ]] && fDie "Empty selection"
 
 # pokud máš mart, projeď jeho historii
 LOG_FILE=$(find "$_MNT_/EDW/$PMWORKFLOWLOGDIR" -maxdepth 1 -type f -name "*CONDUCTOR*" | head -n 1 )
-echo -e "$MM_TRY: checking: $LOG_FILE"
+[[ -z "$LOG_FILE" ]] && fDie "Nenašel jsem ani jeden log soubor jobu CONDUCTOR"
 
-cat $LOG_FILE | grep $MART | grep -E 'next_run_dttm|missing|_restart_mart_starter_job|schedule'
-
-#  grep "critical" | grep $MART | tail
+cat $LOG_FILE | grep $MART | grep -E 'next_run_dttm|missing|_restart_mart_starter_job|schedule' | batcat

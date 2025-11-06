@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 # doc: Připojí VPN a namountuje síťové disky s možností git fetch
-source $HOME/bin/basic-func.sh
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
 
 # tohle sice nesouvisí se sítí ale fakt mě to štve
 amixer -c 1 set Headphone unmute
-
-if [[ $? -eq 0 ]]; then
-  flog "Sourcing succeeded"
-else
-  echo "Sourcing failed"
-  exit 1
-fi
 
 mount_points_def_dir=$HOME/bin/net-mount-points
 domain_passfile=$HOME/Vaults/o2/domain-password.txt
@@ -23,12 +18,12 @@ mount
 jenom vpn" | fzf)
 
 # sanity check and cryfs
-[[ -d "$mount_points_def_dir" ]] || fdie "Directory does not exist: $mount_points_def_dir"
+[[ -d "$mount_points_def_dir" ]] || fDie "Directory does not exist: $mount_points_def_dir"
 if [[ ! -f "$domain_passfile" ]]; then
-    flog "try to read: $domain_passfile" info
-    cryfs $HOME/.local/share/plasma-vault/o2.enc $HOME/Vaults/o2/ || fdie "cryfs failed"
+    printInfo "try to read: $domain_passfile"
+    cryfs $HOME/.local/share/plasma-vault/o2.enc $HOME/Vaults/o2/ || fDie "cryfs failed"
 fi
-[[ -f "$domain_passfile" ]] || fdie "File does not exist: $domain_passfile"
+[[ -f "$domain_passfile" ]] || fDie "File does not exist: $domain_passfile"
 
 
 # načti secrets a další
@@ -36,8 +31,8 @@ var_me=$(whoami)
 var_uid=$(id -u $var_me)
 var_gid=$(id -g $var_me)
 var_pass=$(<$HOME/Vaults/o2/domain-password.txt)
-[[ -z $var_pass ]] && fdie "failed to read domain password from $domain_passfile"
-flog "secrets read sucessfully" info
+[[ -z $var_pass ]] && fDie "failed to read domain password from $domain_passfile"
+printInfo "secrets read sucessfully"
 
 # test napojení na VPN
 is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
@@ -46,13 +41,13 @@ is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
 if [[ -z "$is_on_vpn" ]]; then
     # CISCO # if [[ ! -d "$HOME/.cisco" ]]; then
     # CISCO #     flog "copy certificates: cp -r $src_cisco_path $HOME" warning
-    # CISCO #     cp -r "$src_cisco_path" $HOME || fdie "copy failed!"
-    # CISCO #     [[ -d "$HOME/.cisco" ]] || fdie "folder $HOME/.cisco does not exist!"
+    # CISCO #     cp -r "$src_cisco_path" $HOME || fDie "copy failed!"
+    # CISCO #     [[ -d "$HOME/.cisco" ]] || fDie "folder $HOME/.cisco does not exist!"
     # CISCO # fi
 
-	flog "connecting to VPN" warning
-	nmcli connection up extvpn.o2.cz 1>/dev/null 2>&1 || fdie "failed to connect"
-    # CISCO # # lepší přes GUI $vpn_client connect extvpn.o2.cz || fdie "failed to connect"
+	printInfo "connecting to VPN"
+	nmcli connection up extvpn.o2.cz 1>/dev/null 2>&1 || fDie "failed to connect"
+    # CISCO # # lepší přes GUI $vpn_client connect extvpn.o2.cz || fDie "failed to connect"
     # CISCO # $vpn_client_ui >/dev/null 2>&1 & 
     
     # infinite loop
@@ -65,7 +60,7 @@ if [[ -z "$is_on_vpn" ]]; then
         # COSCO # fi
         is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
         if [[ -z "$is_on_vpn" ]]; then
-            flog "waiting on VPN to connect..." warning
+            printInfo "waiting on VPN to connect..."
             sleep 1
         else
             break
@@ -73,7 +68,7 @@ if [[ -z "$is_on_vpn" ]]; then
     done 
     [[ -f $HOME/Vaults/o2/after-connect.sh ]] && $HOME/Vaults/o2/after-connect.sh
 else
-    flog "VPN is already connected" info
+    printSuccess "VPN is already connected"
 fi
 
 $HOME/bin/set-proxy-on
@@ -83,15 +78,15 @@ $HOME/bin/set-proxy-on
 #if [ "${__MOUNT_DRIVES__^^}" = "Y" ]; then 
 if [[ "$what_to_do" =~ "mount" ]]; then
     for mount_point in "$mount_points_def_dir"/*; do
-        flog "read $mount_point" info
+        printInfo "read $mount_point"
         source $mount_point
 
         if [ -d "$_MNT_" ]; then
             findmnt $_MNT_ >/dev/null 2>&1
             if [ $? -eq 0 ]; then
-                flog "directory is already mounted: $_MNT_" warning
+                printWarning "directory is already mounted: $_MNT_"
             else
-                flog "mounting $_SRC_" info
+                printInfo "mounting $_SRC_" info
                 MM_OPTIONS="domain=TO2,username=X0548834,"
                 MM_OPTIONS+="password=$var_pass,"
                 MM_OPTIONS+="uid=$var_uid,"
@@ -101,7 +96,7 @@ if [[ "$what_to_do" =~ "mount" ]]; then
                 sudo mount -t cifs -o $MM_OPTIONS $_SRC_ $_MNT_
 
                 if [[ $? -gt 0 ]]; then
-                    flog "failed to mount $_SRC_" error
+                    printError "failed to mount $_SRC_"
                 fi
             fi
         fi

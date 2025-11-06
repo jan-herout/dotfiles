@@ -2,20 +2,11 @@
 # doc: Updatuje main a develop větve v BIDEV repozitářích BIDEV-MAIN_edw a BIDEV-MAIN_bimeta
 
 [ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
-include "lib/user_io.sh"
+include "lib/user_io.sh" 
 include "lib/die.sh"
 include "lib/git.sh"
 
-func_update_repo() {
-    local repo=$1
-    local branch=$2
-    pushd "$repo"      || fDie "Failed to change directory to $repo"
-    check_repo_clean   || fDie "$repo: repository is not clean."
-    git switch $branch || fDie "$repo: Failed to switch to main branch."
-    git pull --rebase  || fDie "$repo: Failed to pull latest changes."    
-    return 0
-}
 
-func_update_repo "$HOME/o2/BIDEV-MAIN_edw" main    || fdie "Failed to update BIDEV-MAIN_edw repository."
-func_update_repo "$HOME/o2/BIDEV-MAIN_edw" develop || fdie "Failed to update BIDEV-MAIN_edw repository."
-func_update_repo "$HOME/o2/BIDEV-MAIN_bimeta" main || fdie "Failed to update BIDEV-MAIN_vodwh repository."
+gitUpdateRepo "$HOME/o2/BIDEV-MAIN_edw" main    || fDie "Failed to update BIDEV-MAIN_edw repository."
+gitUpdateRepo "$HOME/o2/BIDEV-MAIN_edw" develop || fDie "Failed to update BIDEV-MAIN_edw repository."
+gitUpdateRepo "$HOME/o2/BIDEV-MAIN_bimeta" main || fDie "Failed to update BIDEV-MAIN_vodwh repository."

@@ -30,7 +30,7 @@
 ## MAIN FORMAT
 ##==============================================================================
 # format="USER HOST PWD GIT PYENV TF KUBE"
-format="PWD GIT PYENV"
+format="GIT PWD PYENV"
 
 separator_char='\uE0B0'           # Separation character, '\uE0B0'=triangle
 separator_padding_left=''         # Add char or string to the left of the separator
@@ -93,7 +93,7 @@ git_symbol_dirty_unpulled=' ◔ ▽'
 git_symbol_dirty_unpushedunpulled=' ◔ ◇'
 git_symbol_stash='🗎'
 git_show_tag=0                  # set this to 1 if you want to see git tag in the shell
-git_update_period_minutes=15	# Use -1 to disable automatic updates
+git_update_period_minutes=-1	# Use -1 to disable automatic updates
 
 
 
@@ -129,8 +129,8 @@ texteffect_tf="bold"
 ##==============================================================================
 ## CLOCK
 ##==============================================================================
-font_color_clock="white"
-background_clock="light-blue"
+font_color_clock="11"
+background_clock="20"
 texteffect_clock="bold"
 
 clock_format="%H:%M"
