@@ -84,7 +84,7 @@ if [[ "$what_to_do" =~ "mount" ]]; then
         if [ -d "$_MNT_" ]; then
             findmnt $_MNT_ >/dev/null 2>&1
             if [ $? -eq 0 ]; then
-                printWarning "directory is already mounted: $_MNT_"
+                printWarn "directory is already mounted: $_MNT_"
             else
                 printInfo "mounting $_SRC_" info
                 MM_OPTIONS="domain=TO2,username=X0548834,"

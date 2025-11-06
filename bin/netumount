@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
 # doc: Odpojí síťové disky a volitelně i VPN spojení
-
-source $HOME/bin/basic-func.sh
-if [[ $? -eq 0 ]]; then
-  flog "Sourcing succeeded"
-else
-  echo "Sourcing failed"
-  exit 1
-fi
-
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
 
 mount_points_def_dir=$HOME/bin/net-mount-points
 domain_passfile=$HOME/Vaults/o2/domain-password.txt
@@ -16,12 +10,12 @@ vpn_client="/opt/cisco/anyconnect/bin/vpn"
 vpn_client_ui="vpnui"
 
 # sanity check and cryfs
-[[ -d "$mount_points_def_dir" ]] || fdie "Directory does not exist: $mount_points_def_dir"
+[[ -d "$mount_points_def_dir" ]] || fDie "Directory does not exist: $mount_points_def_dir"
 if [[ ! -f "$domain_passfile" ]]; then
-    flog "try to read: $domain_passfile" info
-    cryfs $HOME/.local/share/plasma-vault/o2.enc $HOME/Vaults/o2/ || fdie "cryfs failed"
+    printInfo "try to read: $domain_passfile"
+    cryfs $HOME/.local/share/plasma-vault/o2.enc $HOME/Vaults/o2/ || fDie "cryfs failed"
 fi
-[[ -f "$domain_passfile" ]] || fdie "File does not exist: $domain_passfile"
+[[ -f "$domain_passfile" ]] || fDie "File does not exist: $domain_passfile"
 
 # co chceme dělat
 CHOICE=$(echo "jenom umount
@@ -30,14 +24,14 @@ umount a disconnect vpn" | fzf)
 
 # proveď umount
 for mount_point in "$mount_points_def_dir"/*; do
-    source $mount_point || fdie "failed to source $mount_point"
+    source $mount_point || fDie "failed to source $mount_point"
     if [[ -d "$_MNT_" ]]; then
         findmnt $_MNT_ >/dev/null 2>&1
         if [[ $? -eq 0 ]]; then
-            flog "unmount: $_MNT_" warning
+            printWarn "unmount: $_MNT_"
             sudo umount -l $_MNT_
             if [[ ! $? -eq 0 ]]; then
-                flog "unmount failed"
+                printError "unmount failed"
             fi
         fi
     fi
@@ -60,11 +54,11 @@ if [[ "$CHOICE" =~ "umount a disconnect vpn" ]]; then
     # CISCO # fi    
     IS_O2_CONUP=$(nmcli connection show --active | grep extvpn.o2.cz)
     if [ -z "$IS_O2_CONUP" ]; then
-        flog "disconnected" info        
+        printInfo "disconnected"
     else
         nmcli connection down extvpn.o2.cz
         $HOME/bin/set-proxy-off
     fi
 fi
 
-flog "done" info
+printSuccess "DONE"

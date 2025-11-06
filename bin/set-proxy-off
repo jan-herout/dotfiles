@@ -1,4 +1,7 @@
-source "$HOME/bin/basic-func.sh" 
+#!/bin/bash
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
 
 export http_proxy=""
 export https_proxy=""
@@ -9,7 +12,7 @@ cur_proxy=""
 
 
 
-flog "git config --global --unset http.proxy" info
+printInfo "git config --global --unset http.proxy"
 [[ -f $HOME/.gitproxy ]] && rm $HOME/.gitproxy
 echo "[http]
-    proxy = " >$HOME/.gitproxy || flog "Failed to set http_proxy: $http_proxy" error
+    proxy = " >$HOME/.gitproxy || fDie "Failed to write to $HOME/.gitproxy"

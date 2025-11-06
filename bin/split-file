@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # doc: Rozděluje soubor na části po řádcích round-robin způsobem
 
-# Source basic functions
-source "$HOME/bin/basic-func.sh" || { echo "Failed to source basic-func.sh"; exit 1; }
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
 
 # Default values
 PARTS=2
@@ -31,12 +32,12 @@ positional_args=()
 while [[ $# -gt 0 ]]; do
     case $1 in
         --parts)
-            [[ -z "$2" ]] && fdie "--parts requires a value"
+            [[ -z "$2" ]] && fDie "--parts requires a value"
             PARTS="$2"
             shift 2
             ;;
         --dir)
-            [[ -z "$2" ]] && fdie "--dir requires a value"
+            [[ -z "$2" ]] && fDie "--dir requires a value"
             OUTPUT_DIR="$2"
             shift 2
             ;;
@@ -44,7 +45,7 @@ while [[ $# -gt 0 ]]; do
             show_usage
             ;;
         -*)
-            fdie "Unknown option: $1"
+            fDie "Unknown option: $1"
             ;;
         *)
             positional_args+=("$1")
@@ -55,7 +56,7 @@ done
 
 # Process positional arguments
 if [[ ${#positional_args[@]} -eq 0 ]]; then
-    fdie "Input filename is required"
+    fDie "Input filename is required"
 elif [[ ${#positional_args[@]} -eq 1 ]]; then
     INPUT_FILE="${positional_args[0]}"
 elif [[ ${#positional_args[@]} -eq 2 ]]; then
@@ -64,30 +65,26 @@ elif [[ ${#positional_args[@]} -eq 2 ]]; then
     if [[ "$OUTPUT_DIR" == "$(pwd)" ]]; then
         OUTPUT_DIR="${positional_args[1]}"
     else
-        fdie "Cannot specify both --dir and positional output directory"
+        fDie "Cannot specify both --dir and positional output directory"
     fi
 else
-    fdie "Too many positional arguments. Expected: <filename> [<output_dir>]"
+    fDie "Too many positional arguments. Expected: <filename> [<output_dir>]"
 fi
 
 # Validate parameters
-[[ -z "$INPUT_FILE" ]] && fdie "Input filename is required"
-[[ ! -f "$INPUT_FILE" ]] && fdie "Input file does not exist: $INPUT_FILE"
-[[ ! "$PARTS" =~ ^[0-9]+$ ]] && fdie "Parts must be a positive integer: $PARTS"
-[[ "$PARTS" -lt 1 ]] && fdie "Parts must be at least 1: $PARTS"
-[[ ! -d "$OUTPUT_DIR" ]] && fdie "Output directory does not exist: $OUTPUT_DIR"
-[[ ! -w "$OUTPUT_DIR" ]] && fdie "Output directory is not writable: $OUTPUT_DIR"
+[[ -z "$INPUT_FILE" ]] && fDie "Input filename is required"
+[[ ! -f "$INPUT_FILE" ]] && fDie "Input file does not exist: $INPUT_FILE"
+[[ ! "$PARTS" =~ ^[0-9]+$ ]] && fDie "Parts must be a positive integer: $PARTS"
+[[ "$PARTS" -lt 1 ]] && fDie "Parts must be at least 1: $PARTS"
+[[ ! -d "$OUTPUT_DIR" ]] && fDie "Output directory does not exist: $OUTPUT_DIR"
+[[ ! -w "$OUTPUT_DIR" ]] && fDie "Output directory is not writable: $OUTPUT_DIR"
 
 # Get base filename without path
 BASE_NAME=$(basename "$INPUT_FILE")
 
-flog "Splitting file '$INPUT_FILE' into $PARTS parts" info
-flog "Output directory: $OUTPUT_DIR" info
-flog "Base filename: $BASE_NAME" info
-
-# Read input file line by line and distribute round-robin
-# For better performance with large files, use awk instead of bash loop
-flog "Using awk for efficient processing of large files" info
+printInfo "Splitting file '$INPUT_FILE' into $PARTS parts" 
+printInfo "Output directory: $OUTPUT_DIR"
+printInfo "Base filename: $BASE_NAME"
 
 awk -v parts="$PARTS" -v base_dir="$OUTPUT_DIR" -v base_name="$BASE_NAME" '
 BEGIN {
@@ -115,13 +112,11 @@ END {
 }' "$INPUT_FILE"
 
 total_lines=$(wc -l < "$INPUT_FILE")
-flog "Processed $total_lines lines" info
+printSuccess "Processed $total_lines lines"
 
 # Show summary
 for ((i=1; i<=PARTS; i++)); do
     part_file="$OUTPUT_DIR/${BASE_NAME}_part${i}"
     part_lines=$(wc -l < "$part_file")
-    flog "Part $i: $part_file ($part_lines lines)" info
+    printSuccess "Part $i: $part_file ($part_lines lines)" info
 done
-
-flog "File splitting completed successfully" info

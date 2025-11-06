@@ -28,7 +28,7 @@ if [[ "$commit" == *commit* ]]; then
     git commit -m "$commit_message" || fDie "$BIMETA_DIR: Failed to commit changes."
     printSuccess "$BIMETA_DIR: changes committed successfully."
 else
-    printWarning "$BIMETA_DIR: no changes committed."
+    printWarn "$BIMETA_DIR: no changes committed."
     exit 0
 fi
 
@@ -37,7 +37,7 @@ if [[ "$commit" == *push* ]]; then
     git push || fDie "$BIMETA_DIR: Failed to push changes."
     printSuccess "$BIMETA_DIR: push successful."
 else
-    printWarning "$BIMETA_DIR: NO PUSH!"    
+    printWarn "$BIMETA_DIR: NO PUSH!"    
     read -p "Press enter to continue..."
     exit 0
 fi

@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # doc: convert a file or bunch of files from source encoding to UTF-8
 # Source basic functions
-source "$HOME/bin/basic-func.sh" || { echo "Failed to source basic-func.sh"; exit 1; }
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
+
 read -r -d '' USAGE <<'EOF'
 convert-file: convert a file or bunch of files from source encoding to UTF-8
 convert-file <input_file_or_folder> -o <output encoding>
@@ -30,7 +33,7 @@ done
 shift $((OPTIND - 1))
 ARG_PATH="$1"
 
-[[ -z "$ARG_PATH" ]] && fdie "$USAGE"
+[[ -z "$ARG_PATH" ]] && fDie "$USAGE"
 
 ENCODINGS="utf-8
 iso-8859-2
@@ -41,7 +44,7 @@ utf-32
 
 if [[ -z "$ARG_OUTPUT_ENCODING" ]]; then
     ARG_OUTPUT_ENCODING=$(echo "$ENCODINGS" | fzf --prompt "Output encoding?")
-    [[ -z "$ARG_OUTPUT_ENCODING" ]] && fdie "No output encoding selected."
+    [[ -z "$ARG_OUTPUT_ENCODING" ]] && fDie "No output encoding selected."
 fi
 
 
@@ -117,13 +120,12 @@ function _convert_file() {
 if [[ -f "$ARG_PATH" ]]; then
     msg=$(_convert_file "$ARG_PATH" "$ARG_OUTPUT_ENCODING")
     if [[ $? -ne 0 ]]; then
-        flog "$ARG_PATH to $ARG_OUTPUT_ENCODING: $msg" error
+        printError "$ARG_PATH to $ARG_OUTPUT_ENCODING: $msg"
     fi
 fi
 
-flog "Diving into $ARG_PATH"
-find "$ARG_PATH" -type f | while read -r file; do 
-    flog "converting $file"
+printInfo "Diving into $ARG_PATH"
+find "$ARG_PATH" -type f | while read -r file; do     
     msg=$(_convert_file "$file" "$ARG_OUTPUT_ENCODING")
-    [[ ! $? -eq 0 ]] && flog "Failed to convert $file: $msg" error
+    [[ ! $? -eq 0 ]] && printError "$file: $msg" || printSuccess "$file"
 done

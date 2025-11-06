@@ -1,5 +1,8 @@
 #!/bin/bash
-source "$HOME/bin/basic-func.sh" 
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
+
 
 is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
 if [[ -z "$is_on_vpn" ]]; then  
@@ -10,21 +13,20 @@ O2_USERNAME=""
 O2_PASSWORD=""
 
 if ! test -f ~/Vaults/o2/o2_username.txt; then
-  fdie "First, connect to o2 vault." error
+  fDie "First, connect to o2 vault."
 fi
 
 
 if ! test -f ~/Vaults/o2/o2_password.txt; then
-  fdie "First, connect to o2 vault."
+  fDie "First, connect to o2 vault."
 fi
 
 
 
-O2_USERNAME=`cat ~/Vaults/o2/o2_username.txt`
-O2_PASSWORD=`cat ~/Vaults/o2/o2_password.txt`
+O2_USERNAME=$(cat ~/Vaults/o2/o2_username.txt)
+O2_PASSWORD=$(cat ~/Vaults/o2/o2_password.txt)
 O2_PROXY="internet-proxy-s1.cz.o2:8080"
 
-flog "Setting proxy for $O2_USERNAME" info
 export http_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
 fake_proxy="http://$O2_USERNAME:**********@$O2_PROXY"
 export https_proxy="http://$O2_USERNAME:$O2_PASSWORD@$O2_PROXY"
@@ -32,7 +34,7 @@ export HTTP_PROXY=$http_proxy
 export HTTPS_PROXY=$https_proxy
 export no_proxy="localhost,127.0.0.1,::1"
 export NO_PROXY="localhost,127.0.0.1,::1"
-
+printSuccess "These variables has been set: http_proxy, https_proxy, HTTP_PROXY, HTTPS_PROXY, no_proxy, NO_PROXY"
 # set git proxy
 
 # git config --global http.proxy "$http_proxy" || flog "Failed to set http_proxy: $http_proxy" error
@@ -45,5 +47,5 @@ if [[ -z "$cur_proxy" ]] ; then
   rm $HOME/.gitproxy
   echo "[http]
 	    proxy = $http_proxy" >$HOME/.gitproxy
-    flog "git config --global http.proxy $fake_proxy" info
+  printSuccess "git config --global http.proxy $fake_proxy"
 fi

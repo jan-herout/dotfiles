@@ -1,23 +1,19 @@
 #!/usr/bin/env bash
 # doc: Umount CIFS s automatickým zabíjením blokujících procesů
-
-source $HOME/bin/basic-func.sh
-if [[ $? -ne 0 ]]; then
-  echo "sourcing failed"
-  exit 1
-fi
-
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
 
 MOUNT_POINT=$(ls /mnt | fzf --prompt="Vyber mount: ")
-[[ -z "$MOUNT_POINT" ]] && fdie "No mount selected, bail out"
+[[ -z "$MOUNT_POINT" ]] && fDie "No mount selected, bail out"
 
 sudo umount "/mnt/$MOUNT_POINT"
 if [ $? -eq 0 ]; then
-    flog "Unmounted $MOUNT_POINT successfully" info
+    printInfo "Unmounted $MOUNT_POINT successfully"
     exit 0
 fi
 
-flog "Error unmounting $MOUNT_POINT, find blocking pids" error
+printError "Error unmounting $MOUNT_POINT, find blocking pids" error
 
 # PIDy
 KILL_THESE=$(lsof \
@@ -26,7 +22,7 @@ KILL_THESE=$(lsof \
     | xargs -I{} sh -c 'echo -n "PID: {} CMD: "; tr "\0" " " < /proc/{}/cmdline; echo' \
     | fzf --prompt="Select PID to kill (Shift+Tab to select multiple) ")
 
-[[ -z "$KILL_THESE" ]] && fdie "no pids selected, bail out"
+[[ -z "$KILL_THESE" ]] && fDie "no pids selected, bail out"
 
 # read the selection and kill the PIDs, separator is \0 character
 IFS=$'\0' read -r -a ITEMS <<< "$KILL_THESE"
@@ -37,13 +33,13 @@ for ITEM in "${ITEMS[@]}"; do
     if [[ -n "$PID" ]]; then
         kill -9 "$PID"
         if [[ $? -eq 0 ]]; then
-            flog "PID $PID killed successfully" info
+            printSuccess "PID $PID killed successfully"
         else 
-            flog "Error killing PID $PID" warning
+            printError "Error killing PID $PID"
         fi
     fi
 done
 
 # try again
-sudo umount "/mnt/$MOUNT_POINT" || fdie "Error unmounting $MOUNT_POINT" 
-flog "done"
+sudo umount "/mnt/$MOUNT_POINT" || fDie "Error unmounting $MOUNT_POINT" 
+printSuccess "done"

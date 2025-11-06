@@ -30,7 +30,7 @@
 ## MAIN FORMAT
 ##==============================================================================
 # format="USER HOST PWD GIT PYENV TF KUBE"
-format="GIT PWD PYENV"
+format="USER PWD GIT PYENV"
 
 separator_char='\uE0B0'           # Separation character, '\uE0B0'=triangle
 separator_padding_left=''         # Add char or string to the left of the separator
@@ -44,8 +44,8 @@ enable_command_on_new_line=false  # Add new line between prompt and command
 ##==============================================================================
 ## USER
 ##==============================================================================
-font_color_user="white"
-background_user="blue"
+font_color_user=11
+background_user=16
 texteffect_user="bold"
 
 

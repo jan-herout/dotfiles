@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # doc: Interaktivní CIFS mount s automatickým nastavením credentials a práv
 
-source $HOME/bin/basic-func.sh
-if [[ $? -ne 0 ]]; then
-  echo "sourcing failed"
-  exit 1
-fi
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
+
+set -e
 
 network_username="a1548834"
 linux_username=$(whoami)
@@ -13,7 +13,7 @@ var_uid=$(id -u $linux_username)
 var_gid=$(id -g $linux_username)
 
 CREDENTIALS=$HOME/Vaults/o2/o2_a1548834_cifs_credentials.txt
-[[ ! -f "$CREDENTIALS" ]] && fdie "No pass provided, bail out: $CREDENTIALS"
+[[ ! -f "$CREDENTIALS" ]] && fDie "No pass provided, bail out: $CREDENTIALS"
 
 RANDOM_NAME=$(head /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 16)
 WRITABLE_CREDENTIALS="/tmp/$RANDOM_NAME"
@@ -21,48 +21,46 @@ WRITABLE_CREDENTIALS="/tmp/$RANDOM_NAME"
 
 # select the share to be mounted
 MOUNTFILE=$(ls $HOME/bin/a-write-mounts | fzf --prompt="Vyber mount: ")
-[[ -z "$MOUNTFILE" ]] && fdie "No mount selected, bail out"
+[[ -z "$MOUNTFILE" ]] && fDie "No mount selected, bail out"
 
 
 # source the mount file and set vars
 source $HOME/bin/a-write-mounts/$MOUNTFILE
-
-
 
 mounttype=$(echo "ro - read only
 rw - read write" | fzf --prompt="Mount type: " --header="Choose mount type")
 _SUFFIX_=",$(echo $mounttype | awk '{ print $1 }')"
 
 # copy credentials
-cp $CREDENTIALS $WRITABLE_CREDENTIALS || fdie "failed to copy credentials"
-chmod 666 $WRITABLE_CREDENTIALS || fdie "failed to make credentials readable"
+cp $CREDENTIALS $WRITABLE_CREDENTIALS || fDie "failed to copy credentials"
+chmod 666 $WRITABLE_CREDENTIALS || fDie "failed to make credentials readable"
 
 MOUNT_POINT=$_MNT_
 SHARE_UNC=$_SRC_
 
 findmnt $MOUNT_POINT >/dev/null 2>&1
 if [ $? -eq 0 ]; then
-    flog "directory is already mounted: $MOUNT_POINT" warning
+    printSuccess "directory is already mounted: $MOUNT_POINT"
 else
-    flog "mounting $SHARE_UNC to $MOUNT_POINT" info
+    printInfo "mounting $SHARE_UNC to $MOUNT_POINT"
     MM_OPTIONS="credentials=$WRITABLE_CREDENTIALS,"
     MM_OPTIONS+="uid=$var_uid,"
     MM_OPTIONS+="gid=$var_gid,"
     MM_OPTIONS+="dir_mode=0755,file_mode=0755"
     MM_OPTIONS+=$_SUFFIX_
     if [[ ! -d $MOUNT_POINT ]]; then
-        flog "mount point does not exist, creating it"
+        printWarn "mount point does not exist, creating it... you may have to tyupe sudo password"
         sudo mkdir $MOUNT_POINT
     fi
-    flog "mount options: $MM_OPTIONS" info    
+    printInfo "mount options: $MM_OPTIONS"
     sudo mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
     if [ $? -ne 0 ]; then
-        flog "mount failed" error
-        flog "- ca: https://pam.cz.o2/PasswordVault/v10/Accounts" error
-        flog "- check credentials: $CREDENTIALS" error
-        echo sudo mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
+        printError "mount failed" error
+        printError "- ca: https://pam.cz.o2/PasswordVault/v10/Accounts"
+        printError "- check credentials: $CREDENTIALS" error
+        printError "sudo mount -t cifs -o \"$MM_OPTIONS\" \"$SHARE_UNC\" \"$MOUNT_POINT\""
 
     fi
 fi
 
-# rm $WRITABLE_CREDENTIALS
+rm $WRITABLE_CREDENTIALS
