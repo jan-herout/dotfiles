@@ -148,7 +148,9 @@ cfdisk /dev/vda
   - SUN, SGI - ignorovat ....
 
 - pokud disk není prázdný, všechny partitions smažu (kurzorovými klávesami volím delete)
+
 - následně partitions vytvořím s požadaovaným místem
+
 - následně jim nastavím správný typ a první partition označím flagem bootable - cfdisk na to má tlačítka na spodní liště!
 
   - boot partition: bootable flag, typ je buď `0b` pro DOS boot, nebo `ef` pro EFI boot!
@@ -157,12 +159,16 @@ cfdisk /dev/vda
 ### Naformátování disku
 
 Východiska:
+
 - samostatná root partition, rozdělená na tři části... logy a Pacman cache stojí zvlášť, protože
+
   - se často mění
   - může jít o docela velké soubory
   - při havárii systému nemá (nejspíše) velký smysl tyhle dvě části řešit
+
 - samostatná home partition
-- btrfs potřebuje vytvořit subvlumes, aby jeho použití vůbec dávalo smysl!
+
+- btrfs potřebuje vytvořit subvolumes, aby jeho použití vůbec dávalo smysl!
 
 ```bash
 # ověřím, že vše proběhlo tak jak mělo
@@ -202,8 +208,7 @@ lsblk
 
 ## Samotná instalace
 
-Nejdříve použiju reflector k tomu, abych zvolil mirror, který mi je blízko.
-Toto není nezbytný krok, ale je OK to udělat.
+Nejdříve použiju reflector k tomu, abych zvolil mirror, který mi je blízko. Toto není nezbytný krok, ale je OK to udělat.
 
 ```bash
 reflector --country Czechia --age 12 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
@@ -223,10 +228,9 @@ arch-chroot /mnt
 
 ## Post-install steps
 
-
 ### SWAP na zram
 
-**TODO** - tahle část mi neprošla! 
+**TODO** - tahle část mi neprošla!
 
 nastavíme ZRAM swap, v tomto okamžiku je dobré vědět, kolik paměti mu chci dát.
 
@@ -254,7 +258,7 @@ exit
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
-### Instalace dalších balíčků 
+### Instalace dalších balíčků
 
 ```bash
 arch-chroot /mnt            # pokud tam nejsi
@@ -304,10 +308,10 @@ echo Arch >/etc/hostnamee
 passwd      # set root password
 useradd -m jan
 passwd jan
-usermod -aG wheel,audio,video,storage john
+usermod -aG wheel,audio,video,storage,bluetooth john
 ```
 
-Následně 
+Následně
 
 ```bash
 visudo
@@ -316,7 +320,6 @@ visudo
 ```
 
 ### grub, services
-
 
 ```bash
 # EFI
@@ -332,6 +335,10 @@ grub-mkconfig -o /boot/grub/grub.cfg
 systemctl enable dhcpcd
 systemctl enable NetworkManager
 systemctl enable iwd                # pouze na WIFI
+systemctl enable bluetooth.service
+
+# Add user to bluetooth group
+# sudo usermod -a -G bluetooth $USER
 ```
 
 ```bash
@@ -367,17 +374,24 @@ yay -Syu                # update all
 yay -Sua                # update AUR only
 ```
 
+### Flatpak
+
+```bash
+flatpak install io.dbeaver.DBeaverCommunity
+# jak ho pak spustit: flatpak run --branch=stable --arch=x86_64 --command=/app/bin/dbeaver io.dbeaver.DBeaverCommunity
+```
+
 ### hyprland
 
 ```bash
 sudo pacman -S \
-  pipewire wireplumber pipewire-audio pipewire-pulse \
+  pipewire wireplumber pipewire-audio pipewire-pulse sof-firmware \
   firefox alacritty wezterm dolphin \
   dunst xdg-desktop-portal-hyprland hyprpolkitagent hyprpaper hyprlock hypridle \
   wl-clipboard sddm \
   rofi feh nwg-look \
   qt5-wayland qt6-wayland waybar kvantum qt5ct qt6ct \
-  bluez bluez-utils blueman sof-firmware \
+  bluez bluez-utils blueman \
   podman distrobox flatpak
 
 # yay -s vda=agent # pokud jsi na virtuálce! pak půjde sdílet clipboard z jednoho na druhý
@@ -397,31 +411,40 @@ flatpak install flathub io.dbeaver.DBeaverCommunity
 
 Hyperland se pak dá spustit pomocí `Hyprland`, exit je `Super+M` a terminál `Super+Q` (defaultní zkratky).
 
+Editovat `~/.config/hypr/hyprland.conf`:
+
+```bash
+# Autostart bluetooth applet
+exec-once = blueman-applet
+
+# Optional: Bluetooth quick toggle keybind
+bind = $mainMod, B, exec, blueman-manager
+```
+
 # Tips, tricks
 
-### Site-based konfigurace?
+## Site-based konfigurace?
 
 ```bash
 hyprland --config ~/.config/hypr.config.home
 hyprland --config ~/.config/hypr.config.work
 ```
 
-Z toho plyne, že je možné navázat kompletně konfiguraci na proměnné (monitory), předpokládám dva, můžu monitor 1 a monitor 2 nasměrovat na stejný displej (built in);
-můžu mít master konfigurák který jen provede include těch správných částí, a zbytek konfigurace mít zvlášť.
+Z toho plyne, že je možné navázat kompletně konfiguraci na proměnné (monitory), předpokládám dva, můžu monitor 1 a monitor 2 nasměrovat na stejný displej (built in); můžu mít master konfigurák který jen provede include těch správných částí, a zbytek konfigurace mít zvlášť.
 
-### Zamčený účet?
+## Zamčený účet?
 
 ```bash
 sudo faillock --user your_username --reset
 ```
 
-### Pacman/yay nadává na timeouty a pomalou linku?
+## Pacman/yay nadává na timeouty a pomalou linku?
 
 ```bash
 sudo pacman --disable-download-timeout -S <packages>
 ```
 
-### SSHD
+## SSHD
 
 Pokud jde o virtual PC, může se hodit tohle:
 
@@ -438,6 +461,31 @@ find-virtual-ip       # napsal jsem si na to skript
 ssh <user>@<ip>
 ```
 
-### Waybar
+## Waybar
 
 <https://github.com/ashish-kus/waybar-minimal/blob/main/src/config>
+
+## Timeshift, snapper
+
+- In addition to timeshift, there is an AUR package named timeshift-autosnap which does a snapshot every time before pacman/yay does updates. For the restore/boot into from Grub there's another AUR package named grub-btrfs which does exactly what you want it to.
+- Grub-btrfs is a bit dangerous if you don't know exactly what it's doing imo <https://www.reddit.com/r/archlinux/comments/1f0xwue/did_i_just_rm_rf_my_entire_linux_installation/>
+
+## Timeshift vs Snapper for BTRFS Backups
+
+### Timeshift
+- **Ease of Use**: Designed for simplicity, with a GUI available.
+- **Focus**: Primarily for system snapshots (root filesystem), not user data.
+- **Integration**: Works well with `timeshift-autosnap` (AUR) for automatic snapshots before updates.
+- **Grub Integration**: Use `grub-btrfs` (AUR) to list snapshots in the GRUB menu for easy rollback.
+- **Limitations**: Less flexible for advanced BTRFS features like per-subvolume snapshots.
+
+### Snapper
+- **Flexibility**: Highly configurable, supports multiple snapshot configurations (e.g., root, home, etc.).
+- **Advanced Features**: Allows fine-grained control over snapshot retention policies.
+- **Command-Line Focus**: No official GUI, but third-party tools exist.
+- **Integration**: Works seamlessly with `snap-pac` for automatic snapshots during updates.
+- **Learning Curve**: More complex to set up and manage compared to Timeshift.
+
+### Recommendation
+- **Choose Timeshift** if you prefer simplicity and primarily need system snapshots.
+- **Choose Snapper** if you want advanced control over snapshots and plan to manage multiple subvolumes.
