@@ -19,9 +19,11 @@
 ## - Values in the range [0-255] for 256 bit colors. To check all number-color
 ##   pairs for your terminal, you may run the following snippet by HaleTom:
 ##     curl -s https://gist.githubusercontent.com/HaleTom/89ffe32783f89f403bba96bd7bcd1263/raw/ | bash
+## Saved as: all.colors.sh
 ##   or search something like "bash 256 color codes" on the internet.
 ##
 ##==============================================================================
+
 
 
 ##==============================================================================
@@ -60,8 +62,10 @@ texteffect_host="bold"
 ##==============================================================================
 ## PWD (working dir)
 ##==============================================================================
-font_color_pwd="dark-gray"
-background_pwd="white"
+#font_color_pwd="dark-gray"
+#background_pwd="white"
+font_color_pwd=11
+background_pwd=18
 texteffect_pwd="bold"
 
 max_pwd_char="25"
@@ -72,8 +76,11 @@ pwd_trunc_symbol="…"
 ##==============================================================================
 ## GIT
 ##==============================================================================
-font_color_git="light-gray"
-background_git="dark-gray"
+# font_color_git="light-gray"
+# background_git="dark-gray"
+font_color_git=11
+background_git=20
+
 texteffect_git="bold"
 
 git_symbol_synced=''
@@ -92,8 +99,10 @@ git_update_period_minutes=15	# Use -1 to disable automatic updates
 ##==============================================================================
 ## PYENV
 ##==============================================================================
-font_color_pyenv="white"
-background_pyenv="black"
+# font_color_pyenv="white"
+# background_pyenv="black"
+font_color_pyenv=11
+background_pyenv=24
 texteffect_pyenv="bold"
 
 
