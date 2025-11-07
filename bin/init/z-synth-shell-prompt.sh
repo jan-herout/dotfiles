@@ -44,7 +44,7 @@
 
 include '../lib/color.sh'
 include '../lib/shorten_path.sh'
-include 'synth-shell/config/synth-shell-prompt.config.default'
+include 'synth-shell/config/synth-shell-jan.config'
 
 
 synth_shell_prompt()
@@ -215,11 +215,21 @@ getPyenv()
 		echo "$CONDA_DEFAULT_ENV"
 	## Python virtual environment
 	elif [ -n "${VIRTUAL_ENV:-}" ]; then
-        local regex='PS1=\"\((.*?)\)\s\$\{PS1'
-        local pyenv=$(cat $VIRTUAL_ENV/bin/activate |\
-                perl -n -e"/$regex/ && print \$1" 2> /dev/null)
-        if [ -z "${pyenv}" ]; then
-            local pyenv=$(basename ${VIRTUAL_ENV})
+		if [ "$pyenv_parse_activate" == "true" ]; then
+        	local regex='PS1=\"\((.*?)\)\s\$\{PS1'
+        	local pyenv=$(cat $VIRTUAL_ENV/bin/activate |\
+            	    perl -n -e"/$regex/ && print \$1" 2> /dev/null)
+		fi
+		if [ -z "${pyenv}" ]; then
+			if [ "$pyenv_use_parent_basename" == "true" ]; then
+				local pyenv=$(realpath "${VIRTUAL_ENV}/..")
+				local pyenv="${pyenv##*/}"
+				local pyenv=$(shortenPath "$pyenv")
+				local pyenv="${pyenv}${pyenv_python_symbol}"
+			else
+				local pyenv=$(basename ${VIRTUAL_ENV})
+			fi
+            
         fi
 		echo "$pyenv"
 	fi
