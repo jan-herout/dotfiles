@@ -215,11 +215,13 @@ getPyenv()
 		echo "$CONDA_DEFAULT_ENV"
 	## Python virtual environment
 	elif [ -n "${VIRTUAL_ENV:-}" ]; then
+		# parse the activation script to get name of the env
 		if [ "$pyenv_parse_activate" == "true" ]; then
         	local regex='PS1=\"\((.*?)\)\s\$\{PS1'
         	local pyenv=$(cat $VIRTUAL_ENV/bin/activate |\
             	    perl -n -e"/$regex/ && print \$1" 2> /dev/null)
 		fi
+		# otherwise, use name of the directory the venv is in
 		if [ -z "${pyenv}" ]; then
 			if [ "$pyenv_use_parent_basename" == "true" ]; then
 				local pyenv=$(realpath "${VIRTUAL_ENV}/..")
