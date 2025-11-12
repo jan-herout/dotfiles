@@ -50,6 +50,9 @@ Tady ale instalujeme ArchLinux, a klávesnici (po dobu instalace) nastavíme jin
 # moc mi to nepomohlo: ls /usr/share/kbd/consolefonts/
 setfont lat2-16
 
+# pokud je font mrňavý tak takhle ho zvedneš na dvojnásobnou velikost
+setfont -d
+
 # takhle se můžu podívat, jaký layout je k dispozici
 # výstup jde do pageru, a můžu v něm hledat stejně jako např. v less
 # localectl list-keymaps
@@ -120,7 +123,7 @@ Z toho mi vychází následující partitioning tabulka
 size         | primary? | bootable? | type                                       | budoucí mount point
 ------------ | -------- | --------- | ------------------------------------------ | -------------------
 `1GB`        | ano      | ANO       | `ef` pro EFI nebo `0b` pro W95 FAT32 (DOS) | boot
-`100GB`      | ano      |           | `83` - Linux                               | `/`
+`250GB`      | ano      |           | `83` - Linux                               | `/`
 zbytek místa | ano      |           | `83` - Linux                               | `/home`
 
 ### Postup
@@ -179,6 +182,11 @@ mkfs.fat -F32 /dev/vd1 # EFI boot!
 mkfs.btrfs /dev/vd2    # /
 mkfs.btrfs /dev/vd3    # /home
 
+# swap
+mkswap /dev/swap_partition              # pokud jsi dělal swap
+swapon /dev/swap_partition              # pokud jsi dělal swap
+
+
 # pro btrfs je NUTNÉ vytvořit subvolumes, jinak to absolutně postrádá smysl
 # aby to šlo udělat, je nutné je dočasně namountovat
 mount /dev/vda2 /mnt                    # /
@@ -192,6 +200,8 @@ mount /dev/vda3 /mnt                    # /home
 btrfs subvolume create /mnt/@home       # mount --mkdir -o subvol=@home /dev/vda3 /home
 umount /mnt
 btrfs subvolume create /mnt/sda2
+
+
 
 # následně prvedu finální mount
 mount -o subvol=@ /dev/vda2 /mnt

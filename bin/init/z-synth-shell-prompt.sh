@@ -447,8 +447,10 @@ prompt_command_hook()
 
 	## NEW LINE
 	if $enable_command_on_new_line; then
-		local new_line_link_top="╭"
-		local new_line_link_bottom="╰"
+		if $enable_command_on_new_line_show_decoration; then
+			local new_line_link_top="╭"
+			local new_line_link_bottom="╰"
+		fi
 		local prompt_command_separation="\n"
 		local bash_symbol="\$"
 	else

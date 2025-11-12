@@ -11,17 +11,16 @@ funcfetch() {
     # Loop through each subdirectory in the base directory
     for dir in "$BASE_DIR"/*/; do
         # Check if the directory is a Git repository
-        if [ -d "$dir/.git" ]; then
-            flog "$COLOR_TRY: $dir" info
+        if [ -d "$dir/.git" ]; then            
             # Get all configured remote URLs
             remotes=$(git -C "$dir" remote -v)
 
             if [[ -n $remotes ]]; then
                 # Check if any remote URL contains the string "aicentre"
-                if echo "$remotes" | grep -q "aicentre"; then
-                   flog "Skipping fetch for repository (remote URL contains 'aicentre'): $dir" info
-                else
+                if echo "$remotes" | grep -q "aicentre"; then                                    
+                    printInfo "git -C $dir fetch"
                     git -C "$dir" fetch
+                    printSuccess "$dir"
                 fi
             fi
         fi
@@ -29,7 +28,6 @@ funcfetch() {
 }
 
 git pum
-
 declare -a dirs=("$HOME/o2" "$HOME/o2-feature")
 for dir in "${dirs[@]}"; do
     # dvě repa řeším zvlášť

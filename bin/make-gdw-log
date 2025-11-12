@@ -1,0 +1,82 @@
+#!/bin/bash
+# doc: Analyzes a DAT file and creates a corresponding LOG file
+# Script: make-gdw-log
+# Usage: make-gdw-log <dat_file> [log_extension]
+
+set -euo pipefail
+
+# Function to display usage
+usage() {
+    echo "Usage: $0 <dat_file> [log_extension]"
+    echo "  dat_file: Path to the DAT file to analyze"
+    echo "  log_extension: Extension for the log file (default: log)"
+    exit 1
+}
+
+# Check arguments
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+    usage
+fi
+
+dat_file="$1"
+log_extension="${2:-log}"
+
+# Check if DAT file exists
+if [ ! -f "$dat_file" ]; then
+    echo "Error: DAT file '$dat_file' does not exist!"
+    exit 1
+fi
+
+# Get basename without extension and create logfile name
+basename_no_ext=$(basename "$dat_file" | sed 's/\.[^.]*$//')
+logfile="${basename_no_ext}.${log_extension}"
+
+# Get current datetime in the required format
+current_datetime=$(date '+%Y-%m-%d %H:%M:%S')
+
+# Analyze the DAT file
+echo "Analyzing DAT file: $dat_file"
+number_of_lines=$(wc -l < "$dat_file")
+number_of_bytes=$(wc -c < "$dat_file")
+
+echo "Found $number_of_lines lines and $number_of_bytes bytes"
+
+# Create temporary log content
+temp_log_content="${current_datetime}
+${number_of_lines}
+${number_of_bytes}
+${number_of_lines}
+"
+
+# Check if log file already exists
+if [ -f "$logfile" ]; then
+    echo "Log file '$logfile' already exists!"
+    
+    # Create a temporary file with new content
+    temp_file=$(mktemp)
+    echo "$temp_log_content" > "$temp_file"
+    
+    # Show only changed lines using diff with unified format
+    if command -v batcat >/dev/null 2>&1; then
+        echo "Showing differences (- old, + new):"
+        diff -u "$logfile" "$temp_file" | batcat --style=numbers --language=diff || true
+    else
+        echo "Showing differences (- old, + new):"
+        diff -u "$logfile" "$temp_file" || true
+    fi
+    
+    # Clean up temp file
+    rm -f "$temp_file"
+    
+    echo
+    read -p "Do you want to overwrite the existing log file? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Operation cancelled."
+        exit 0
+    fi
+fi
+
+# Write the log file
+echo "$temp_log_content" > "$logfile"
+

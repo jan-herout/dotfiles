@@ -1,4 +1,4 @@
-check_repo_clean() {
+function check_repo_clean() {
     # Check if we are inside a git repository
     git rev-parse --is-inside-work-tree >/dev/null 2>&1 || bail_out "Not inside a git repository."
 
@@ -9,7 +9,28 @@ check_repo_clean() {
     return 0
 }
 
-gitUpdateRepo() {
+function isRepoClean() {
+    local repo_dir=$1
+    [[ ! -z "$repo_dir" ]] && pushd "$repo_dir"
+    
+    # Check if we are inside a git repository
+    git rev-parse --is-inside-work-tree >/dev/null 2>&1 
+    if [[ $? -ne 0 ]]; then
+        echo "Not inside a git repository."
+        [[ ! -z "$repo_dir" ]] && popd
+        return 1
+    fi
+
+    # Return 1 if there are any changes (staged, unstaged, untracked, deleted, renamed, etc.)
+    if [ -n "$(git status --porcelain)" ]; then
+        [[ ! -z "$repo_dir" ]] && popd
+        return 1
+    fi
+    popd
+    return 0
+}
+
+function gitUpdateRepo() {
     local repo=$1
     local branch=$2
     pushd "$repo"      >/dev/null 2>&1 || fDie "Failed to change directory to $repo"    
