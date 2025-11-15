@@ -17,12 +17,8 @@ what_to_do=$(echo "mount a git fetch
 mount
 jenom vpn" | fzf)
 
-# sanity check and cryfs
-[[ -d "$mount_points_def_dir" ]] || fDie "Directory does not exist: $mount_points_def_dir"
-if [[ ! -f "$domain_passfile" ]]; then
-    printInfo "try to read: $domain_passfile"
-    cryfs $HOME/.local/share/plasma-vault/o2.enc $HOME/Vaults/o2/ || fDie "cryfs failed"
-fi
+# mount the vault
+$HOME/bin/vault -m
 [[ -f "$domain_passfile" ]] || fDie "File does not exist: $domain_passfile"
 
 
@@ -66,12 +62,25 @@ if [[ -z "$is_on_vpn" ]]; then
             break
         fi
     done 
-    [[ -f $HOME/Vaults/o2/after-connect.sh ]] && $HOME/Vaults/o2/after-connect.sh
+    # [[ -f $HOME/Vaults/o2/after-connect.sh ]] && $HOME/Vaults/o2/after-connect.sh
 else
     printSuccess "VPN is already connected"
 fi
 
+
+
 $HOME/bin/set-proxy-on
+# set proxy discovery
+# in the file, find the lie ProxyType=\d and set it to ProxyType=3
+# 0 - no proxy
+# 3 - autodetect
+kioslaverc_file="$HOME/.config/kioslaverc"
+sed -i 's/ProxyType=[0-9]/ProxyType=3/' "$kioslaverc_file"
+if [[ $? -eq 0 ]]; then
+    printSuccess "kde: $HOME/.config/kioslaverc: set ProxyType=3 (autodetect)"
+else
+    printError "ERR: kde: $HOME/.config/kioslaverc: set ProxyType=3 (autodetect)"
+fi
 
 
 # proveď mount
@@ -103,6 +112,8 @@ if [[ "$what_to_do" =~ "mount" ]]; then
     done
 fi
 
+# unmount the vault
+$HOME/bin/vault -u
 
 # odjeď git fetch
 if [[ "$what_to_do" =~ "git" ]]; then

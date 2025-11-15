@@ -5,7 +5,8 @@
 include "lib/user_io.sh"
 include "lib/die.sh"
 
-set -e
+# mount the vault
+$HOME/bin/vault -m
 
 network_username="a1548834"
 linux_username=$(whoami)
@@ -38,8 +39,10 @@ chmod 666 $WRITABLE_CREDENTIALS || fDie "failed to make credentials readable"
 MOUNT_POINT=$_MNT_
 SHARE_UNC=$_SRC_
 
-findmnt $MOUNT_POINT >/dev/null 2>&1
-if [ $? -eq 0 ]; then
+printInfo "testing if the drive is mounted: $MOUNT_POINT"
+findmnt $MOUNT_POINT 
+is_mounted=$?
+if [ $is_mounted -eq 0 ]; then
     printSuccess "directory is already mounted: $MOUNT_POINT"
 else
     printInfo "mounting $SHARE_UNC to $MOUNT_POINT"
@@ -59,8 +62,11 @@ else
         printError "- ca: https://pam.cz.o2/PasswordVault/v10/Accounts"
         printError "- check credentials: $CREDENTIALS" error
         printError "sudo mount -t cifs -o \"$MM_OPTIONS\" \"$SHARE_UNC\" \"$MOUNT_POINT\""
-
+        credentials=$(cat $WRITABLE_CREDENTIALS)
+        printError "$credentials"
     fi
 fi
 
+# dismount the vault, remove credentials
 rm $WRITABLE_CREDENTIALS
+$HOME/bin/vault -u

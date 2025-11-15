@@ -47,7 +47,10 @@ OPTS+="--exclude .jupyter "
 OPTS+="--exclude Vaults "
 OPTS+="--exclude .local/share/containers "
 OPTS+="--exclude go "
-OPTS+="--exclude .local/share/Trash "
+OPTS+="--include .local/share/plasma-vault "
+OPTS+="--exclude .local/share "
+OPTS+="--exclude .local/state "
+
 
 # Use yesterday's backup as the incremental base if it exists
 if [ ! -z "$YESTERDAY" ]; then

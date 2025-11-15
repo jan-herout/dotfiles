@@ -21,6 +21,9 @@ bail_out() {
 
 ##################################################
 
+# kontrola existence secrets souboru a mount vaultu
+$HOME/bin/vault -m
+
 cd $FEATURE_PATH || bail_out "Failed to change directory to $FEATURE_PATH."
 
 # Save list of directories before
@@ -101,3 +104,6 @@ echo -e "$COLOR_OK: git push successful, repo is ready to use: $repo_name"
 current_date=$(date +"%Y-%m-%d")
 repo_home_page="https://github.com/jan-herout_o2cz/$repo_name"
 echo "$current_date $repo_name $repo_home_page" >> $REPO_LIST_FILE || bail_out "Failed to append to repo list file: $REPO_LIST_FILE"
+
+# kontrola existence secrets souboru a mount vaultu
+$HOME/bin/vault -u

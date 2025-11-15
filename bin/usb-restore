@@ -62,7 +62,6 @@ for SUBDIR in "${SUBDIRS[@]}"; do
     SOURCE="$SUBDIR/"
     TARGET="$HOME/$SUBDIR_NAME/"
     echo "restoring $SOURCE => $TARGET"
-
     # simulate the restor by rsync, use dry run with delete, restore from SOURCE to TARGET, use exclusion list in OPTS to not delete any excluded files and directories
-    rsync -avnh --dry-run --delete $OPTS "$SOURCE" "$TARGET"
+    rsync -avh $OPTS "$SOURCE" "$TARGET"
 done

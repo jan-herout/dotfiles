@@ -9,19 +9,20 @@ BOOKMARKS_FILE=~/bookmarks
 SELECTED_DIR=$(cat "$BOOKMARKS_FILE" | fzf)
 BROWSER=/usr/bin/google-chrome-stable
 
-[[ ! -n "$SELECTED_DIR" ]] && fDie "No directory selected."
+if [[ ! -n "$SELECTED_DIR" ]]; then 
+    printError "No directory selected."
+else
+    # check if it starts with a slash
+    if [[ $SELECTED_DIR == /* ]]; then        
+        SELECTED_DIR="${SELECTED_DIR%%#*}" # get everything before the pound (strip comments)
+        SELECTED_DIR=$(echo "$SELECTED_DIR" | sed 's/[[:space:]]*$//') # strip spaces at the end        
+        cd "$SELECTED_DIR"
+        printSuccess "cd $SELECTED_DIR"
+    fi
 
-# check if it starts with a slash
-if [[ $SELECTED_DIR == /* ]]; then        
-    SELECTED_DIR="${SELECTED_DIR%%#*}" # get everything before the pound (strip comments)
-    SELECTED_DIR=$(echo "$SELECTED_DIR" | sed 's/[[:space:]]*$//') # strip spaces at the end        
-    cd "$SELECTED_DIR"
-    printSuccess "cd $SELECTED_DIR"
+    # check if it starts with a slash
+    if [[ $SELECTED_DIR == http* ]]; then    
+        $BROWSER "$SELECTED_DIR"
+
+    fi
 fi
-
-# check if it starts wityh a slash
-if [[ $SELECTED_DIR == http* ]]; then    
-    $BROWSER "$SELECTED_DIR"
-
-fi
-

@@ -43,8 +43,8 @@ alias xcl="xclip -selection clipboard"
 
 # misc
 alias src="source ~/.bashrc"
-alias nom="$HOME/bin/netmount"
-alias num="$HOME/bin/netumount"
+alias nom="source $HOME/bin/netmount"
+alias num="source $HOME/bin/netumount"
 alias config="__config__"
 alias _cd_to_feature="source $HOME/bin/fcd-feature-script"
 alias _cd_to_mark="source $HOME/bin/fcd-script"
@@ -53,4 +53,5 @@ alias rg="rg -i"
 
 # fix common typos
 alias cmod="chmod"
-alias kess="less"
+alias kess="less -I"
+alias less="less -I"

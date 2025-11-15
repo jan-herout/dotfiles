@@ -1,6 +1,7 @@
 export OMB_CASE_SENSITIVE=false         # case insensitive completion and globbing
 export OMB_HYPHEN_SENSITIVE=false       # hyphen and underscore are equivalent in completion
-
+export PAGER="less -I"                  # case insensitive search
+export BAT_PAGER="less -I -R"           # batcat uses less, case insensitive search + apply escape sequences
 # # PS1 Color and formatting variables
 # # Text colors
 # export PS1_BLACK='\[\e[0;30m\]'

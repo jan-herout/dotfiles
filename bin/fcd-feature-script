@@ -6,9 +6,12 @@ include "lib/die.sh"
 
 FEAT_DIR="$HOME/o2-feature"
 SELECTED_DIR=$(find $HOME/o2-feature -maxdepth 1 -type d | grep -vE "o2-feature$" | fzf)
-[[ ! -n "$SELECTED_DIR" ]] && fDie "No directory selected."
-SELECTED_DIR="${SELECTED_DIR%%#*}" # get everything before the pound (strip comments)
-SELECTED_DIR=$(echo "$SELECTED_DIR" | sed 's/[[:space:]]*$//') # strip spaces at the end
-cd "$SELECTED_DIR"
-printSuccess "cd $SELECTED_DIR"
+if [[ ! -n "$SELECTED_DIR" ]]; then 
+    printError "No directory selected."
+else
+    SELECTED_DIR="${SELECTED_DIR%%#*}" # get everything before the pound (strip comments)
+    SELECTED_DIR=$(echo "$SELECTED_DIR" | sed 's/[[:space:]]*$//') # strip spaces at the end
+    cd "$SELECTED_DIR"
+    printSuccess "cd $SELECTED_DIR"
+fi
 

@@ -57,11 +57,7 @@ fi
 PAT_FILE=$HOME/Vaults/o2/github/jan_herout_pat
 
 # kontrola existence secrets souboru a mount vaultu
-echo -e "$TRY: test secrets file: $PAT_FILE"
-if [ ! -f "$PAT_FILE" ]; then
-    echo -e "$TRY: File does not exist: $PAT_FILE"
-    cryfs $HOME/.local/share/plasma-vault/o2.enc $HOME/Vaults/o2/
-fi
+$HOME/bin/vault -m
 
 # pokud ani potom neexistuje, bail
 if [ ! -f "$PAT_FILE" ]; then
@@ -141,3 +137,4 @@ if [ $? -ne 0 ]; then
 fi
 
 cat .git/config
+$HOME/bin/vault -u

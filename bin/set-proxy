@@ -3,7 +3,7 @@
 
 is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
 if [[ -z "$is_on_vpn" ]]; then  
-  $HOME/bin/set-proxy-off
+  source $HOME/bin/set-proxy-off
 else
-  $HOME/bin/set-proxy-on
+  source $HOME/bin/set-proxy-on
 fi

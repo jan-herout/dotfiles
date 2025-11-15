@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# doc: připojí/odpojí cryfs vault
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+include "lib/user_io.sh"
+include "lib/die.sh"
+
+
+
+
+read -r -d '' USAGE <<'EOF'
+vault: mount/umount the o2 vault
+- vault -m : mount
+- vault -u : umount
+EOF
+
+
+
+PASSWORD_FILE="$HOME/Vaults/o2/domain-password.txt"
+VAULT_PATH="$HOME/Vaults/o2/"
+CRYFS_DATA_PATH="$HOME/.local/share/plasma-vault/o2.enc"
+
+
+cry_test_mount() {
+    if [[ -f "$PASSWORD_FILE" ]]; then
+        printSuccess "cryfs: vault is mounted"
+        exit 0
+    else
+        printError "cryfs: vault is not mounted"
+        exit 1
+    fi
+}
+
+cry_mount() {
+    if [[ -f "$PASSWORD_FILE" ]]; then
+        printSuccess "cryfs: already mounted"
+        exit 0
+    fi
+    cryfs "$CRYFS_DATA_PATH" "$VAULT_PATH" || fDie "cryfs failed"
+    printSuccess "cryfs: mounted"
+}
+
+cry_umount() {
+    if [[ ! -f "$PASSWORD_FILE" ]]; then
+        printSuccess "cryfs: not mounted in the first place"
+        exit 0
+    fi
+    cryfs-unmount "$VAULT_PATH" || fDie "cryfs unmount failed"
+    printSuccess "cryfs: unmounted"
+    exit 0              
+}
+
+while getopts "muh" opt; do
+   case "${opt}" in
+        h)
+           echo $USAGE
+           exit 0
+           ;;
+        m)            
+            cry_mount
+            exit $?
+            ;;
+        u)            
+            cry_umount
+            exit $?
+            ;;
+        ?)
+            echo $USAGE
+            exit 0
+            ;;
+    esac
+done
+
+echo $USAGE
+cry_test_mount
