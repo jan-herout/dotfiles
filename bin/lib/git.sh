@@ -1,3 +1,9 @@
+#!/usr/bin/env bash
+##==================================================================================================
+##	DEPENDENCIES
+##==================================================================================================
+[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+
 function check_repo_clean() {
     # Check if we are inside a git repository
     git rev-parse --is-inside-work-tree >/dev/null 2>&1 || bail_out "Not inside a git repository."

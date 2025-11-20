@@ -5,7 +5,10 @@ include "lib/user_io.sh"
 include "lib/die.sh"
 
 # tohle sice nesouvisí se sítí ale fakt mě to štve
-amixer -c 1 set Headphone unmute
+# amixer -c 1 set Headphone unmute
+
+# chceme nebo nechceme odpojit vault?
+UNMOUNT_VAULT=0
 
 mount_points_def_dir=$HOME/bin/net-mount-points
 domain_passfile=$HOME/Vaults/o2/domain-password.txt
@@ -113,7 +116,7 @@ if [[ "$what_to_do" =~ "mount" ]]; then
 fi
 
 # unmount the vault
-$HOME/bin/vault -u
+[[ $UNMOUNT_VAULT -eq 1 ]] && $HOME/bin/vault -u
 
 # odjeď git fetch
 if [[ "$what_to_do" =~ "git" ]]; then
