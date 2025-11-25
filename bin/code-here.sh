@@ -3,4 +3,5 @@
 
 # is_on_vpn=$(nmcli connection show --active | grep extvpn.o2.cz)
 # [[ ! -z "$is_on_vpn" ]] && source ~/bin/set-proxy-on
-code .
+source $HOME/bin/set-proxy
+code --password-store="gnome-libsecret" .

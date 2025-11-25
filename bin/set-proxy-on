@@ -13,12 +13,14 @@ O2_USERNAME=""
 O2_PASSWORD=""
 
 if ! test -f ~/Vaults/o2/o2_username.txt; then
-  fDie "First, connect to o2 vault."
+  printError "First, connect to o2 vault."
+  return
 fi
 
 
 if ! test -f ~/Vaults/o2/o2_password.txt; then
-  fDie "First, connect to o2 vault."
+  printError "First, connect to o2 vault."
+  return
 fi
 
 
