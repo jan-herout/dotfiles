@@ -17,16 +17,27 @@ if echo "$fsck_output" | grep -qE "error|fatal"; then
     echo "$fsck_output"
     fDie "Repository integrity check failed"
 fi
-printInfo "git fsck completed successfully"
+printSuccess "git fsck completed successfully"
+
+# # Run git repack to optimize the repository
+# printInfo "Running git repack to optimize the repository"
+# repack_output=$(git repack 2>&1)
+# if [ $? -ne 0 ]; then
+#     printError "git repack encountered errors:"
+#     echo "$repack_output"
+#     fDie "Repository repack failed"
+# fi
+# printInfo "git repack completed successfully"
 
 # Run git repack to optimize the repository
-printInfo "Running git repack to optimize the repository"
-repack_output=$(git repack 2>&1)
+printInfo "Running git gc to optimize the repository, do NOT KILL THIS COMMAND !!!!"
+repack_output=$(git gc 2>&1)
 if [ $? -ne 0 ]; then
-    printError "git repack encountered errors:"
+    printError "git gc encountered errors:"
     echo "$repack_output"
-    fDie "Repository repack failed"
+    fDie "git gc failed"
 fi
-printInfo "git repack completed successfully"
+printSuccess "git gc completed successfully"
 
-printInfo "Repository maintenance completed"
+
+printSuccess "Repository maintenance completed"
