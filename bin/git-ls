@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# doc: list all blobs and sort them by size (ascending sort); Pipe it to awk '$2 >= 2^20' to filter on size (1MB approx)
+
+read -r -d '' USAGE <<'EOF'
+git ls: list all blobs and sort them by size (ascending sort)
+
+Synopsis:
+  git ls -s <size-in-bytes> - to list only blobs that are bigger than the specified size (in bytes); e.g. 2^20 is MiB
+  git ls -e - exclude all files in head
+EOF
+
+
+_git_ls() {  
+  local size="$1"
+  git rev-list --objects --all --missing=print |
+    git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' |
+    sed -n 's/^blob //p' |
+    sort --numeric-sort --key=2 | # cut -c 1-12,41- |
+    awk "\$2 >= $size" |    
+    $(command -v gnumfmt || echo numfmt) --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest
+}
+
+SIZE=0
+while getopts "hes:" opt; do
+   case "${opt}" in
+        h)
+           echo $USAGE
+           exit 0
+           ;;      
+        s)            
+            SIZE=$OPTARG
+            ;;
+        ?)
+           echo $USAGE
+           exit 0
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+_git_ls "$SIZE"

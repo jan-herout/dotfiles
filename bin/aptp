@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# doc: run apt behind proxy
+
+sudo apt -o Acquire::http::proxy="$http_proxy" "$@"
