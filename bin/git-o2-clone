@@ -59,7 +59,7 @@ fi
 
 # test that the address starts with https:// and engs with .git
 [[ ! $GITHUB_ADDRESS =~ ^https:// ]] && fDie  "$ERR: Address does not start with https://"
-[[ ! $GITHUB_ADDRESS =~ \.git$ ]] fDie "Address does not end with .git"
+[[ ! $GITHUB_ADDRESS =~ \.git$ ]] && fDie "Address does not end with .git"
 printSuccess "Github address provided: $GITHUB_ADDRESS"
 
 # get the folder name from the address
