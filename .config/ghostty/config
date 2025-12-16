@@ -61,11 +61,13 @@ keybind=ctrl+kp_subtract=decrease_font_size:1
 
 keybind=ctrl+b>kp_add=new_split:right
 keybind=ctrl+b>kp_subtract=new_split:down
+keybind=ctrl+shift+r=new_split:right
+keybind=ctrl+shift+b=new_split:down
 
-keybind=ctrl+b>k=goto_split:up
-keybind=ctrl+b>j=goto_split:down
-keybind=ctrl+b>h=goto_split:left
-keybind=ctrl+b>l=goto_split:right
+keybind=ctrl+shift+k=goto_split:up
+keybind=ctrl+shift+j=goto_split:down
+keybind=ctrl+shift+h=goto_split:left
+keybind=ctrl+shift+l=goto_split:right
 
 keybind=ctrl+shift+up=resize_split:up,20
 keybind=ctrl+shift+down=resize_split:down,20

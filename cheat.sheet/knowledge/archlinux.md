@@ -268,6 +268,12 @@ exit
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
+Poznámka: 
+- `genfstab` je arch-linux tool, na debianu není. 
+- `sudo blkid /dev/nvme0n1p1` - dostaneš UUID daného device, a z něj se dá již vytvořit záznam pro fstab
+- tohle je velehrubá obdoba : `sudo blkid /dev/nvme0n1p1 | awk -F'UUID=| TYPE="' '{printf "UUID=%s %s %s defaults 0 2\n", $2, "/mnt/newdisk", $3}'`
+
+
 ### Instalace dalších balíčků
 
 ```bash
