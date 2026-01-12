@@ -39,6 +39,7 @@ cd $CURRENT_DIR
 # na jaké prostředí budeme nasazovat skripty?
 DEPLOY_DIR=$(echo "/mnt/dev-virt-node/EDW_JHE
 /mnt/dev-virt-node/VODWH_JHE
+/mnt/dev-virt-node/EDW_HR_JHE
 /home/jan/o2/BIDEV-MAIN_vodwh/src
 /home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/e09
 /home/jan/o2/BIDEV-MAIN_edw/mstr/SRC/e29

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # doc: Interaktivní CIFS mount s automatickým nastavením credentials a práv
 
-[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+[ "$(type -t include)" != 'function' ] && { include() { { [ -z "$_IR" ] && _IR="$PWD" && cd "$(dirname "${BASH_SOURCE[0]}")" && include "$1" && cd "$_IR" && unset _IR; } || { local d="$PWD" && cd "$(dirname "$PWD/$1")" && . "$(basename "$1")" && cd "$d"; } || { echo "Include failed $PWD->$1" && exit 1; }; }; }
 include "lib/user_io.sh"
 include "lib/die.sh"
 
@@ -19,11 +19,9 @@ CREDENTIALS=$HOME/Vaults/o2/o2_a1548834_cifs_credentials.txt
 RANDOM_NAME=$(head /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 16)
 WRITABLE_CREDENTIALS="/tmp/$RANDOM_NAME"
 
-
 # select the share to be mounted
 MOUNTFILE=$(ls $HOME/bin/a-write-mounts | fzf --prompt="Vyber mount: ")
 [[ -z "$MOUNTFILE" ]] && fDie "No mount selected, bail out"
-
 
 # source the mount file and set vars
 source $HOME/bin/a-write-mounts/$MOUNTFILE
@@ -40,33 +38,34 @@ MOUNT_POINT=$_MNT_
 SHARE_UNC=$_SRC_
 
 printInfo "testing if the drive is mounted: $MOUNT_POINT"
-findmnt $MOUNT_POINT 
+findmnt $MOUNT_POINT
 is_mounted=$?
 if [ $is_mounted -eq 0 ]; then
-    printSuccess "directory is already mounted: $MOUNT_POINT"
+  printSuccess "directory is already mounted: $MOUNT_POINT"
 else
-    printInfo "mounting $SHARE_UNC to $MOUNT_POINT"
-    MM_OPTIONS="credentials=$WRITABLE_CREDENTIALS,"
-    MM_OPTIONS+="uid=$var_uid,"
-    MM_OPTIONS+="gid=$var_gid,"
-    MM_OPTIONS+="dir_mode=0755,file_mode=0755"
-    MM_OPTIONS+=$_SUFFIX_
-    if [[ ! -d $MOUNT_POINT ]]; then
-        printWarn "mount point does not exist, creating it... you may have to tyupe sudo password"
-        sudo mkdir $MOUNT_POINT
-    fi
-    printInfo "mount options: $MM_OPTIONS"
-    sudo mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
-    if [ $? -ne 0 ]; then
-        printError "mount failed" error
-        printError "- ca: https://pam.cz.o2/PasswordVault/v10/Accounts"
-        printError "- check credentials: $CREDENTIALS" error
-        printError "sudo mount -t cifs -o \"$MM_OPTIONS\" \"$SHARE_UNC\" \"$MOUNT_POINT\""
-        credentials=$(cat $WRITABLE_CREDENTIALS)
-        printError "$credentials"
-    fi
+  printInfo "mounting $SHARE_UNC to $MOUNT_POINT"
+  MM_OPTIONS="credentials=$WRITABLE_CREDENTIALS,"
+  MM_OPTIONS+="uid=$var_uid,"
+  MM_OPTIONS+="gid=$var_gid,"
+  MM_OPTIONS+="dir_mode=0755,file_mode=0755"
+  MM_OPTIONS+=$_SUFFIX_
+  if [[ ! -d $MOUNT_POINT ]]; then
+    printWarn "mount point does not exist, creating it... you may have to tyupe sudo password"
+    sudo mkdir $MOUNT_POINT
+  fi
+  printInfo "mount options: $MM_OPTIONS"
+  sudo mount -t cifs -o "$MM_OPTIONS" "$SHARE_UNC" "$MOUNT_POINT"
+  if [ $? -ne 0 ]; then
+    printError "mount failed" error
+    printError "- ca: https://pam.cz.o2/PasswordVault/v10/Accounts"
+    printError "- check credentials: $CREDENTIALS" error
+    printError "sudo mount -t cifs -o \"$MM_OPTIONS\" \"$SHARE_UNC\" \"$MOUNT_POINT\""
+    credentials=$(cat $WRITABLE_CREDENTIALS)
+    printError "$credentials"
+  fi
 fi
 
 # dismount the vault, remove credentials
 rm $WRITABLE_CREDENTIALS
-$HOME/bin/vault -u
+# $HOME/bin/vault -u
+

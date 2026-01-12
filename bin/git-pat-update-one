@@ -44,7 +44,6 @@ else
 fi
 
 # get the token from the line and check if it is empty
-
 GITHUB_TOKEN=$(echo $GITHUB_TOKEN | cut -d' ' -f2)
 if [[ -z "$GITHUB_TOKEN" ]]; then
         echo -e "$ERR: No github token provided, bail out"

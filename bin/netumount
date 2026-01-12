@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # doc: Odpojí síťové disky a volitelně i VPN spojení
-[ "$(type -t include)" != 'function' ]&&{ include(){ { [ -z "$_IR" ]&&_IR="$PWD"&&cd "$(dirname "${BASH_SOURCE[0]}")"&&include "$1"&&cd "$_IR"&&unset _IR;}||{ local d="$PWD"&&cd "$(dirname "$PWD/$1")"&&. "$(basename "$1")"&&cd "$d";}||{ echo "Include failed $PWD->$1"&&exit 1;};};}
+[ "$(type -t include)" != 'function' ] && { include() { { [ -z "$_IR" ] && _IR="$PWD" && cd "$(dirname "${BASH_SOURCE[0]}")" && include "$1" && cd "$_IR" && unset _IR; } || { local d="$PWD" && cd "$(dirname "$PWD/$1")" && . "$(basename "$1")" && cd "$d"; } || { echo "Include failed $PWD->$1" && exit 1; }; }; }
 include "lib/user_io.sh"
 include "lib/die.sh"
 
@@ -8,61 +8,58 @@ mount_points_def_dir=$HOME/bin/net-mount-points
 vpn_client="/opt/cisco/anyconnect/bin/vpn"
 vpn_client_ui="vpnui"
 
+for mount_point in "${mounted_dirs[*]}"; do
+  printInfo "mounted: $mount_point"
+done
 
 # co chceme dělat
 CHOICE=$(echo "jenom umount
 umount a disconnect vpn" | fzf)
 
-
 # proveď umount
-for mount_point in "$mount_points_def_dir"/*; do
-    source $mount_point || fDie "failed to source $mount_point"
-    if [[ -d "$_MNT_" ]]; then
-        findmnt $_MNT_ >/dev/null 2>&1
-        if [[ $? -eq 0 ]]; then
-            printWarn "unmount: $_MNT_"
-            sudo umount -l $_MNT_
-            if [[ ! $? -eq 0 ]]; then
-                printError "unmount failed"
-            fi
-        fi
+mount | awk '{ print $3 }' | grep '/mnt' | while IFS= read -r mnt; do
+  printInfo "Got mountpoint: $mnt"
+  if [[ $? -eq 0 ]]; then
+    printWarn "unmount: $mnt"
+    sudo umount -l $mnt
+    if [[ ! $? -eq 0 ]]; then
+      printError "unmount failed"
     fi
+  fi
 done
 
+if [[ "$CHOICE" =~ "umount a disconnect vpn" ]]; then
+  # CISCO # is_on_vpn=$(ps aux | grep vpnui | grep -v grep | awk ' { print $2 }')
+  # CISCO # if [[ ! -z "$is_on_vpn" ]]; then
+  # CISCO #     flog "disconnecting VPN" warning
+  # CISCO #     $vpn_client disconnect extvpn.o2.cz
+  # CISCO #     killall $vpn_client_ui
+  # CISCO #     if [[ -d "$HOME/.cisco" ]]; then
+  # CISCO #         flog "removing dir $HOME/.cisco" warning
+  # CISCO #         rm -rf "$HOME/.cisco"
+  # CISCO #     fi
+  # CISCO # else
+  # CISCO #     flog "VPN is not connected" info
+  # CISCO # fi
+  IS_O2_CONUP=$(nmcli connection show --active | grep extvpn.o2.cz)
+  if [ -z "$IS_O2_CONUP" ]; then
+    printInfo "disconnected"
+  else
+    nmcli connection down extvpn.o2.cz
+    $HOME/bin/set-proxy-off
 
-
-if [[ "$CHOICE" =~ "umount a disconnect vpn" ]]; then    
-    # CISCO # is_on_vpn=$(ps aux | grep vpnui | grep -v grep | awk ' { print $2 }')
-    # CISCO # if [[ ! -z "$is_on_vpn" ]]; then
-    # CISCO #     flog "disconnecting VPN" warning
-    # CISCO #     $vpn_client disconnect extvpn.o2.cz
-    # CISCO #     killall $vpn_client_ui
-    # CISCO #     if [[ -d "$HOME/.cisco" ]]; then
-    # CISCO #         flog "removing dir $HOME/.cisco" warning
-    # CISCO #         rm -rf "$HOME/.cisco"
-    # CISCO #     fi
-    # CISCO # else
-    # CISCO #     flog "VPN is not connected" info
-    # CISCO # fi    
-    IS_O2_CONUP=$(nmcli connection show --active | grep extvpn.o2.cz)
-    if [ -z "$IS_O2_CONUP" ]; then
-        printInfo "disconnected"
+    # set proxy discovery
+    # in the file, find the lie ProxyType=\d and set it to ProxyType=3
+    # 0 - no proxy
+    # 3 - autodetect
+    kioslaverc_file="$HOME/.config/kioslaverc"
+    sed -i 's/ProxyType=[0-9]/ProxyType=0/' "$kioslaverc_file"
+    if [[ $? -eq 0 ]]; then
+      printSuccess "kde: $HOME/.config/kioslaverc: set ProxyType=0 (no proxy)"
     else
-        nmcli connection down extvpn.o2.cz
-        $HOME/bin/set-proxy-off
-        
-        # set proxy discovery
-        # in the file, find the lie ProxyType=\d and set it to ProxyType=3
-        # 0 - no proxy
-        # 3 - autodetect
-        kioslaverc_file="$HOME/.config/kioslaverc"
-        sed -i 's/ProxyType=[0-9]/ProxyType=0/' "$kioslaverc_file"
-        if [[ $? -eq 0 ]]; then
-            printSuccess "kde: $HOME/.config/kioslaverc: set ProxyType=0 (no proxy)"
-        else
-            printError "ERR: kde: $HOME/.config/kioslaverc: set ProxyType=0 (no proxy)"
-        fi
+      printError "ERR: kde: $HOME/.config/kioslaverc: set ProxyType=0 (no proxy)"
     fi
+  fi
 fi
 
 $HOME/bin/vault -u
