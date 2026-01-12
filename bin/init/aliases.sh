@@ -1,8 +1,8 @@
 # show the value of alias
 function alias_value() {
-    local value=
-    value=$(alias "$1" 2>/dev/null) && eval "value=${value#*=}" && echo "$value"
-}   
+  local value=
+  value=$(alias "$1" 2>/dev/null) && eval "value=${value#*=}" && echo "$value"
+}
 
 # nav
 alias bat="batcat"
@@ -21,8 +21,10 @@ alias flake8="flake8 --max-line-length=88"
 alias fkill='fzf_kill'
 alias pb="perlbrew use perl-5.24.4"
 
-# vim 
+# vim
 alias vim="nvim"
+alias v="nvim ."
+alias vh="nvim ."
 alias ch="$HOME/bin/code-here.sh"
 
 # git
