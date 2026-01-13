@@ -13,8 +13,22 @@ linux_username=$(whoami)
 var_uid=$(id -u $linux_username)
 var_gid=$(id -g $linux_username)
 
-CREDENTIALS=$HOME/Vaults/o2/o2_a1548834_cifs_credentials.txt
+CREDENTIALS="$HOME/Vaults/o2/o2_a1548834_cifs_credentials.txt"
 [[ ! -f "$CREDENTIALS" ]] && fDie "No pass provided, bail out: $CREDENTIALS"
+
+CHECKED_CREDENTIALS="/tmp/o2_a1548834_credentials_checked.txt"
+if [[ ! -f "$CHECKED_CREDENTIALS" ]]; then
+  last4=$(cat "$CREDENTIALS" | grep password | cut -d'=' -f2)
+  lenlast4from="${#last4}"
+  lenlast4from="$(($lenlast4from-4))"
+  last4=${last4:$lenlast4from:4}
+  printWarn "Zkontroluj si credentials. Jsou aktuální? Riskuješ zamčení účtu."
+  printWarn "Poslední 4 znaky: $last4"
+  printInfo "Zmáčkni enter pro pokračování..."
+  read -p ">>> "
+  touch "$CHECKED_CREDENTIALS"
+fi
+
 
 RANDOM_NAME=$(head /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 16)
 WRITABLE_CREDENTIALS="/tmp/$RANDOM_NAME"
