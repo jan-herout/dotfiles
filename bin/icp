@@ -1,13 +1,105 @@
 #!/bin/bash
 
-# icp - Case-insensitive copy script
-# Copies files and directories from source to destination, treating paths as case-insensitive
+# doc: Copies files and directories from source to destination, treating paths as case-insensitive
+# Supports: -n (dry-run), -v (verbose), -a (preserve attrs via cp -a),
+#           -i (prompt before overwrite), -x PATTERN (exclude; repeatable),
+#           -h/--help (usage)
 
-set -e
+set -euo pipefail
+trap 'echo "Error at line $LINENO while running: $BASH_COMMAND" >&2' ERR
 
-# Check if we have exactly 2 arguments
+DRY_RUN=0
+VERBOSE=0
+PRESERVE_ATTRS=0
+PROMPT_OVERWRITE=0
+declare -a EXCLUDES=()
+
+print_usage() {
+        cat <<EOF
+Usage: icp [options] <source> <dest>
+
+Copies files/dirs case-insensitively, preserving destination casing when present.
+
+Options:
+    -n              Dry-run (show actions without changing files)
+    -v              Verbose output
+    -a              Preserve attributes (cp -a)
+    -i              Prompt before overwriting existing files
+    -x PATTERN      Exclude relative paths matching shell pattern (repeatable)
+    -h, --help      Show this help
+
+Examples:
+    icp src.txt /tmp/target
+    icp -nva ./src_dir ~/dest_dir
+    icp -x "*.log" -x "cache/*" ./src ./dest
+EOF
+}
+
+log() {
+    if [ "$VERBOSE" -eq 1 ] || [ "$DRY_RUN" -eq 1 ]; then
+        echo "$@"
+    fi
+}
+
+is_excluded() {
+    local rel="$1"
+    local saved_shopt
+    saved_shopt=$(shopt -p nocasematch || true)
+    shopt -s nocasematch
+    for pat in "${EXCLUDES[@]}"; do
+        if [[ "$rel" == $pat ]]; then
+            eval "$saved_shopt" || true
+            return 0
+        fi
+    done
+    eval "$saved_shopt" || true
+    return 1
+}
+
+# Basic long option handling for common flags
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --help)
+            print_usage
+            exit 0
+            ;;
+        --dry-run)
+            DRY_RUN=1; shift; continue ;;
+        --verbose)
+            VERBOSE=1; shift; continue ;;
+        --preserve|--attrs)
+            PRESERVE_ATTRS=1; shift; continue ;;
+        --interactive)
+            PROMPT_OVERWRITE=1; shift; continue ;;
+        --exclude=*)
+            EXCLUDES+=("${1#*=}"); shift; continue ;;
+        --)
+            shift; break ;;
+        -*)
+            break ;;
+        *)
+            break ;;
+    esac
+done
+
+while getopts ":nvaix:h" opt; do
+    case "$opt" in
+        n) DRY_RUN=1 ;;
+        v) VERBOSE=1 ;;
+        a) PRESERVE_ATTRS=1 ;;
+        i) PROMPT_OVERWRITE=1 ;;
+        x) EXCLUDES+=("$OPTARG") ;;
+        h) print_usage; exit 0 ;;
+        :) echo "Error: Option -$OPTARG requires an argument" >&2; exit 1 ;;
+        \?) echo "Error: Unknown option -$OPTARG" >&2; print_usage; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+
+# Check positional args
 if [ $# -ne 2 ]; then
-    echo "Usage: icp <source> <dest>"
+    echo "Error: Incorrect number of arguments." >&2
+    print_usage
     exit 1
 fi
 
@@ -25,24 +117,60 @@ if [ -f "$SOURCE" ]; then
     # Source is a file
     SOURCE_FILE="$(realpath "$SOURCE")"
     SOURCE_FILENAME="$(basename "$SOURCE")"
-    
+
     # Create destination directory if it doesn't exist
-    mkdir -p "$DEST"
+    if [ "$DRY_RUN" -eq 1 ]; then
+        log "Would ensure dir: $DEST"
+    else
+        mkdir -p "$DEST"
+    fi
     DEST="$(cd "$DEST" && pwd)"
-    
+
+    # Exclusions
+    if is_excluded "$SOURCE_FILENAME"; then
+        log "Excluded file: $SOURCE_FILENAME"
+        exit 0
+    fi
+
     # Check if file exists (case-insensitively) in destination
-    existing_target=$(find "$DEST" -maxdepth 1 -iname "$SOURCE_FILENAME" -print -quit 2>/dev/null || echo "")
-    
+    mapfile -t matches < <(find "$DEST" -maxdepth 1 -iname "$SOURCE_FILENAME" -print 2>/dev/null | LC_ALL=C sort)
+    existing_target=""
+    if [ ${#matches[@]} -gt 0 ]; then
+        existing_target="${matches[0]}"
+        if [ ${#matches[@]} -gt 1 ]; then
+            echo "Warning: Multiple case-insensitive matches for '$SOURCE_FILENAME' in '$DEST'. Using: $existing_target" >&2
+        fi
+    fi
+
+    CP_BASE=(cp)
+    if [ "$PRESERVE_ATTRS" -eq 1 ]; then CP_BASE+=("-a"); fi
+
     if [ -n "$existing_target" ]; then
-        # File exists (case-insensitively), overwrite it (keeping target's case)
-        cp -f "$SOURCE_FILE" "$existing_target"
-        echo "Copy completed: $SOURCE_FILE -> $existing_target"
+        # File exists (case-insensitively), potential overwrite
+        if [ "$PROMPT_OVERWRITE" -eq 1 ]; then
+            read -r -p "Overwrite '$existing_target'? [y/N] " ans
+            case "$ans" in
+                y|Y|yes|YES) : ;; 
+                *) echo "Skipped overwrite: $existing_target"; exit 0 ;;
+            esac
+        fi
+        if [ "$DRY_RUN" -eq 1 ]; then
+            log "Would copy (overwrite): $SOURCE_FILE -> $existing_target"
+        else
+            "${CP_BASE[@]}" -f "$SOURCE_FILE" "$existing_target"
+            echo "Copy completed: $SOURCE_FILE -> $existing_target"
+        fi
     else
         # File doesn't exist, copy with source's case
-        cp "$SOURCE_FILE" "$DEST/$SOURCE_FILENAME"
-        echo "Copy completed: $SOURCE_FILE -> $DEST/$SOURCE_FILENAME"
+        target_path="$DEST/$SOURCE_FILENAME"
+        if [ "$DRY_RUN" -eq 1 ]; then
+            log "Would copy: $SOURCE_FILE -> $target_path"
+        else
+            "${CP_BASE[@]}" "$SOURCE_FILE" "$target_path"
+            echo "Copy completed: $SOURCE_FILE -> $target_path"
+        fi
     fi
-    
+
     exit 0
 fi
 
@@ -94,57 +222,82 @@ find_case_insensitive() {
 # Process all files and directories under source
 cd "$SOURCE"
 
-# Use find to get all files and directories, sorted by depth (directories first)
+# First, process directories
 while IFS= read -r -d '' item; do
-    # Get relative path
     relative_path="${item#./}"
-    
-    # Skip if it's the current directory
-    if [ "$relative_path" = "." ]; then
-        continue
-    fi
-    
+    [ "$relative_path" = "." ] && continue
+    is_excluded "$relative_path" && { log "Excluded dir: $relative_path"; continue; }
+
     source_item="$SOURCE/$relative_path"
     target_item="$DEST/$relative_path"
-    
-    # Check if case-insensitive version exists in target
     existing_target=$(find_case_insensitive "$DEST" "$relative_path" || echo "")
-    
-    if [ -d "$source_item" ]; then
-        # It's a directory
-        if [ -n "$existing_target" ]; then
-            # Directory exists (case-insensitively), use existing path
-            : # Do nothing, directory already exists
+
+    if [ -n "$existing_target" ]; then
+        log "Using existing directory: $existing_target"
+    else
+        if [ "$DRY_RUN" -eq 1 ]; then
+            log "Would create dir: $target_item"
         else
-            # Create new directory with exact case from source
             mkdir -p "$target_item"
+            log "Created dir: $target_item"
+        fi
+    fi
+done < <(find . -type d -print0)
+
+# Then, process files
+while IFS= read -r -d '' item; do
+    relative_path="${item#./}"
+    [ "$relative_path" = "." ] && continue
+    is_excluded "$relative_path" && { log "Excluded file: $relative_path"; continue; }
+
+    source_item="$SOURCE/$relative_path"
+    target_item="$DEST/$relative_path"
+    existing_target=$(find_case_insensitive "$DEST" "$relative_path" || echo "")
+
+    CP_BASE=(cp)
+    if [ "$PRESERVE_ATTRS" -eq 1 ]; then CP_BASE+=("-a"); fi
+
+    if [ -n "$existing_target" ]; then
+        if [ "$PROMPT_OVERWRITE" -eq 1 ]; then
+            read -r -p "Overwrite '$existing_target'? [y/N] " ans
+            case "$ans" in
+                y|Y|yes|YES) : ;;
+                *) log "Skipped overwrite: $existing_target"; continue ;;
+            esac
+        fi
+        if [ "$DRY_RUN" -eq 1 ]; then
+            log "Would copy (overwrite): $source_item -> $existing_target"
+        else
+            "${CP_BASE[@]}" -f "$source_item" "$existing_target"
+            log "Copied: $source_item -> $existing_target"
         fi
     else
-        # It's a file
-        if [ -n "$existing_target" ]; then
-            # File exists (case-insensitively), overwrite it (keeping target's case)
-            cp -f "$source_item" "$existing_target"
-        else
-            # File doesn't exist, create parent directories if needed and copy
-            target_dir="$(dirname "$target_item")"
-            
-            # Check if parent directory exists (case-insensitively)
-            parent_relative="$(dirname "$relative_path")"
-            if [ "$parent_relative" != "." ]; then
-                existing_parent=$(find_case_insensitive "$DEST" "$parent_relative" || echo "")
-                if [ -n "$existing_parent" ]; then
-                    # Parent exists with different case, use it
-                    filename="$(basename "$target_item")"
-                    target_item="$existing_parent/$filename"
+        target_dir="$(dirname "$target_item")"
+        parent_relative="$(dirname "$relative_path")"
+        if [ "$parent_relative" != "." ]; then
+            existing_parent=$(find_case_insensitive "$DEST" "$parent_relative" || echo "")
+            if [ -n "$existing_parent" ]; then
+                filename="$(basename "$target_item")"
+                target_item="$existing_parent/$filename"
+            else
+                if [ "$DRY_RUN" -eq 1 ]; then
+                    log "Would ensure dir: $target_dir"
                 else
-                    # Create parent directories
                     mkdir -p "$target_dir"
                 fi
             fi
-            
-            cp "$source_item" "$target_item"
+        fi
+        if [ "$DRY_RUN" -eq 1 ]; then
+            log "Would copy: $source_item -> $target_item"
+        else
+            "${CP_BASE[@]}" "$source_item" "$target_item"
+            log "Copied: $source_item -> $target_item"
         fi
     fi
-done < <(find . -print0 | sort -z)
+done < <(find . -type f -print0)
 
-echo "Copy completed: $SOURCE -> $DEST"
+if [ "$DRY_RUN" -eq 1 ]; then
+    echo "Dry-run completed: $SOURCE -> $DEST"
+else
+    echo "Copy completed: $SOURCE -> $DEST"
+fi
