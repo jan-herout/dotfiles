@@ -4,7 +4,6 @@
 # Supports: -n (dry-run), -v (verbose), -a (preserve attrs via cp -a),
 #           -i (prompt before overwrite), -x PATTERN (exclude; repeatable),
 #           -h/--help (usage)
-
 set -euo pipefail
 trap 'echo "Error at line $LINENO while running: $BASH_COMMAND" >&2' ERR
 
@@ -39,6 +38,11 @@ log() {
     if [ "$VERBOSE" -eq 1 ] || [ "$DRY_RUN" -eq 1 ]; then
         echo "$@"
     fi
+}
+
+# True if STDIN is a terminal (interactive session)
+is_interactive() {
+    [ -t 0 ]
 }
 
 is_excluded() {
@@ -148,11 +152,18 @@ if [ -f "$SOURCE" ]; then
     if [ -n "$existing_target" ]; then
         # File exists (case-insensitively), potential overwrite
         if [ "$PROMPT_OVERWRITE" -eq 1 ]; then
-            read -r -p "Overwrite '$existing_target'? [y/N] " ans
-            case "$ans" in
-                y|Y|yes|YES) : ;; 
-                *) echo "Skipped overwrite: $existing_target"; exit 0 ;;
-            esac
+            if [ "$DRY_RUN" -eq 1 ]; then
+                log "Would prompt overwrite: $existing_target"
+            elif is_interactive; then
+                read -r -p "Overwrite '$existing_target'? [y/N] " ans < /dev/tty
+                case "$ans" in
+                    y|Y|yes|YES) : ;; 
+                    *) echo "Skipped overwrite: $existing_target"; exit 0 ;;
+                esac
+            else
+                echo "Non-interactive (stdin not a tty); skipped overwrite: $existing_target"
+                exit 0
+            fi
         fi
         if [ "$DRY_RUN" -eq 1 ]; then
             log "Would copy (overwrite): $SOURCE_FILE -> $existing_target"
@@ -259,11 +270,18 @@ while IFS= read -r -d '' item; do
 
     if [ -n "$existing_target" ]; then
         if [ "$PROMPT_OVERWRITE" -eq 1 ]; then
-            read -r -p "Overwrite '$existing_target'? [y/N] " ans
-            case "$ans" in
-                y|Y|yes|YES) : ;;
-                *) log "Skipped overwrite: $existing_target"; continue ;;
-            esac
+            if [ "$DRY_RUN" -eq 1 ]; then
+                log "Would prompt overwrite: $existing_target"
+            elif is_interactive; then
+                read -r -p "Overwrite '$existing_target'? [y/N] " ans < /dev/tty
+                case "$ans" in
+                    y|Y|yes|YES) : ;;
+                    *) log "Skipped overwrite: $existing_target"; continue ;;
+                esac
+            else
+                log "Non-interactive (stdin not a tty); skipped overwrite: $existing_target"
+                continue
+            fi
         fi
         if [ "$DRY_RUN" -eq 1 ]; then
             log "Would copy (overwrite): $source_item -> $existing_target"
