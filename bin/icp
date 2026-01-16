@@ -4,6 +4,9 @@
 # Supports: -n (dry-run), -v (verbose), -a (preserve attrs via cp -a),
 #           -i (prompt before overwrite), -x PATTERN (exclude; repeatable),
 #           -h/--help (usage)
+[ "$(type -t include)" != 'function' ] && { include() { { [ -z "$_IR" ] && _IR="$PWD" && cd "$(dirname "${BASH_SOURCE[0]}")" && include "$1" && cd "$_IR" && unset _IR; } || { local d="$PWD" && cd "$(dirname "$PWD/$1")" && . "$(basename "$1")" && cd "$d"; } || { echo "Include failed $PWD->$1" && exit 1; }; }; }
+include "lib/die.sh"
+
 set -euo pipefail
 trap 'echo "Error at line $LINENO while running: $BASH_COMMAND" >&2' ERR
 
@@ -142,7 +145,7 @@ if [ -f "$SOURCE" ]; then
     if [ ${#matches[@]} -gt 0 ]; then
         existing_target="${matches[0]}"
         if [ ${#matches[@]} -gt 1 ]; then
-            echo "Warning: Multiple case-insensitive matches for '$SOURCE_FILENAME' in '$DEST'. Using: $existing_target" >&2
+            fDie "Warning: Multiple case-insensitive matches for '$SOURCE_FILENAME' in '$DEST'. Using: $existing_target"
         fi
     fi
 
