@@ -1,21 +1,77 @@
 #!/bin/bash
-# doc: remind me about something after X minutes
+# doc: remind me about something after X minutes or at HH:MM
 
-# Usage check
-if [ $# -ne 2 ]; then
-  echo "Usage: $0 <minutes> <message>"
+set -euo pipefail
+
+sound="/usr/share/sounds/oxygen/stereo/camera-shutter.wav"
+
+print_usage() {
+  echo "Usage:" >&2
+  echo "  $0 <minutes> \"message\"" >&2
+  echo "  $0 -at \"HH:MM\" \"message\"" >&2
+}
+
+is_integer() {
+  [[ ${1:-} =~ ^[0-9]+$ ]]
+}
+
+validate_hhmm() {
+  local t=${1:-}
+  [[ $t =~ ^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$ ]]
+}
+
+notify_later_seconds() {
+  local delay_secs=$1
+  local msg=$2
+  (
+    sleep "$delay_secs"
+    notify-send "$msg"
+    cvlc --play-and-exit "$sound" >/dev/null 2>&1 &
+  ) &
+}
+
+if (( $# == 2 )) && is_integer "$1"; then
+  # Mode 1: minutes then message (preserve original behavior without extra prints)
+  minutes=$1
+  message=$2
+  notify_later_seconds "$(( minutes * 60 ))" "$message"
+  exit 0
+elif (( $# == 3 )) && [[ $1 == "-at" ]]; then
+  # Mode 2: -at "HH:MM" "message"
+  hhmm=$2
+  message=$3
+  if ! validate_hhmm "$hhmm"; then
+    echo "Invalid time format. Expected HH:MM (24h)." >&2
+    print_usage
+    exit 1
+  fi
+
+  # Compute seconds until the next occurrence of HH:MM
+  now_ts=$(date +%s)
+  today=$(date +%Y-%m-%d)
+  target_today_ts=$(date -d "$today $hhmm:00" +%s 2>/dev/null || true)
+
+  if [[ -z ${target_today_ts:-} ]]; then
+    echo "Failed to parse time '$hhmm'." >&2
+    exit 1
+  fi
+
+  if (( target_today_ts > now_ts )); then
+    target_ts=$target_today_ts
+  else
+    tomorrow=$(date -d "tomorrow" +%Y-%m-%d)
+    target_ts=$(date -d "$tomorrow $hhmm:00" +%s)
+  fi
+
+  delay_secs=$(( target_ts - now_ts ))
+  # Print the absolute time when the notification will fire
+  target_human=$(date -d "@${target_ts}")
+  echo "Reminder scheduled at: $target_human with delay of $delay_secs seconds"
+
+  notify_later_seconds "$delay_secs" "$message"
+  exit 0
+else
+  print_usage
   exit 1
 fi
 
-minutes=$1
-message=$2
-sound="/usr/share/sounds/oxygen/stereo/camera-shutter.wav"
-
-# Background process: sleep, then notify and play sound
-(
-  sleep "$((minutes * 60))"
-  notify-send "$message"
-  cvlc --play-and-exit "$sound" >/dev/null 2>&1 &
-) &
-
-exit 0

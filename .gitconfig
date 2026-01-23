@@ -73,6 +73,9 @@
 [includeIf "gitdir:~/dotfiles/"]
     path = ~/.config/git/.gitconfig-personal
 
+[includeIf "gitdir:~/ralph"]
+    path = ~/.config/git/.gitconfig-personal
+
 [includeIf "gitdir:~/git/"]
     path = ~/.config/git/.gitconfig-personal
 

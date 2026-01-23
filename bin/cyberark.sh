@@ -6,7 +6,7 @@ cyberark_rdp_file="$1"
 [ -z "$cyberark_rdp_file" ] && echo "Usage: $0 <rdp file.rdp>" && exit 1
 
 # call xfreerdp with the provided rdp file
-notify-send "xfreerdp spuštěno" "cyberark.sh: xfreerdp: spuštěno na desktopu 3" --icon=dialog-question -t 3000
+notify-send "xfreerdp spuštěno" "cyberark.sh: xfreerdp: spuštěno na desktopu 3" --icon=dialog-positive -t 3000
 xfreerdp "$cyberark_rdp_file"
 
 # remove the file after
