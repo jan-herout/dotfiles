@@ -1,0 +1,550 @@
+#!/usr/bin/env python3
+"""md-to-prd.py
+
+Convert between a Markdown PRD format and the required PRD JSON structure.
+
+This script intentionally uses only the Python standard library.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import logging
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Iterable
+
+
+def _configure_logging(*, log_level: str) -> None:
+    """Configure global logging.
+
+    Falls back to DEBUG if an unknown level is provided.
+    """
+
+    level = getattr(logging, log_level.upper(), None)
+    if not isinstance(level, int):
+        level = logging.DEBUG
+
+    logging.basicConfig(
+        level=level,
+        format="%(levelname)s: %(message)s",
+    )
+
+
+logger = logging.getLogger(__name__)
+
+
+def prd_to_markdown(prd: "PRD") -> str:
+    """Convert a PRD object into a Markdown representation.
+
+    The format is compatible with this tool's parser:
+    - Each story is an H1: "# ID: Title"
+    - Includes "## Description" and "## Acceptance criteria" sections
+    """
+
+    parts: list[str] = []
+    for s in prd.userStories:
+        parts.append(f"# {s.id}: {s.title}")
+        parts.append("")
+        parts.append("## Description")
+        parts.append("")
+        parts.append(s.description.rstrip())
+        parts.append("")
+        parts.append("## Acceptance criteria")
+        parts.append("")
+        if s.acceptanceCriteria:
+            for ac in s.acceptanceCriteria:
+                parts.append(f"- {ac}")
+        parts.append("")
+
+    return "\n".join(parts).rstrip() + "\n"
+
+
+@dataclass
+class UserStory:
+    id: str
+    title: str
+    description: str
+    acceptanceCriteria: list[str]
+
+
+@dataclass
+class PRDUserStory:
+    id: str
+    title: str
+    description: str
+    acceptanceCriteria: list[str]
+    priority: int | None = None
+    passes: bool = False
+    notes: str | None = None
+
+
+@dataclass
+class PRD:
+    project: str
+    branchName: str
+    description: str
+    userStories: list[PRDUserStory]
+
+
+def _sanitize_id(title: str) -> str:
+    """Generate a deterministic story id from a title string."""
+
+    s = re.sub(r"[^A-Za-z0-9]+", "-", title).strip("-")
+    s = re.sub(r"-+", "-", s)
+    return s.upper() or "UNTITLED"
+
+
+_ID_PREFIX_RE = re.compile(
+    r"^(?P<id>[A-Za-z][A-Za-z0-9_-]*-\d+)\s*[:\-]\s*(?P<title>.+)$"
+)
+
+
+def parse_markdown(lines: Iterable[str]) -> list[UserStory]:
+    """Parse Markdown into user stories.
+
+    Expected format:
+    - Each story begins with an H1 line: "# ID: Title" or "# Title".
+    - Within a story, recognizes "## Description" and "## Acceptance criteria".
+    """
+
+    stories: list[UserStory] = []
+
+    current_title: str | None = None
+    current_desc_lines: list[str] = []
+    current_ac_lines: list[str] = []
+    section: str | None = None  # 'description' | 'acceptance'
+
+    def flush() -> None:
+        nonlocal current_title, current_desc_lines, current_ac_lines, section
+        if current_title is None:
+            return
+
+        title = current_title.strip()
+        m = _ID_PREFIX_RE.match(title)
+        if m:
+            story_id = m.group("id")
+            story_title = m.group("title").strip()
+        else:
+            story_id = _sanitize_id(title)
+            story_title = title
+
+        description = (
+            "\n".join([line.rstrip() for line in current_desc_lines]).strip()
+            or story_title
+        )
+
+        ac_raw = [line.rstrip() for line in current_ac_lines]
+        acceptance: list[str] = []
+        for line in ac_raw:
+            s = line.strip()
+            if not s:
+                continue
+            s = re.sub(r"^([-*+]|\d+\.)\s+", "", s)
+            acceptance.append(s)
+
+        if not acceptance:
+            logger.error("Error: missing acceptance criteria for story: %s", story_id)
+
+        stories.append(
+            UserStory(
+                id=story_id,
+                title=story_title,
+                description=description,
+                acceptanceCriteria=acceptance,
+            )
+        )
+
+        current_title = None
+        current_desc_lines = []
+        current_ac_lines = []
+        section = None
+
+    for raw in lines:
+        line = raw.rstrip("\n")
+        if line.startswith("# "):
+            flush()
+            current_title = line[2:].strip()
+            continue
+
+        if current_title is None:
+            continue
+
+        if line.startswith("## "):
+            header = line[3:].strip().lower()
+            if header == "description":
+                section = "description"
+            elif header in {"acceptance criteria", "acceptance criteria:"}:
+                section = "acceptance"
+            else:
+                section = None
+            continue
+
+        if section == "description":
+            current_desc_lines.append(line)
+        elif section == "acceptance":
+            current_ac_lines.append(line)
+
+    flush()
+    return stories
+
+
+def prd_from_dict(obj: Any) -> PRD:
+    """Validate and convert a decoded PRD JSON object into a PRD dataclass."""
+
+    if not isinstance(obj, dict):
+        raise ValueError("PRD must be a JSON object")
+
+    for key in ("project", "branchName", "description", "userStories"):
+        if key not in obj:
+            raise ValueError(f"PRD missing required key: {key}")
+
+    project = obj["project"]
+    branch = obj["branchName"]
+    desc = obj["description"]
+    stories_obj = obj["userStories"]
+
+    if not isinstance(project, str) or not project:
+        raise ValueError("PRD.project must be a non-empty string")
+    if not isinstance(branch, str) or not branch:
+        raise ValueError("PRD.branchName must be a non-empty string")
+    if not isinstance(desc, str) or not desc:
+        raise ValueError("PRD.description must be a non-empty string")
+    if not isinstance(stories_obj, list):
+        raise ValueError("PRD.userStories must be a list")
+
+    stories: list[PRDUserStory] = []
+    for i, s in enumerate(stories_obj):
+        if not isinstance(s, dict):
+            raise ValueError(f"userStories[{i}] must be an object")
+
+        for key in ("id", "title", "description", "acceptanceCriteria"):
+            if key not in s:
+                raise ValueError(f"userStories[{i}] missing required key: {key}")
+
+        sid = s["id"]
+        title = s["title"]
+        sdesc = s["description"]
+        ac = s["acceptanceCriteria"]
+        if not isinstance(sid, str) or not sid:
+            raise ValueError(f"userStories[{i}].id must be a non-empty string")
+        if not isinstance(title, str) or not title:
+            raise ValueError(f"userStories[{i}].title must be a non-empty string")
+        if not isinstance(sdesc, str) or not sdesc:
+            raise ValueError(f"userStories[{i}].description must be a non-empty string")
+        if not isinstance(ac, list) or not all(isinstance(x, str) for x in ac):
+            raise ValueError(
+                f"userStories[{i}].acceptanceCriteria must be a list of strings"
+            )
+
+        priority = s.get("priority")
+        if priority is not None and not isinstance(priority, int):
+            raise ValueError(f"userStories[{i}].priority must be an int")
+
+        passes = s.get("passes", False)
+        if not isinstance(passes, bool):
+            raise ValueError(f"userStories[{i}].passes must be a bool")
+
+        notes = s.get("notes")
+        if notes is not None and not isinstance(notes, str):
+            raise ValueError(f"userStories[{i}].notes must be a string")
+
+        stories.append(
+            PRDUserStory(
+                id=sid,
+                title=title,
+                description=sdesc,
+                acceptanceCriteria=ac,
+                priority=priority,
+                passes=passes,
+                notes=notes,
+            )
+        )
+
+    return PRD(
+        project=project, branchName=branch, description=desc, userStories=stories
+    )
+
+
+def prd_to_dict(prd: PRD) -> dict[str, Any]:
+    """Convert a PRD dataclass into a JSON-serializable dict."""
+
+    return {
+        "project": prd.project,
+        "branchName": prd.branchName,
+        "description": prd.description,
+        "userStories": [
+            {
+                "id": s.id,
+                "title": s.title,
+                "description": s.description,
+                "acceptanceCriteria": s.acceptanceCriteria,
+                **({"priority": s.priority} if s.priority is not None else {}),
+                "passes": s.passes,
+                **({"notes": s.notes} if s.notes is not None else {}),
+            }
+            for s in prd.userStories
+        ],
+    }
+
+
+def load_prd(path: Path) -> PRD:
+    """Load and validate a PRD JSON file from disk."""
+
+    with path.open("r", encoding="utf-8") as f:
+        data = json.load(f)
+    return prd_from_dict(data)
+
+
+def sync_stories(base: PRD | None, md_stories: list[UserStory]) -> PRD:
+    """Merge markdown-derived stories into an existing PRD.
+
+    Existing PRD stories keep metadata (priority/passes/notes) while title,
+    description, and acceptance criteria are refreshed from markdown.
+    """
+
+    if base is None:
+        base = PRD(
+            project="MyApp",
+            branchName="generated/md-to-prd",
+            description="Generated from markdown",
+            userStories=[],
+        )
+
+    md_by_id = {s.id: s for s in md_stories}
+    used_ids: set[str] = set()
+
+    out_stories: list[PRDUserStory] = []
+    for existing in base.userStories:
+        md = md_by_id.get(existing.id)
+        if md is None:
+            out_stories.append(existing)
+            continue
+
+        if existing.passes:
+            logger.warning(
+                "Warning: syncing story that already passed: %s", existing.id
+            )
+
+        used_ids.add(md.id)
+        out_stories.append(
+            PRDUserStory(
+                id=md.id,
+                title=md.title,
+                description=md.description,
+                acceptanceCriteria=md.acceptanceCriteria,
+                priority=existing.priority,
+                passes=existing.passes,
+                notes=existing.notes,
+            )
+        )
+
+    for md in md_stories:
+        if md.id in used_ids:
+            continue
+        out_stories.append(
+            PRDUserStory(
+                id=md.id,
+                title=md.title,
+                description=md.description,
+                acceptanceCriteria=md.acceptanceCriteria,
+            )
+        )
+
+    return PRD(
+        project=base.project,
+        branchName=base.branchName,
+        description=base.description,
+        userStories=out_stories,
+    )
+
+
+def _read_text(path: Path) -> str:
+    """Read a UTF-8 text file from disk."""
+
+    return path.read_text(encoding="utf-8")
+
+
+def _read_all_stdin() -> str:
+    """Read all stdin as text."""
+
+    return sys.stdin.read()
+
+
+def _add_logging_args(p: argparse.ArgumentParser) -> None:
+    """Add common logging-related arguments to a parser."""
+
+    p.add_argument(
+        "--log-level", default="DEBUG", help="Logging level (default: DEBUG)"
+    )
+
+
+def _help_text() -> str:
+    """Return detailed help text shown by the `help` subcommand."""
+
+    return """md-to-prd.py
+
+Convert between a Markdown PRD format and the required PRD JSON structure.
+
+Default behavior
+  Running with no arguments prints this help.
+
+Subcommands
+  convert
+    Convert Markdown to PRD JSON.
+    Usage:
+      md-to-prd.py convert [--log-level LEVEL] [--input PATH] [--output PATH]
+      md-to-prd.py [--log-level LEVEL] [--input PATH] [--output PATH]
+
+  export
+    Export PRD JSON to Markdown.
+    Usage:
+      md-to-prd.py export [--log-level LEVEL] [--yes] [--input PATH] [--output PATH]
+
+  help
+    Show this detailed help.
+    Usage: md-to-prd.py help [--log-level LEVEL]
+
+Switches
+  --input PATH
+    Input file path (defaults to stdin)
+
+  --output PATH
+    Output file path (defaults to stdout)
+
+  --log-level LEVEL
+    Set logging verbosity (default: DEBUG)
+
+  --yes
+    (export only) Allow overwriting an existing output file
+""".rstrip()
+
+
+def _parse_args(argv: list[str]) -> argparse.Namespace:
+    """Parse CLI arguments and normalize to a {help,convert,export} command."""
+
+    if not argv:
+        p = argparse.ArgumentParser(description="Show detailed help")
+        _add_logging_args(p)
+        args = p.parse_args([])
+        args.command = "help"
+        return args
+
+    if argv[:1] == ["help"]:
+        p = argparse.ArgumentParser(description="Show detailed help")
+        _add_logging_args(p)
+        args = p.parse_args(argv[1:])
+        args.command = "help"
+        return args
+
+    if argv[:1] == ["export"]:
+        p = argparse.ArgumentParser(description="Export PRD JSON to Markdown")
+        _add_logging_args(p)
+        p.add_argument("--input", help="Path to PRD JSON input (defaults to stdin)")
+        p.add_argument("--output", help="Path to markdown output (defaults to stdout)")
+        p.add_argument(
+            "--yes",
+            action="store_true",
+            help="Allow overwriting an existing output file",
+        )
+        args = p.parse_args(argv[1:])
+        args.command = "export"
+        return args
+
+    convert_argv = argv[1:] if argv[:1] == ["convert"] else argv
+    p = argparse.ArgumentParser(description="Convert Markdown to PRD JSON")
+    _add_logging_args(p)
+    p.add_argument("--input", help="Path to markdown input (defaults to stdin)")
+    p.add_argument("--output", help="Path to PRD JSON output (defaults to stdout)")
+    args = p.parse_args(convert_argv)
+    args.command = "convert"
+    return args
+
+
+def _run_export(args: argparse.Namespace) -> None:
+    """Run the `export` subcommand (PRD JSON -> Markdown)."""
+
+    if args.input:
+        in_path = Path(args.input)
+        try:
+            prd = load_prd(in_path)
+        except (OSError, json.JSONDecodeError, ValueError) as e:
+            logger.error("Error: failed to read/validate PRD JSON: %s", e)
+            raise SystemExit(2)
+    else:
+        try:
+            prd = prd_from_dict(json.loads(_read_all_stdin()))
+        except (json.JSONDecodeError, ValueError) as e:
+            logger.error("Error: failed to read/validate PRD JSON from stdin: %s", e)
+            raise SystemExit(2)
+
+    md_out = prd_to_markdown(prd)
+    if args.output:
+        out_path = Path(args.output)
+        if out_path.exists() and not args.yes:
+            logger.error(
+                "Error: output file exists (use --yes to overwrite): %s", out_path
+            )
+            raise SystemExit(2)
+        if out_path.exists() and out_path.is_dir():
+            logger.error("Error: output path is a directory: %s", out_path)
+            raise SystemExit(2)
+        out_path.write_text(md_out, encoding="utf-8")
+    else:
+        sys.stdout.write(md_out)
+
+
+def _run_convert(args: argparse.Namespace) -> None:
+    """Run the `convert` mode (Markdown -> PRD JSON)."""
+
+    if args.input:
+        md_lines = _read_text(Path(args.input)).splitlines(True)
+    else:
+        md_lines = _read_all_stdin().splitlines(True)
+
+    md_stories = parse_markdown(md_lines)
+
+    base_prd: PRD | None = None
+    if args.output:
+        out_path = Path(args.output)
+        if out_path.exists():
+            if out_path.is_dir():
+                logger.error("Error: output path is a directory: %s", out_path)
+                raise SystemExit(2)
+            try:
+                base_prd = load_prd(out_path)
+            except (OSError, json.JSONDecodeError, ValueError) as e:
+                logger.error("Error: failed to read/validate existing PRD JSON: %s", e)
+                raise SystemExit(2)
+
+    prd = sync_stories(base_prd, md_stories)
+    out = json.dumps(prd_to_dict(prd), indent=2, ensure_ascii=False) + "\n"
+
+    if args.output:
+        Path(args.output).write_text(out, encoding="utf-8")
+    else:
+        sys.stdout.write(out)
+
+
+def main(argv: list[str] | None = None) -> None:
+    """CLI entrypoint."""
+
+    args = _parse_args(sys.argv[1:] if argv is None else argv)
+    _configure_logging(log_level=args.log_level)
+
+    if args.command == "help":
+        sys.stdout.write(_help_text() + "\n")
+        return
+
+    if args.command == "export":
+        _run_export(args)
+        return
+
+    _run_convert(args)
+
+
+if __name__ == "__main__":
+    main()

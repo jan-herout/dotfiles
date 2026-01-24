@@ -1,4 +1,4 @@
-# ssave this as Taskfile.yml
+# save this as Taskfile.yml
 version: '3'
 
 tasks:

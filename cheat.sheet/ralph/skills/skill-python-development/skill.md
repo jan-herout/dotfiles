@@ -26,6 +26,15 @@ Use this skill when you are asked to implement or modify Python code (scripts, l
 - **Testing**
   - prefer use of pytest
   - prefer simple functions over unit test classes
+- **Use only standard library** - no external dependencies in the developed code (tools such as black or flake8 are fine though)
+- **argparse**
+  - use argparse to get arguments
+  - always provide help
+  - always document all subcommands and arguments
+- **Logging** 
+  - always use loging, be verbose
+  - log with severity of debug
+  - develop configuration options to optionally change minimum logger severity (`--log-level`) and logging output (`--log-to`), this is applicable to all subcommands
 
 ## Inputs to gather (quick triage)
 
@@ -88,6 +97,12 @@ Prefer existing scripts/config:
 
 - Update docs/config only when required by the change.
 - Record commands run and outcomes in the task log (e.g., progress file) if the workflow asks for it.
+
+### 7) Dosctings and argparse arguments update
+
+- Always make sure that docstrings in the repo are updated
+- Always make sure that any arguments via argparse are updated
+- Always make sure that any usage string printed out by --help reflects reality
 
 ## Deliverable checklist
 

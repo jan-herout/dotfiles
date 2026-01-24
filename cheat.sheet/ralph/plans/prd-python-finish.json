@@ -1,0 +1,19 @@
+{
+  "project": "MyApp",
+  "branchName": "ralph/skill-development",
+  "description": "Develop utility that produces prd.json from markdown",
+  "userStories": [
+    {
+      "id": "PYFINISH-REFACTOR-SRC",
+      "title": "Refactor the code under src",
+      "description": "For every python file under src: ensure every function has an up-to-date docstring; run flake8 and fix problems; run black.",
+      "acceptanceCriteria": [
+        "Every function has a docstring.",
+        "Every file is without problems (flake8).",
+        "Every file is formatted (black)."
+      ],
+      "passes": true,
+      "notes": "Added/updated docstrings throughout src/md-to-prd.py and src/ralph.py; formatted with black; added .flake8 (max-line-length=88) to align with black; verified clean via `python3 -m flake8 src/md-to-prd.py src/ralph.py` and `python3 -m black src/md-to-prd.py src/ralph.py`."
+    }
+  ]
+}

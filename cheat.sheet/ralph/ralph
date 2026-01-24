@@ -1,0 +1,658 @@
+#!/usr/bin/env python3
+"""ralph.py
+
+Purpose:
+    Python reimplementation of ./ralph.sh harness. It composes a single
+    context file (skills + optional PRD + progress) and a combined prompt
+    file (context + prompt), then invokes the GitHub Copilot CLI for N
+    iterations with controlled tool permissions.
+
+Constraints:
+    - Standard library only.
+    - Minimal behavior differences vs ralph.sh.
+"""
+
+from __future__ import annotations
+
+import argparse
+import atexit
+import json
+import logging
+import os
+import shlex
+import signal
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from typing import Iterable, List, Optional
+
+RALPH_VERSION = "1.1.0"
+PROGRESS_FILE = "progress.txt"
+
+_ACTIVE_CHILD: Optional[subprocess.Popen[str]] = None
+
+
+def _configure_logging(log_level: str, log_to: Optional[str]) -> None:
+    """Configure logging with an optional log file destination."""
+
+    level = getattr(logging, log_level.upper(), None)
+    if not isinstance(level, int):
+        raise ValueError(f"Invalid --log-level: {log_level}")
+
+    handlers: List[logging.Handler] = []
+    if log_to:
+        handlers.append(logging.FileHandler(log_to))
+    else:
+        handlers.append(logging.StreamHandler())
+
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s %(levelname)s %(message)s",
+        handlers=handlers,
+    )
+
+
+def _ensure_progress_file(progress_path: Path) -> None:
+    """Ensure progress file exists and is readable/writable."""
+
+    logging.debug("Ensuring progress file exists and is r/w: %s", progress_path)
+
+    if progress_path.exists() and progress_path.is_dir():
+        raise ValueError(f"Error: path is a directory: {progress_path}")
+
+    if not progress_path.exists():
+        try:
+            progress_path.write_text("")
+            logging.debug("Created progress file: %s", progress_path)
+        except OSError as e:
+            raise ValueError(f"Error: cannot create: {progress_path}: {e}") from e
+
+    try:
+        with progress_path.open("r"):
+            pass
+        with progress_path.open("a"):
+            pass
+    except OSError as e:
+        raise ValueError(f"Error: file must be r/w: {progress_path}: {e}") from e
+
+
+def _require_cli_binaries(create_transcript: bool) -> None:
+    """Validate required external CLI programs are present in PATH."""
+
+    if not _which("copilot"):
+        raise ValueError("Error: 'copilot' not found in PATH.")
+    if create_transcript and not _which("script"):
+        raise ValueError("Error: transcript requested but 'script' missing.")
+
+
+def _which(name: str) -> Optional[str]:
+    """Return the resolved path for a binary in PATH, if any."""
+
+    from shutil import which
+
+    return which(name)
+
+
+def _parse_skills_csv(csv: str) -> List[str]:
+    """Parse a comma-separated list of skills into an ordered list."""
+
+    if not csv:
+        return []
+    parts = [p.strip() for p in csv.split(",")]
+    return [p for p in parts if p]
+
+
+def _determine_model(env_model: str, override: str) -> str:
+    """Choose the Copilot model, honoring env MODEL and --model override."""
+
+    model = env_model or "gpt-5.2"
+    return override or model
+
+
+def _compose_copilot_args(
+    profile: str,
+    allow_tools: List[str],
+    deny_tools: List[str],
+) -> List[str]:
+    """Compose Copilot CLI tool permission arguments."""
+
+    args: List[str] = []
+
+    if not allow_tools and profile:
+        if profile == "dev":
+            args.extend(["--allow-all-tools"])
+            args.extend(["--allow-tool", "write"])
+            args.extend(["--allow-tool", "shell(pnpm:*)"])
+            args.extend(["--allow-tool", "shell(git:*)"])
+        elif profile == "safe":
+            args.extend(["--allow-tool", "write"])
+            args.extend(["--allow-tool", "shell(pnpm:*)"])
+            args.extend(["--allow-tool", "shell(git:*)"])
+        elif profile == "locked":
+            args.extend(["--allow-tool", "write"])
+        else:
+            raise ValueError(f"Error: unknown --allow-profile: {profile}")
+
+    for t in allow_tools:
+        args.extend(["--allow-tool", t])
+
+    default_denies = {"shell(rm)", "shell(git push)"}
+    for t in deny_tools:
+        if t in default_denies:
+            continue
+        args.extend(["--deny-tool", t])
+
+    # Default denies last.
+    args.extend(["--deny-tool", "shell(rm)"])
+    args.extend(["--deny-tool", "shell(git push)"])
+
+    return args
+
+
+def _resolve_skill_file(skill: str) -> Path:
+    """Resolve a skill name to its markdown file path."""
+
+    up = Path("skills") / skill / "SKILL.md"
+    low = Path("skills") / skill / "skill.md"
+    if up.is_file() and os.access(up, os.R_OK):
+        return up
+    if low.is_file() and os.access(low, os.R_OK):
+        return low
+    raise ValueError(f"Error: skill not found: {up} or {low}")
+
+
+def _make_context_file(
+    iter_no: int,
+    skills: List[str],
+    prd_path: Optional[Path],
+    progress_path: Path,
+) -> Path:
+    """Create a temporary context file (skills + PRD + progress)."""
+
+    # Match ralph.sh behavior: keep temp files in the repo cwd.
+    fd, name = tempfile.mkstemp(
+        prefix=f".ralph-context.{iter_no}.", text=True, dir=str(Path.cwd())
+    )
+    os.close(fd)
+    out = Path(name)
+
+    logging.debug("Building context file: %s", out)
+
+    with out.open("w", encoding="utf-8") as f:
+        f.write("# Context\n\n")
+        if skills:
+            f.write("## Skills\n")
+            for raw in skills:
+                skill = raw.strip()
+                if not skill:
+                    continue
+                skill_file = _resolve_skill_file(skill)
+                f.write("\n### " + skill + "\n\n")
+                f.write(skill_file.read_text(encoding="utf-8"))
+            f.write("\n")
+
+        if prd_path:
+            f.write(f"## PRD ({prd_path})\n")
+            f.write(prd_path.read_text(encoding="utf-8"))
+            f.write("\n")
+
+        f.write("## progress.txt\n")
+        f.write(progress_path.read_text(encoding="utf-8"))
+        f.write("\n")
+
+    return out
+
+
+def _make_combined_prompt_file(
+    iter_no: int, context_path: Path, prompt_path: Path
+) -> Path:
+    """Create a temporary prompt file containing context + user prompt."""
+
+    # Create inside repo (matches ralph.sh) so Copilot can read it via --add-dir.
+    fd, name = tempfile.mkstemp(
+        prefix=f".ralph-prompt.{iter_no}.", text=True, dir=str(Path.cwd())
+    )
+    os.close(fd)
+    out = Path(name)
+
+    logging.debug("Building combined prompt file: %s", out)
+
+    with out.open("w", encoding="utf-8") as f:
+        f.write(context_path.read_text(encoding="utf-8"))
+        f.write("\n# Prompt\n\n")
+        f.write(prompt_path.read_text(encoding="utf-8"))
+        f.write("\n")
+
+    return out
+
+
+def _run_copilot_command(
+    combined_path: Path,
+    tool_args: List[str],
+    model: str,
+    create_transcript: bool,
+) -> tuple[int, str, Optional[Path]]:
+    """Run the Copilot CLI and return (status, output, transcript_path)."""
+
+    global _ACTIVE_CHILD
+
+    cmd = [
+        "copilot",
+        "--add-dir",
+        str(Path.cwd()),
+        "--model",
+        model,
+        "--no-color",
+        "--stream",
+        "off",
+        "--silent",
+        "-p",
+        f"@{combined_path} Follow the attached prompt.",
+        *tool_args,
+    ]
+
+    logging.debug("Executing copilot: %s", " ".join(shlex.quote(c) for c in cmd))
+
+    transcript_tmp: Optional[Path] = None
+
+    if create_transcript and _which("script"):
+        fd, tmp_name = tempfile.mkstemp(prefix="ralph-copilot.")
+        os.close(fd)
+        transcript_tmp = Path(tmp_name)
+        script_cmd_str = " ".join(shlex.quote(c) for c in cmd)
+        # Use argv list execution for `script` itself; the -c payload must
+        # be a string, so we quote each argument (bash printf %q analogue).
+        _ACTIVE_CHILD = subprocess.Popen(
+            ["script", "-q", "-f", "-c", script_cmd_str, str(transcript_tmp)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+        try:
+            _ACTIVE_CHILD.communicate()
+            status = _ACTIVE_CHILD.returncode or 0
+        finally:
+            _ACTIVE_CHILD = None
+
+        try:
+            result = transcript_tmp.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            result = ""
+        return status, result, transcript_tmp
+
+    _ACTIVE_CHILD = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+    )
+    try:
+        out, _ = _ACTIVE_CHILD.communicate()
+        rc = _ACTIVE_CHILD.returncode or 0
+    finally:
+        _ACTIVE_CHILD = None
+
+    return rc, out or "", None
+
+
+def _install_signal_handlers() -> None:
+    """Install SIGINT/SIGTERM handlers that forward signals to the child."""
+
+    def _handler(signum: int, _frame: object) -> None:
+        global _ACTIVE_CHILD
+
+        msg = "Interrupted (SIGINT/SIGTERM); exiting."
+        print(msg, file=sys.stderr)
+
+        proc = _ACTIVE_CHILD
+        if proc and proc.poll() is None:
+            try:
+                proc.send_signal(signum)
+            except Exception as e:
+                logging.debug("Failed to forward signal to child: %s", e)
+
+        raise SystemExit(130 if signum == signal.SIGINT else 143)
+
+    signal.signal(signal.SIGINT, _handler)
+    signal.signal(signal.SIGTERM, _handler)
+    logging.debug("Installed signal handlers")
+
+
+def _list_available_skills(skills_dir: Path = Path("skills")) -> List[str]:
+    """List available skill names under the skills directory."""
+
+    if not skills_dir.exists():
+        return []
+
+    skills: List[str] = []
+    for p in skills_dir.iterdir():
+        if not p.is_dir():
+            continue
+        if (p / "SKILL.md").is_file() or (p / "skill.md").is_file():
+            skills.append(p.name)
+
+    return sorted(skills)
+
+
+def _iter_incomplete_prd_stories(prd_path: Path) -> Iterable[dict]:
+    """Yield PRD userStories that are not yet marked as passed."""
+
+    data = json.loads(prd_path.read_text(encoding="utf-8"))
+    stories = data.get("userStories")
+    if not isinstance(stories, list):
+        return []
+
+    incomplete: List[dict] = []
+    for s in stories:
+        if not isinstance(s, dict):
+            continue
+        if s.get("passes") is True:
+            continue
+        incomplete.append(s)
+
+    return incomplete
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    """Build the top-level argparse parser and all subcommands."""
+
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument(
+        "--log-level",
+        default="DEBUG",
+        help="Logging level (default: DEBUG).",
+    )
+    common.add_argument(
+        "--log-to",
+        default="",
+        help="Write logs to file instead of stderr.",
+    )
+
+    p = argparse.ArgumentParser(
+        prog="ralph.py",
+        description=(
+            "Iteratively run GitHub Copilot CLI with composed context "
+            "(skills + PRD + progress) and controlled tool permissions."
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=(
+            "Subcommands:\n"
+            "  run     Run Copilot for N iterations (default).\n"
+            "  skills  List available skills under the skills/ directory.\n"
+            "  stories List incomplete userStories from a PRD JSON file.\n\n"
+            "Profiles (default: dev when neither --allow-profile nor --allow-tools are "
+            "provided):\n"
+            "  dev    - Broad access for local development (adds --allow-all-tools),\n"
+            "           still denies 'shell(rm)' and 'shell(git push)'.\n"
+            "  safe   - Allows: 'write', 'shell(pnpm:*)', 'shell(git:*)'.\n"
+            "  locked - Allows only: 'write'.\n\n"
+            "Skills layout (per skill name):\n"
+            "  skills/<name>/SKILL.md  (preferred)\n"
+            "  skills/<name>/skill.md\n"
+        ),
+        parents=[common],
+    )
+
+    sub = p.add_subparsers(dest="command")
+
+    run_p = sub.add_parser(
+        "run",
+        parents=[common],
+        help="Run Copilot loop.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    run_p.add_argument(
+        "--prompt", required=True, help="Load prompt text from file (required)."
+    )
+    run_p.add_argument("--prd", help="Attach a PRD JSON file (optional).")
+    run_p.add_argument(
+        "--skill",
+        action="append",
+        default=[],
+        help=(
+            "Prepend one or more skills (comma-separated). Repeatable. "
+            "Each skill must live at skills/<name>/SKILL.md (preferred) "
+            "or skills/<name>/skill.md."
+        ),
+    )
+    run_p.add_argument(
+        "--model",
+        default="",
+        help=(
+            "Model id for Copilot CLI (env MODEL overrides default; "
+            "this flag overrides env)."
+        ),
+    )
+    run_p.add_argument(
+        "--allow-profile",
+        choices=["safe", "dev", "locked"],
+        default="",
+        help=(
+            "Tool permission profile: safe|dev|locked. Default: dev when "
+            "neither --allow-profile nor --allow-tools are provided."
+        ),
+    )
+    run_p.add_argument(
+        "--allow-tools",
+        action="append",
+        default=[],
+        help=("Allow a specific tool spec (repeatable). Example: --allow-tools write"),
+    )
+    run_p.add_argument(
+        "--deny-tools",
+        action="append",
+        default=[],
+        help=(
+            "Deny a specific tool spec (repeatable). Example: --deny-tools 'shell(rm)'"
+        ),
+    )
+    run_p.add_argument(
+        "--create-transcript",
+        action="store_true",
+        help="Capture output via script(1) into a transcript file.",
+    )
+    run_p.add_argument(
+        "--progress-file",
+        default=PROGRESS_FILE,
+        help=(
+            "Path to progress file (default: progress.txt). Will be created if "
+            "missing and must be readable/writable."
+        ),
+    )
+    run_p.add_argument(
+        "iterations", type=int, help="Number of iterations (positive integer)."
+    )
+
+    skills_p = sub.add_parser(
+        "skills",
+        parents=[common],
+        help="List available skills.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    skills_p.add_argument(
+        "--skills-dir",
+        default="skills",
+        help="Skills directory to scan (default: skills).",
+    )
+
+    stories_p = sub.add_parser(
+        "stories",
+        parents=[common],
+        help="List incomplete userStories from a PRD JSON file.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    stories_p.add_argument(
+        "--prd",
+        required=True,
+        help="PRD JSON file to read (required).",
+    )
+
+    return p
+
+
+def _run(args: argparse.Namespace) -> int:
+    """Run the iterative Copilot harness loop."""
+
+    logging.debug("Starting run with args: %s", args)
+    _install_signal_handlers()
+
+    prompt_path = Path(args.prompt)
+    logging.debug("Validating prompt file: %s", prompt_path)
+    if not prompt_path.is_file() or not os.access(prompt_path, os.R_OK):
+        raise ValueError(f"Error: prompt file not readable: {prompt_path}")
+
+    prd_path: Optional[Path] = None
+    if args.prd:
+        prd_path = Path(args.prd)
+        logging.debug("Validating PRD file: %s", prd_path)
+        if not prd_path.is_file() or not os.access(prd_path, os.R_OK):
+            raise ValueError(f"Error: PRD file not readable: {prd_path}")
+
+    progress_path = Path(args.progress_file)
+    _ensure_progress_file(progress_path)
+
+    logging.debug("Validating required CLIs (transcript=%s)", args.create_transcript)
+    _require_cli_binaries(args.create_transcript)
+
+    skills: List[str] = []
+    for s in args.skill:
+        skills.extend(_parse_skills_csv(s))
+    logging.debug("Parsed skills: %s", skills)
+
+    allow_profile = args.allow_profile
+    if not allow_profile and not args.allow_tools:
+        allow_profile = "dev"
+
+    model = _determine_model(os.environ.get("MODEL", ""), args.model)
+    logging.debug("Selected model: %s", model)
+
+    tool_args = _compose_copilot_args(allow_profile, args.allow_tools, args.deny_tools)
+    logging.debug("Composed tool args: %s", tool_args)
+
+    temp_paths: List[Path] = []
+
+    def _cleanup() -> None:
+        for p in temp_paths:
+            try:
+                p.unlink(missing_ok=True)
+                logging.debug("Removed temp file: %s", p)
+            except Exception as e:
+                logging.debug("Failed to remove temp file %s: %s", p, e)
+
+    atexit.register(_cleanup)
+
+    if args.iterations < 1:
+        raise ValueError("Error: <iterations> must be a positive integer")
+
+    for i in range(1, args.iterations + 1):
+        logging.debug("Iteration %d/%d", i, args.iterations)
+        print(f"\nIteration {i}")
+        print("------------------------------------")
+
+        context_file = _make_context_file(i, skills, prd_path, progress_path)
+        combined_file = _make_combined_prompt_file(i, context_file, prompt_path)
+        temp_paths.extend([context_file, combined_file])
+
+        status = 0
+        result = ""
+        transcript_path: Optional[Path] = None
+
+        try:
+            status, result, transcript_path = _run_copilot_command(
+                combined_file,
+                tool_args,
+                model,
+                args.create_transcript,
+            )
+        finally:
+            if transcript_path:
+                temp_paths.append(transcript_path)
+
+            # Best-effort cleanup after each iteration.
+            _cleanup()
+            temp_paths.clear()
+
+        if status < 0:
+            # subprocess returncode is negative signal number when terminated.
+            if status == -signal.SIGINT:
+                status = 130
+            elif status == -signal.SIGTERM:
+                status = 143
+
+        print(result)
+        logging.debug(
+            "Copilot exited with status=%d (result_len=%d)", status, len(result)
+        )
+
+        if status in (130, 143):
+            print(f"Received interrupt/termination (status {status}); exiting.")
+            return status
+
+        if "<promise>COMPLETE</promise>" in result:
+            print("PRD complete, exiting.")
+            return 0
+
+        if status != 0:
+            print(f"Copilot exited with status {status}; continuing to next iteration.")
+            continue
+
+    print(
+        f"Finished {args.iterations} iterations without receiving the completion "
+        "signal."
+    )
+    return 0
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    """Program entrypoint."""
+
+    raw_argv = list(argv) if argv is not None else sys.argv[1:]
+    parser = _build_parser()
+
+    if not raw_argv:
+        parser.print_help()
+        return 0
+
+    # Backward compat: default to `run` when no explicit subcommand is provided.
+    if (
+        raw_argv[0] not in {"run", "skills", "stories"}
+        and "-h" not in raw_argv
+        and "--help" not in raw_argv
+    ):
+        raw_argv = ["run", *raw_argv]
+
+    args = parser.parse_args(raw_argv)
+
+    _configure_logging(args.log_level, args.log_to or None)
+    logging.debug("ralph.py version=%s", RALPH_VERSION)
+
+    if args.command == "skills":
+        for s in _list_available_skills(Path(args.skills_dir)):
+            print(s)
+        return 0
+
+    if args.command == "stories":
+        prd_path = Path(args.prd)
+        if not prd_path.is_file() or not os.access(prd_path, os.R_OK):
+            print(f"Error: PRD file not readable: {prd_path}", file=sys.stderr)
+            return 1
+        for idx, s in enumerate(_iter_incomplete_prd_stories(prd_path), start=1):
+            sid = s.get("id") or str(idx)
+            title = s.get("title") or ""
+            print(f"{sid}\t{title}")
+        return 0
+
+    if args.command != "run":
+        parser.print_help()
+        return 2
+
+    return _run(args)
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except ValueError as e:
+        print(str(e), file=sys.stderr)
+        raise SystemExit(1)

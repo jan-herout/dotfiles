@@ -1,3 +1,11 @@
+- [Ralph Wiggum coding s pomocí Copilot CLI](#ralph-wiggum-coding-s-pomocí-copilot-cli)
+  - [Izolace kontejneru](#izolace-kontejneru)
+  - [Použití kontejneru](#použití-kontejneru)
+    - [Instalace potřebného](#instalace-potřebného)
+  - [Autentikace copilot CLI](#autentikace-copilot-cli)
+  - [Nakopírování podkladů pro ralpha](#nakopírování-podkladů-pro-ralpha)
+- [Další zdroje](#další-zdroje)
+
 # Ralph Wiggum coding s pomocí Copilot CLI
 
 ## Izolace kontejneru
@@ -57,9 +65,8 @@ copilot -i auth
 ```
 
 V copilotu zadej `/login` a postupuj podle instrukcí. Bude to obnášet login na github a zadání kódu.
- 
-Přihlašovací údaje se uloží na hostiteli do `$HOME/ralph/.config/github-copilot-cli/hosts.json`, protože `$HOME/ralph` jsem namapoval na HOME nového kontejneru.
 
+Přihlašovací údaje se uloží na hostiteli do `$HOME/ralph/.config/github-copilot-cli/hosts.json`, protože `$HOME/ralph` jsem namapoval na HOME nového kontejneru.
 
 **Important** - právě jsi mu dal kompletní práva k celé organizaci na Githubu, kterou spravuješ. Potenciální riziko.
 
@@ -76,3 +83,16 @@ Unleash the Ralph - tohle spustíš v kontejneru a pomodlíš se. Poslední para
 ```bash
 ./ralph.sh --prompt prompts/default.txt --allow-profile dev 20
 ```
+
+Pozor, defaultní model je GTP-5, a ten jde do premium requestů. Tři modely do nich podle [dokumentace](https://docs.github.com/en/copilot/concepts/billing/copilot-requests) 
+nejdou, a nejlepší z nich je `gpt-4.1`.
+
+> On a paid Copilot plan, the included models that do not consume premium requests in the CLI are: GPT-5 mini, GPT-4.1, and GPT-4o.
+
+Nicméně, Ralph mi na `gpt-4.1` nefunguje. Stěžuje si, že nevidí prompt. Nějaká chyba v tom shellu.
+
+
+# Další zdroje
+
+- skills: https://agentskills.io/specification
+- https://github.com/github/awesome-copilot/blob/main/instructions/python.instructions.md

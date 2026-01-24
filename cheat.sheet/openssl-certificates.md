@@ -1,4 +1,5 @@
-- #vpn #certificate zobrazení a/nebo konverze certifikátu
+# openssl certificates
+
 ```bash
 openssl x509 -in ca.cer -text -noout | less                          # obsah certifikátu
 
