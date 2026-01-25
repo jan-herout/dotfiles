@@ -28,8 +28,13 @@ alias vh="nvim ."
 alias ch="$HOME/bin/code-here.sh"
 
 # git
+alias gis="git status"
+alias giau="git add -u"
+alias giad="git add ."
+alias gic="git commit"
+alias gsw="git branch | sed -E 's/^[*]?\s+//' | fzf | xargs git switch"
 alias gac="git add --all && git commit"
-alias gs="git status"
+alias gst="git status"
 
 # alias fe="fzf_find_edit"
 # alias gadd='fzf_git_add'
