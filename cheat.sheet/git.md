@@ -37,7 +37,7 @@ git stage *       # stage only visible files in/under current dir
 
 Unstage a file.
 
-```
+```bash
 git reset <a-file.txt>
 ```
 
